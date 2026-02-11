@@ -68,13 +68,14 @@
 \renewcommand{\tablename}{Tabla}
 
 \chapter*{Resumen}
- 
-Este documento presenta el proyecto de grado “Computación de alto desempeño para el estudio de medios granulares”, desarrollado en el Centro de Cálculo del Instituto de Computación, Facultad de Ingeniería de la Universidad de la República.
 
-El proyecto propone una implementación paralela del cálculo del potencial gravitatorio generado por un conglomerado de partículas en una grilla tridimensional. El cálculo del potencial gravitatorio demanda una gran capacidad de cómputo y de tiempo, y en este proyecto se propone una implementación que utiliza técnicas de programación paralela con la finalidad de disminuir el tiempo de ejecución.
-La evaluación experimental de los algoritmos paralelos desarrollados permite concluir que el speedup obtenido se aproxima a ser lineal para sistemas de $2 $ x $ 10^5$ partículas. 
+Este documento presenta el proyecto de grado ``Computación de alto desempeño para el estudio de medios granulares'', desarrollado en el Centro de Cálculo del Instituto de Computación, Facultad de Ingeniería, Universidad de la República.
 
-Distintos artículos han sido publicados en el transcurso del mismo \cite{3},  \cite{4}. La implementación realizada se utilizó como base para otros trabajos de maestría \cite{19}. Además, el desarrollo realizado ha sido integrado al paquete de simulación numérica ESyS-Particle y a futuro será posible descargarlo como parte del paquete principal por parte de la comunidad.
+El trabajo aborda el problema del cálculo del potencial gravitatorio generado por un sistema discreto de partículas sobre una grilla tridimensional, operación que presenta alta complejidad computacional debido al número de interacciones involucradas. Se propone una implementación paralela del algoritmo de cálculo, utilizando técnicas de programación paralela orientadas a reducir el tiempo de ejecución manteniendo la precisión numérica del modelo físico.
+
+La evaluación experimental se realizó sobre sistemas de hasta $2\times10^{5}$ partículas, analizando métricas de speedup y eficiencia paralela bajo distintas configuraciones de ejecución. Los resultados obtenidos muestran un comportamiento cercano al escalamiento lineal en el rango experimental considerado, evidenciando la efectividad de la estrategia de paralelización implementada.
+
+El desarrollo fue integrado al paquete de simulación numérica ESyS-Particle y sirvió como base para trabajos posteriores de investigación y publicaciones científicas.
 
 \vfill
 
