@@ -1,0 +1,1440 @@
+% Created 2013-02-15 Fri 05:55
+\documentclass[a4paper,11pt]{book}
+
+\setcounter{secnumdepth}{3}
+\usepackage[pdftex,hypertexnames=false,pdfborder={0 0 0}]{hyperref}
+\usepackage[activeacute,spanish]{babel}
+\usepackage[utf8]{inputenc}
+%\def\spanishoptions{es-tabla}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{color}
+\usepackage{textcomp}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage{threeparttable}
+\usepackage{framed}
+\definecolor{listing}{gray}{0.5}
+\definecolor{lbcolor}{rgb}{1,1,1}
+\lstset{backgroundcolor=\color{lbcolor},tabsize=2,rulecolor=,language=C,basicstyle=\scriptsize,upquote=true,aboveskip={1.5\baselineskip},columns=fixed,extendedchars=true, breaklines=true, prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}}, frame=single, showtabs=false, showspaces=false, showstringspaces=false, identifierstyle=\ttfamily, keywordstyle=\color[rgb]{0,0,1}, commentstyle=\color[rgb]{0.133,0.545,0.133}, stringstyle=\color[rgb]{0.627,0.126,0.941}, }
+%\usepackage[hyperref,x11names]{xcolor}
+%\usepackage[colorlinks=false,urlcolor=SteelBlue4,linkcolor=Firebrick4]{hyperref}
+\usepackage{url}
+%\usepackage{biblatex}
+\usepackage{fancyhdr}
+\usepackage{comment}
+%\usepackage{subfig}
+%\usepackage[caption=false]{subfig}
+%\usepackage[table]{xcolor}
+%\setlength{\captionwidth}{\columnwidth}
+\setlength{\headheight}{15pt}
+%\usepackage{fullpage}
+%\usepackage{a4wide} % esta parece la mejor
+%\addtolength{\textwidth}{30pt}
+%\addtolength{\headwidth}{-40pt}
+%\setlength{\headstep}{10cm}
+\input{titulo}
+%\interlinepenalty 10000
+\widowpenalties 1 10000
+\raggedbottom
+\providecommand{\alert}[1]{\textbf{#1}}
+
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\title{Computación de alto desempeño para el estudio de medios granulares}
+\author{Daniel Frascarelli}
+\date{}
+\hypersetup{
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs Org-mode version 7.8.02}}
+
+\begin{document}
+
+\maketitle
+
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{\chaptername\ \thechapter.\ #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{#1}{}}
+\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
+\rhead[\fancyplain{}{\bfseries\leftmark}]{\fancyplain{}{\bfseries\thepage}}
+\cfoot{}
+
+\renewcommand{\listtablename}{Índice de tablas}
+\renewcommand{\tablename}{Tabla}
+
+\chapter*{Resumen}
+ 
+Este documento presenta el proyecto de grado “Computación de alto desempeño para el estudio de medios granulares”, desarrollado en el Centro de Cálculo del Instituto de Computación, Facultad de Ingeniería de la Universidad de la República.
+
+El proyecto propone una implementación paralela del cálculo del potencial gravitatorio generado por un conglomerado de partículas en una grilla tridimensional. El cálculo del potencial gravitatorio demanda una gran capacidad de cómputo y de tiempo, y en este proyecto se propone una implementación que utiliza técnicas de programación paralela con la finalidad de disminuir el tiempo de ejecución.
+La evaluación experimental de los algoritmos paralelos desarrollados permite concluir que el speedup obtenido se aproxima a ser lineal para sistemas de $2 $ x $ 10^5$ partículas. 
+
+Distintos artículos han sido publicados en el transcurso del mismo \cite{3},  \cite{4}. La implementación realizada se utilizó como base para otros trabajos de maestría \cite{19}. Además, el desarrollo realizado ha sido integrado al paquete de simulación numérica ESyS-Particle y a futuro será posible descargarlo como parte del paquete principal por parte de la comunidad.
+
+\vfill
+
+% Indice
+\tableofcontents
+\newpage
+
+\chapter{Introducción}
+
+% Begin Contexto
+Los objetos que orbitan el sol pueden clasificarse en planetas, planetas enanos y en cuerpos menores del sistema solar (en inglés Small Solar System Body o SSSB)\cite{13}. Tanto los planetas como los planetas enanos tienen masa suficiente para su autogravedad superar las fuerzas rígidas del cuerpo, de modo que asumen un equilibrio hidrostático (casi redondeado). De este modo, estos objetos tienen un interior monolítico que sufre deformación plástica durante un largo período de tiempo. Los SSSB, que incluyen cometas y la mayoría de los asteroides y objetos trans-neptunianos, tienen menos de unos pocos cientos de kilómetros de diámetro y tienen varias estructuras que van desde cuerpos monolíticos, objetos fracturados internamente hasta pilas gravitacionales\cite{14}.
+
+Los astrónomos han especulado que algunos pequeños asteroides parecen ser grumos de grava unidos por un campo de autogravedad muy débil\cite{15}, basado en imágenes recogidas del asteroide 25143 Itokawa por la sonda espacial japonesa Hayabusa en 2005. Sin embargo, la estructura de estos aglomerados de grava y el tamaño de sus componentes internos son desconocidos. La composición química de los SSSB también es diversa: los asteroides están formados por rocas y metales, mientras que los cometas y posiblemente los objetos trans-neptunianos son una mezcla de hielo y material rocoso.
+
+Hay muchas pruebas de que algunos asteroides y cometas son aglomerados de partículas pequeñas o granos, (a) la mayoría de los asteroides presentan periodos de rotación mayores que el límite de inestabilidad rotacional\cite{16}, que es consistente con una estructura de pila de escombros; (b) los asteroides y los cometas sufren alteraciones de las mareas cuando entran dentro del límite de Roche de un objeto masivo, lo que indica que tienen muy poca fuerza interna\cite{17} \cite{18}; (c) las cadenas de cráteres, como las que se observan en la luna de Júpiter, se forman tras la colisión de un asteroide o un cometa interrumpido; y (d) muchos asteroides y cometas tienen una densidad baja, que es sólo compatible con un material poroso que tiene grandes vacíos internos.
+
+Además de la autogravedad, los granos o partículas que componen el aglomerado experimentan interacciones mecánicas (elásticas, friccionales y de colisión) con otros granos. Dichos aglomerados también están sujetos a influencias externas, tales como impactos con otros objetos pequeños y fuerzas gravitacionales y de marea ejercidas por objetos más grandes. Las interacciones entre los granos pueden ser simuladas usando métodos de elementos discretos (en ingles Discrete Element Method o DEM). Para reducir el costo computacional, los DEM asumen interacciones mecánicas de corto alcance, considerando que, los granos sólo interactúan con sus vecinos más cercanos. En consecuencia, los investigadores se han limitado hasta ahora a utilizar DEM para simular la física granular en entornos unidireccionales de gravedad, incluyendo recientemente casos de baja gravedad.
+%End Contexto
+
+% Begin Motivación
+% Motivación: está muy breve: argumentar por tamaño de sistemas, escalabilidad, etc
+Una deficiencia típica de la mayoría de los códigos DEM, es la falta de modelos para simular fuerzas de largo alcance como la gravedad entre las partículas del aglomerado. Este es un problema relevante en el caso de los asteroides y los cometas, que en muchos casos son aglomerados de rocas con una cierta distribución de tamaños. Al tratar con SSSB realistas (aglomerados del orden de millones de partículas) calcular las interacciones entre cada par de partículas tiene un costo computacional muy alto, haciendo difícil estudiar el movimiento del aglomerado por un periodo de tiempo significativo.
+Se necesita incorpora un nuevo enfoque DEM para calcular la auto-gravedad de sistemas compuestos de millones de partículas que permita estudiar el comportamiento de los SSSBs.
+% End Motivación
+
+% Begin Propuesta
+% Propuesta/descripción: Incluir dos parrafos al menos
+Se propuso la realización de un desarrollo que permite abordar el análisis de aglomerados incluyendo un nuevo enfoque a las técnicas DEM existentes. Además, el método propuesto es adecuado para los cálculos de auto-gravedad en los sistemas de partículas densamente empaquetados, como los SSSBs. 
+% End Propuesta
+
+% Begin Principales resultados
+% Principales resultados: Incluir / destacar
+El análisis experimental realizado demuestra que el algoritmo desarrollado escala de forma lineal con el número de partículas del sistema, así como con el numero de recursos de computo. 
+Diferentes estrategias de asignación de trabajo fueron desarrolladas permitiendo reducir el tiempos de computo final y logrando una eficiencia computacional de 0.85 para algomerados de millones de partículas.
+
+%y escala con una ley de potencia inversa de exponente 0.87 con el número de recursos de computo utilizados en el cálculo. El comportamiento del speedup está cerca de ser lineal para sistemas de $2 × 10^5$ partículas.
+%
+% The algorithm scales linearly with the number of particles in the system, and it scales with an inverse power law (exponent 0.87) with the number of threads used in the computation. The observed speedup is close to linear for systems containing up to 2 × 105 particles.
+
+%\textcolor{red}{Toward that end, we have developed a state-of-the-art parallel algorithm for self-gravitating agglomerates that scales efficiently with the number of particles as well as the number of computational resources}
+% End Principales resultados
+
+% Begin Contribuciones
+La principal contribución de este proyecto es el desarrollo de un algoritmo paralelo para calcular eficientemente la auto-gravedad de un aglomerado de granos. Este desarrollo permite simular y estudiar el comportamiento de aglomerados del orden de millones de partículas en tiempos razonables. 
+% End Contribuciones
+
+%En este proyecto se desarrolla un algoritmo paralelo para el cálculo de la auto-gravedad en un agregado de partículas que permite abordar eficazmente los aglomerados formados por un número significativamente mayor de partículas que los abordados en la literatura mencionada.
+
+En el transcurso del proyecto se realizaron diversas actividades vinculadas al mismo. En el año 2012 se obtuvo una beca de Iniciación a la Investigación subvencionada por la ANII. En la edición 2013 de Ingeniería Demuestra, el proyecto ganó el primer premio en la categoría \textit{Baja Interpretación Intuitiva}, con un bono premio de USD 300\cite{1}. En agosto de 2014, se participó en el congreso SBD2014 con la presentación \textit{Computing of Self-gravity for Small Solar System Bodies}\cite{2}.
+En setiembre 2014, se publicó un artículo en la revista IEEE, bajo el titulo \textit{High-Performance Computing of Self-Gravity for Small Solar System Bodies} \cite{3}. En abril 2016, se publicó un articulo como parte de la participación del congreso ISUM 2015, bajo el título \textit{A parallel multithreading algorithm for self-gravity calculation on agglomerates} \cite{4}
+
+La visualización gráfica de simulaciones numéricas permite a los investigadores comprender aspectos claves del comportamiento de aglomerados. Para poder visualizar gráficamente los resultados numéricos obtenidos por el algoritmo desarrollado se integró el código implementado con un paquete de simulación numérica. Como resultado de esta integración los investigadores del área tienen una herramienta que permite no solo realizar cálculos numéricos mediante modelos DEM, sino que pueden visualizar gráficamente el comportamiento obtenido.
+
+% Begin Estructura
+Lo que resta de la monografía se organiza de la forma que se describe a continuación. En el Capítulo 2 se describe el problema principal de diseño y desarrollo de un algoritmo para el calculo de la auto-gravedad de un aglomerado de partículas y una reseña de los principales trabajos del estado del arte. En el capítulo 3 se presenta el diseño y arquitectura del algoritmo propuesto. En el capítulo 4 se reporta el análisis experimental realizado para analizar el comportamiento del algoritmo implementado. A continuación, el capítulo 5 presenta las conclusiones y las principales líneas de trabajo futuro.
+%End Estructura
+
+\chapter{Marco teorico}
+En este capítulo se presentan conceptos teóricos relacionados que se utilizan a lo largo de los capítulos siguientes.
+Se realiza una introducción conceptual a los siguientes temas: 1. Método de los elementos discretos, 2. Algoritmo Evolutivo, 3. Auto gravedad, 4. Computación de alto rendimiento, 5. Interpolación y 6. ESyS-Particule.
+
+\section{Método de los elementos discretos}
+En esta sección se introduce el concepto del método de los elementos discretos (DEM por su sigla en ingles).
+
+% \subsubsection{Motivación}
+Los medios granulares están formados por un cierto número de objetos macroscópicos (llamados granos) que interaccionan por medio de contactos temporales o permanentes. Todos los materiales que se presentan en forma de granulados (cereales, arena, etc.) o polvos (talco, harina, etc.) son estudiados por la física de medios granulares.
+Un desafío en las investigaciones actuales es la posibilidad de realizar simulaciones realistas de dichos medios granulares consistentes en miles o millones de partículas y analizar su comportamiento teórico basado en las micro interacciones a nivel de cada partícula.
+
+% \subsubsection{Reseña histórica}
+Las simulaciones mediante DEM han sido empleadas y validadas en diversas áreas, como: geo-mecánica (rocas, tierra), agricultura (transporte, manejo de grano y semillas), farmacia (manejo de polvo y píldoras), química (fluidización, ruptura de partículas), ingeniería de procesos (peening, efecto de virutas y aglomeración), petróleo y gas (bloqueo de conductos por la arena), y medio ambiente y biología (purificación de agua, sangre) entre otras.
+
+El primer hito importante en la historia de DEM se enmarca en 1970 \cite{20}, cuando aparecen las primeras simulaciones destinadas a estudiar los sistemas granulares (mecánica de rocas con pocas partículas muy grandes). Las primeras implementaciones fueron mejoradas hacía 1979 \cite{21}, para permitir el análisis de partículas más pequeñas, incrementando el rango de sistemas físicos a los cuales el modelos se podían aplicar. Finalmente hacia 1992 \cite{20}, se realiza una revisión de los métodos de simulaciones numéricas y se materializan códigos de DEM que permiten: desplazamientos finitos y rotaciones de los elementos discretos, así como el reconocimiento de nuevos contactos a medida que el cálculo avanza. A partir de las siguientes décadas, las publicaciones y referencias al DEM aumenta \cite{22}.
+
+Actualmente, el DEM es cada vez más aceptado como un método eficaz para hacer frente a los problemas de ingeniería de materiales granulares o discontinuos\cite{22}, especialmente en flujo de granos, mecánica de polvos y mecánica de rocas, dado que se puede adaptar fácilmente al área al cual se está aplicando.
+
+% \subsubsection{Método}
+
+Los procesos que involucran medios granulares se han estudiado experimentalmente, mediante el desarrollo de experiencias de laboratorio que reproducen los fenómenos, y en las últimas décadas en forma numérica. El DEM simula el comportamiento mecánico de un medio formado por un conjunto de partículas las cuales interaccionan entre sí a través de sus puntos de contacto. La disposición de las partículas dentro del medio granular es aleatoria, por lo que se pueden formar medios con diferentes tamaños de partículas distribuidos a lo largo del conjunto.
+
+Principalmente se pueden distinguir las siguientes propiedades básicas que definen el método de análisis numérico: 1. las partículas se consideran como elementos discretos que en su conjunto conforman el sistema complejo de partículas, 2. estas partículas se desplazan independientemente una de otras e interaccionan entre sí en las zonas de contacto y 3. a nivel de cada partícula se hace uso de la mecánica del cuerpo rígido y los elementos discretos se consideran elementos rígidos en sí.
+
+Habitualmente las partículas pueden tener cualquier forma, son elásticas y no sufren deformaciones permanentes. 
+% Las fuerzas de contacto consisten de una componente elástica lineal normal y otro componente elástico lineal tangencial.
+
+
+% \subsubsection{Aplicación}
+Una simulación usando DEM comienza por generar un modelo sistema, es decir, posicionar espacialmente todas las partículas asignando a cada partícula sus propiedades físicas (masa, forma, velocidad, densidad, centro de masa, elasticidad, etc.) que la caracterizan en la simulación. Las fuerzas que actúan sobre cada partícula son calculadas usando el modelo inicial, las leyes físicas que actúen sobre ellas y los modelos de contacto entre partículas. Generalmente, el proceso de simulación se entiende como la ejecución reiterada de las siguientes etapas:
+\begin{itemize}
+	\item Inicialización del sistema de partículas
+	\item Inicialización de cada partícula y sus propiedades
+	\item Paso de integración %Simulación de un pequeño paso
+	\item Cálculo de la nueva posición de cada partícula tomando en cuenta sus propiedades, las fuerzas aplicadas e interacciones con partículas vecinas.
+	\item Post-procesamiento
+	\item Tareas de aceptación del nuevo sistema.
+\end{itemize}
+
+El DEM hace un uso intenso de CPU, lo cual limita la cantidad de tiempo que se puede simular así como también la cantidad máxima de partículas que se pueden tomar en consideración. Algoritmos secuenciales para simulaciones DEM de sistemas de tamaño medio, compuesto de hasta unos pocos miles de partículas, pueden ser ejecutados en computadores personales. La potencia de cálculo requerida para las simulaciones de sistemas más grandes, del orden de un millón de partículas, supera ampliamente las capacidades de un computador personal si se espera obtener resultados útiles y en un tiempo razonable.
+Para estos casos es recomendable la aplicación de técnicas especiales de procesamiento que permiten, con una infraestructura de hardware adecuada, obtener mejores tiempos de ejecución, así como escalar la cantidad de partículas que forman parte del sistema simulado.
+De todas formas hay situaciones en las cuales la capacidad real de cómputo que se puede conseguir para hacer frente a un problema, se ve limitada por razones tanto teóricas (complejidad de algoritmos) como prácticas (hardware disponible). En estos casos surge como una alternativa realizar aproximaciones cuando el efecto de considerar cada partícula por separado o una aproximación de ellas, es un error acotado que se puede asumir.
+
+\section{Algoritmo evolutivo}
+En esta sección se introduce el concepto de algoritmo evolutivo.
+% \subsubsection{Motivación}
+Con el advenimiento de la informática surgieron problemas computacionales y el concepto de complejidad computacional comenzó a limitar los problemas que se lograban atacar utilizando herramientas determinísticas de resolución. Se clasificó entonces las clases de complejidad en los cuales un problema podía caer. Definiéndose clase P y clase NP. Un problema pertenece a la clase P si puede ser resuelto en un tiempo polinómico en una computadora determinística. Ejemplos de estos problemas son el ordenamiento, búsqueda binaria, multiplicación matricial, etc. Un problema pertenece a la clase NP si puede ser resuelto en un tiempo polinómico, pero usando una computadora no determinística. Son la clase de problemas para los cuales es difícil encontrar una solución, pero una vez hallada, es fácil verificarla.
+
+Dentro del conjunto de problemas NP se pueden encontrar comúnmente problemas de optimización. Estos problemas resultan fáciles de resolver cuando el espacio de direcciones a tomar en consideración es reducido, pero aumenta su complejidad conforme aumenta el espacio de valores a tomar en cuenta. Un típico ejemplo de estos problemas es el problema de viajero (TSP por sus siglas en inglés, Travelling Salesman Problem), que se define como encontrar una permutación que represente el recorrido de una serie de ciudades de tal forma que todas sean visitadas (sólo una vez) minimizando la distancia total viajada.
+
+En el transcurso del proyecto se utilizaron técnicas de computación evolutiva para optimizar la compactación de aglomerados de partículas.
+
+% \subsubsection{Metodología}
+Dado que la complejidad asociada a los problemas de clase NP crece a medida que se incrementa el tamaño del problema, se hace necesario utilizar algoritmos de resolución más eficientes que la búsqueda exhaustiva. En estos casos es cuando se vuelve útil explorar otras técnicas de resolución, como ser: 1. métodos de aproximación (encuentran una solución buena con un error conocido), 2. métodos aleatorios (con cierta probabilidad, encuentran una solución con un error máximo dado), 3. técnicas heurísticas (técnicas basadas en procesamientos conceptualmente simples encuentran soluciones de buena calidad a problemas difíciles de un modo sencillo y eficiente) y 4. meta-heurísticas (se definen como heurísticas de nivel más alto de abstracción, definen estrategias que guían el proceso de búsqueda, incluyendo en general heurísticas subordinadas). 
+
+Dentro del gran conjunto de meta-heurísticas existen las de computación evolutiva, estas técnicas trabajan sobre una población de soluciones que evoluciona mediante mecanismo de selección y construcción de soluciones candidatas por recombinación de características de las soluciones anteriores.
+
+Estas técnicas trabajan en las siguientes etapas: 1. evaluación de la función de fitness (en esta etapa se evalúa la calidad de las soluciones), 2. selección de individuos adecuados (de acuerdo al fitness calculado), 3. aplicación de operadores evolutivos y 4. reemplazo o recambio generacional.
+
+\section{Auto gravedad}
+En esta sección se introduce el concepto de auto-gravedad.
+% \subsubsection{Concepto}
+La gravedad es una de las cuatro interacciones fundamentales observadas en la naturaleza. Origina la aceleración que experimenta un cuerpo físico en las cercanías de un objeto astronómico. También se denomina interacción gravitatoria o gravitación.
+La auto-gravedad es una fuerza que intenta comprimir un objeto hacia un punto en su centro de gravedad. Este concepto de auto-gravedad puede aplicarse tanto a nivel de partículas como electrones en un nivel cuántico, como a objetos de mayor escala como la tierra o asteroides en un nivel clásico.
+
+% \subsubsection{Motivación}
+Si se considera un aglomerado de partículas y se lo contextualiza en un ambiente de baja gravedad (alejado de cualquier fuente de gravedad), se puede intuir que la auto-gravedad ejercida por las propias partículas que conforman el sistema cobra relevancia en el comportamiento del medio granular. Si además se pretende estudiar el comportamiento de un medio granular por la acción de objetos externos (como por ejemplo choques de proyectiles o influencia de fuerzas a distancia) resulta imprescindible conocer el comportamiento del sistema en su conjunto.\newline
+
+Se sabe que se puede considerar por ejemplo ciertos asteroides como medios granulares, es decir conformados por un conjunto variado de partículas, las cuales se mantienen unidas por efecto de la auto-gravedad entre ellas. Dado que los asteroides se encuentran mayormente alejados de grandes objetos gravitacionales, la auto-gravedad existente cobra relevancia en su comportamiento. %Ahora bien, considérese que un grupo de astrónomos predicen para el futuro cercano, un choque similar al cual se sabe provocó la extinción de los queridos dinosaurios, es decir un asteroide de dimensiones considerables que impactaría contra la tierra provocando una fatalidad. En este contexto resulta imprescindible conocer cómo se comportaría dicho objeto, para intentar entender cómo se comportaría ante diferentes estrategias que pretendan desviar su curso poco feliz. En esta área se han dado a conocer tantas estrategias que algunas hasta parecen ficticias, y otras poco intuitivas. Las más obvias, claro, resultan de hacer impactar el asteroide por un objeto (y aquí se tiene el primer caso antes citado: impacto de un proyectil contra un medio granular) intentando desviar su trayectoria. Sin embargo, si el asteroide es en realidad un medio granular, el impacto del proyectil puede separar las partículas que lo conforman, convirtiendo un solo impacto puntual en una metralla de impactos producidos por la disgregación del medio granular. Otra de las estrategias conocidas como “tractor de gravedad” resulta en influenciar el trayecto del asteroide utilizando simplemente la fuerza de la gravedad. Esta estrategia supone posicionar un objeto muy masivo cercano al asteroide, el cual ejercería una pequeña fuerza gravitacional sobre este, “tirando” sobre el asteroide, desviando su trayectoria original. Nuevamente en este caso surge la interrogante: cómo se comportará el asteroide si éste es en realidad un medio granular. Una posibilidad es que el objeto tractor, en realidad estire el asteroide como si fuera un “chicle”, generando nuevamente una metralla de partículas de mayor ancho que el original.\newline
+
+%Dadas las estrategias enumeradas resulta imprescindible conocer con precisión el comportamiento del medio granular en contextos donde su auto-gravedad cobra relevancia.\newline
+
+Se plantea a continuación el problema formalmente:\newline
+Considérense N esferas de radios diferentes, con una distribución en un cierto rango de tamaños. \newline
+
+Dado este conjunto de N esferas en un volumen cúbico, se solapa el mismo con una grilla definida, y sobre esta grilla se procede al cálculo del potencial gravitatorio. Sobre cada nodo de la grilla se calcula el potencial ejercido por las N partículas, y este proceso se repite por cada nodo de la grilla.\newline
+
+El potencial calculado sobre un nodo de coordenadas (l, m, n) de la grilla tiene la forma:
+$$V(l,m,n) =  \sum_{n=1}^{} V(i) = \sum_{i}^{} \frac{GM_i}{\norm{R_0(i)-R(l,m,n)}}$$
+
+Donde $M_i$ es la masa de la partícula $i$, $G$ la constante de la Gravitación Universal, $R_0(i)$ es la posición de la partícula $i$ y $R(l,m,n)$ la posición del punto $(l,m,n)$ de la grilla. El denominador es la norma de la resta de los vectores posición $R_0(i)$ y $R(l,m,n)$.
+
+\section{Computación paralela}
+% \subsubsection{Concepto}
+La computación paralela es una forma de cómputo en la que muchas instrucciones se ejecutan simultáneamente, operando sobre el principio de que problemas grandes, a menudo se pueden dividir en unos más pequeños, que luego son resueltos simultáneamente (en paralelo). Los programas informáticos paralelos son más difíciles de escribir que los secuenciales, porque la concurrencia introduce nuevos tipos de errores de software, siendo las condiciones de carrera los más comunes. La comunicación y sincronización entre diferentes subtareas son algunos de los mayores obstáculos para obtener un buen rendimiento del programa paralelo.\newline
+
+La computación en paralelo utiliza simultáneamente múltiples elementos de procesamiento para resolver un problema. Esto se logra mediante la división del problema en partes independientes de modo que cada elemento de procesamiento pueda ejecutar su parte del algoritmo de manera simultánea con los otros. Los elementos de procesamiento son diversos e incluyen recursos tales como una computadora con múltiples procesadores, varios ordenadores en red, hardware especializado, o cualquier combinación de los anteriores. \newline
+
+En el contexto de la computación paralela, se denomina proceso a una unidad de actividad que se caracteriza por la ejecución de una secuencia de instrucciones, un estado actual, y un conjunto de recursos del sistema asociados. Cada proceso tiene su contador de programa, registros y variables, aislados de otros procesos, incluso siendo el mismo programa en ejecución 2 veces. Cuando este último caso sucede, el sistema operativo usa la misma región de memoria de código, debido a que dicho código no cambiará, a menos que se ejecute una versión distinta del programa.\newline
+
+Los procesos son gestionados por el sistema operativo y están formados por:
+\begin{itemize}
+	\item Las instrucciones de un programa destinadas a ser ejecutadas por el microprocesador.
+	\item Su estado de ejecución en un momento dado, esto es, los valores de los registros de la unidad central de procesamiento para dicho programa.
+	\item Su memoria de trabajo (memoria crítica), es decir, la memoria que ha reservado y sus contenidos.
+	\item Otra información que permite al sistema operativo su planificación.
+\end{itemize}
+
+Esta definición varía ligeramente en el caso de sistemas operativos multihilo, donde un proceso consta de uno o más hilos, la memoria de trabajo (compartida por todos los hilos) y la información de planificación. Cada hilo consta de instrucciones y estado de ejecución.\newline
+
+Formalmente un hilo de ejecución, hebra o subproceso es la unidad de procesamiento más pequeña que puede ser planificada por un sistema operativo. La creación de un nuevo hilo es una característica que permite a una aplicación realizar varias tareas a la vez (concurrentemente). Los distintos hilos de ejecución comparten una serie de recursos tales como el espacio de memoria, los archivos abiertos, situación de autenticación, etc. Esta técnica permite simplificar el diseño de una aplicación que debe llevar a cabo distintas funciones simultáneamente.
+
+% \subsubsection{Modelos de programación paralela}
+Dado un problema complejo a resolver, los modelos de programación paralelo determinan la forma en cómo subdividir el problema inicial en subproblemas de menor complejidad los cuales se puedan resolver de forma independiente. La identificación de la división del problema original en subtareas y la posterior recomposición de la solución a partir de la resolución de los sub-problemas resulta crucial.\newline
+Existen dos estrategias para dividir el problema original en subproblemas:
+\paragraph{Descomposición por dominio}
+Técnica enfocada en dividir los datos manejados por el programa en (preferentemente) partes disjuntas, a ser procesadas en paralelo por diferentes unidades de procesamiento.
+\paragraph{Descomposición funcional}
+Técnica basada en identificar unidades funcionales que realizan diferentes tareas en el programa, esas tareas son entonces ejecutadas en paralelo en diferentes unidades de procesamiento.\newline
+
+Ambas técnicas dependen en comunicación y sincronización a través de un recurso compartido (usualmente una memoria compartida) o pasaje explícito de mensajes, para implementar la cooperación que permite resolver los subproblemas e integrarlos para construir la solución original.
+
+% \subsubsection{Métricas de performance}
+Luego de aplicadas técnicas de HPC en la resolución de un problema, resulta muy importante evaluar la performance obtenida por los cambios introducidos. Generalmente comparando los tiempos de ejecución de nuestra solución paralela con los de una solución secuencial, o con una estimación, podemos saber si nos lleva menos tiempo, pero también es de interés, saber qué tanto mejora nuestra solución al agregar recursos de cómputo. Es decir, se necesita conocer como escala nuestra solución tanto para saber qué tan capaces somos de resolver el problema más rápido, como de resolver problemas más complejos.\newline
+A continuación, se explican algunas de las métricas que se utilizan habitualmente para evaluar los resultados: 
+\paragraph{Speedup} 
+Es una medida de la mejora del rendimiento (performance) de un algoritmo paralelo al aumentar la cantidad de procesadores (comparado con el rendimiento al utilizar un solo procesador). Según cómo se interpreten ejecución serial y paralela, se puede arribar a distintas variantes del speedup, en nuestro caso comentaremos sólo dos:
+\paragraph{Speedup absoluto}
+Se compara el tiempo de ejecución de un algoritmo paralelo utilizando N procesadores contra el tiempo de ejecución del mejor algoritmo secuencial. El speedup absoluto SABS(N) se define como SABS(N) = T / TN donde T es el tiempo que toma al mejor algoritmo secuencial en resolver el problema, “N” es la cantidad de procesadores utilizados y TN el tiempo que le toma a nuestro algoritmo paralelo en resolver el problema con N procesadores. Esta no es muy utilizada porque normalmente no se conoce el mejor algoritmo secuencial que resuelve el problema.
+\paragraph{Speedup relativo o algorítmico}
+Conceptualmente similar al speedup absoluto, pero en vez de comparar con el tiempo que le lleva al mejor algoritmo secuencial, se compara con el tiempo de ejecución en un procesador serial. Se calcula como S(N) = T1 x TN siendo T1 el tiempo de ejecución en un procesador serial. Al igual que para el speedup absoluto no significa nada si no viene acompañado por el número de procesadores para el que fue calculada. 
+\paragraph{Eficiencia computacional}
+Es una medida relativa que permite comparar el desempeño de un algoritmo paralelo en diferentes entornos, consiste en dividir el speedup por la cantidad de procesadores. La eficiencia computacional E(N) se define como E(N) = T(1) / N x T(N). Corresponde a un valor normalizado del speedup (entre 0 y 1), respecto a la cantidad de procesadores utilizados. Valores cercanos al uno indicarán en general situaciones casi ideales de mejora de performance.
+\paragraph{Paralelicibilidad}
+Es una medida para evaluar el desempeño de un algoritmo paralelo, que consiste en comparar el tiempo de ejecución de este en un computador paralelo utilizando N procesadores, con el tiempo de ejecución del mismo algoritmo utilizando el mismo computador, pero solo un procesador. Se calcula como P = TP1 / TPN, donde TP1 el tiempo que toma a un computador paralelo ejecutar un algoritmo paralelo en un único procesador y TPN el tiempo que toma al mismo computador paralelo ejecutar el mismo algoritmo paralelo en N procesadores.\newline
+La paralelicibilidad y el speedup si bien similares, miden aspectos diferentes del algoritmo paralelo. El speedup considera el tiempo de un algoritmo secuencial (el mejor existente o conocido) para la comparación, mientras que la paralelicibilidad toma en cuenta el tiempo de ejecución de un algoritmo paralelo en un único procesador. El speedup evalúa la mejora de desempeño al utilizar técnicas de programación paralela. La paralelicibilidad da una medida de cuán paralelizable o escalable resulta el algoritmo paralelo utilizado
+
+\section{Computación de alto rendimiento}
+% \subsubsection{Motivación}
+Cada vez se hace más difícil y a la vez más importante, el poder satisfacer los requisitos crecientes de poder de cómputo. Esto se debe a que cada vez más los informáticos están atacando problemas más complejos, aplicando modelos más complejos, analizando volúmenes de datos más grandes o necesitando una capacidad de respuesta en tiempo limitado para nuevos problemas (sistemas de tiempo real y semejantes).\newline
+
+El objetivo de este proyecto es desarrollar una herramienta que permite atacar problemas con volúmenes de datos y complejidad matemática considerable, utilizando técnicas informáticas conocidas como ‘Computación de Alto Rendimiento’ las cuales consisten en la aplicación de una familia de técnicas, que se utilizan para lograr tareas concurrentes, con el fin de reducir el tiempo de procesamiento. Se debe contar con una arquitectura de hardware paralelo que permita el procesamiento simultáneo de tareas. La cantidad requerida de circuitos para el procesamiento paralelo es mayor que en el procesamiento serial, pero en la actualidad esto no es un problema, ya que los costos de hardware son relativamente bajos.
+
+Este tipo de infraestructura de cómputo compuesta por agregación de recursos de cómputo, potencialmente heterogéneos, conectados a través de una red, son las computadoras más potentes de hoy en da y se llaman clusters ó grids. En general por clúster se denota a recursos de cómputo integrados en un mismo lugar físico, mientras que el término grid en general se refiere a la integración de recursos de más de un dominio de administración (i.e. de más de una institución), potencialmente con distribución geográfica. Existe un ranking de las 500 computadoras más potentes del mundo en cuanto a capacidad de procesamiento (en adelante top500) que anualmente publica dicho ranking en el sitio www.top500.org. El top500 hoy en día se encuentra dominado por los clústeres, tanto homogéneos como heterogéneos, muchos de estos incluyendo procesadores gráficos. También existen otros dos rankings que reordenan las mismas 500 computadoras del top500, pero en vez de hacerlo por capacidad de cómputo lo hacen por consumo de energía (www.green500.org), y capacidad de procesamiento intensivo en datos (www.graph500.org).
+
+Las infraestructuras de cómputo con arquitecturas de múltiples procesadores se dividen en dos grandes grupos: las de múltiples procesadores en memoria compartida; o las de múltiples procesadores en memoria distribuida, o sea, múltiples computadoras con uno o más procesadores en memoria compartida, conectadas a través de una red. Las arquitecturas de múltiples procesadores en memoria compartida, pueden dividirse dependiendo de si estos procesadores están integrados en el mismo chip, en cuyo caso comparten además de la memoria principal de la computadora, memoria más cercana al procesador llamada caché. O si estos se encuentran en chips separados, compartiendo únicamente la memoria principal. También pueden dividirse dependiendo de si todos los procesadores acceden a la memoria principal de manera uniforme, o no, en cuyo caso la memoria principal está dividida en regiones que se corresponden a procesadores, un procesador accede de forma directa a una región, pero para acceder a las demás debe comunicarse con el procesador correspondiente.
+
+En las arquitecturas actuales en general se tiene múltiples chips con múltiples procesadores, y en estos los procesadores en un mismo chip acceden de forma uniforme a memoria, mientras que aquellos en chips diferentes acceden de forma no uniforme. En general en las infraestructuras de cómputo de alto desempeño actuales, como la mayoría de las que figuran en el top500, son sistemas en memoria distribuida, compuestos por nodos de múltiples procesadores en memoria compartida. Para sacar provecho de dichas infraestructuras hacen falta técnicas o paradigmas de computación, que para el caso de múltiples procesadores en memoria compartida se suelen llamar técnicas de programación paralela, y para el caso de memoria distribuida, de programación distribuida. 
+
+% \subsubsection{Infraestructuras utilizadas en el proyecto}
+Un clúster, tal como se mencionó anteriormente, es una supercomputadora construida por agregación de recursos de computo conectados en una red de alta velocidad, dispuestos cercanos entre sí para optimizar las comunicaciones por red. La capacidad de computo de un clúster estará dada entonces tanto por la capacidad de computo de sus procesadores, como por la velocidad de la red de comunicaciones que lo integra.
+
+En este proyecto se utilizo el Cluster FING. El clúster FING es una infraestructura de computo paralelo distribuido de alto desempeño perteneciente a la Facultad de Ingeniería.
+% Fue adquirido con fondos del llamado “Fortalecimiento de Equipamientos para la Investigación de la Comisión Sectorial de Investigación Científica" (2008), y está operativo desde 2009. Desde el 2009 ha pasado por varias mejoras, hasta llegar a la estructura actual.
+
+% cuyos nodos y sus características se presentan en la siguiente tabla.
+
+% \begin{center}
+%   \begin{tabular}{ |c|c|c|c|c| }
+%     \hline
+%     Cantidad & hostname & clase & cores & GB RAM total \\ 
+%     \hline
+%     8 & node02-09 & 0 & 8-64 & 8-64 \\  
+%     4 & node20-23 & 1 & 8-32 & 24-96 \\
+%     3 & node30-32 & 2 & 24-72 & 24-72 \\
+%     6 & node33-38 & 3 & 24-144 & 72-432 \\
+%     1 & tesla & GPU & 8-8 & 48-48 \\
+%     Totales: & 22 & nodos & 320 & 712 \\
+%     \hline
+%   \end{tabular}
+% \end{center}
+
+% Como muestra la tabla, el clúster FING cuenta con 320 procesadores y 712 giga bytes de memoria RAM. Los nodos presentados en la tabla según su clase tienen las siguientes características:
+% \begin{itemize}
+% 	\item clase 0: Dos procesadores Quad core Xeon serie E5430 de 2.66Ghz, 1.333Ghz FSB.
+% 	\item clase 1: HP Proliant DL180 G6, con dos procesadores Quad core Xeon serie E5520 de 2.26Ghz, 1.066Ghz FSB.
+% 	\item clase 2: HP Proliant DL180 G6, con dos procesadores AMD Opteron 6172, cada uno con 12 cores de 2.1Ghz, 1.066GHz FSB.
+% 	\item clase 3: Proliant DL385 G7, con dos procesadores AMD Opteron 6172, cada uno con 12 cores de 2.1Ghz, salvo una que tiene procesadores 6174 de iguales prestaciones.
+% 	\item gpu: GPU server con dos procesadores Quad Core Intel Xeon serie E5530, de 2.66Ghz, 48GB de RAM y cuatro tarjetas nVidia Tesla C1060 de 240 núcleos de 1.33Ghz y 4GB de RAM cada una, totalizando 960 cores y 16GB de RAM. 
+% \end{itemize}
+    
+% Asimismo, el clúster FING cuenta con un servidor de acceso de las mismas características que los nodos de la clase 0, que funciona como servidor de archivos y servidor de base de datos, además de ser el punto de entrada para los usuarios, para comunicarse con el gestor y enviar trabajos para su ejecución. Los nodos están conectados en red Gigabit Ethernet por medio de un switch Dell Power Connect, de 24 bocas. Dispone también de un switch KVM y una consola para administración, así como de una UPS que permite cierto nivel de tolerancia a caídas de energía. El sistema operativo que corren los nodos es Centos 5.2. El clúster FING tiene su sitio web http://www.fing.edu.uy/cluster, donde puede encontrarse información actualizada de su composición, así como información en tiempo real de estado. También hay disponibles online en el sitio tutoriales sobre cómo utilizar la infraestructura, por lo que aquí no se profundiza en este tema. 
+
+\newpage
+
+\section{Interpolación}
+La interpolación es un proceso por el cual se define un valor en un punto cualquiera a partir de los valores conocidos en algunos puntos dados. En general, tenemos un conjunto finito de nodos o puntos fijos con valores nodales asociados a cada uno de ellos: ${(P_i, V_i)}$, donde $Pi = {x_i, y_i, z_i)}$ es la posición del i-ésimo punto y Vi el valor conocido en el punto fijo; se pretende encontrar el valor v asociado a un punto de coordenadas x cualquiera.
+% \subsubsection{Motivación}
+En el contexto del proyecto, resulta necesario utilizar una técnica de interpolación para poder conocer con mejor detalle cómo se distribuye el dominio solución para el cual se aplicó el algoritmo de cálculo de potencial. Resulta más performante aplicar el cálculo de potencial sobre una malla gruesa y luego una técnica de interpolación apropiada sobre una malla una poco más fina, que aplicar el cálculo de potencial sobre una malla fina desde el principio.
+% \subsubsection{Técnicas}
+El proceso de interpolación define el valor asociado al punto variable. Podría, por ejemplo, asignarse el valor del punto más cercano o una combinación de valores cercanos o de todos los conocidos. En una sola dimensión es muy sencillo encontrar el punto más cercano o los dos nodos que “encierran” el punto buscado, pero en más dimensiones resulta más complicado.\newline
+
+La forma estándar, para variables continuas, consiste en hacer una suma de valores ponderados: 
+$V(x) =  \sum_{}^{} \alpha _i(x)V_i $. El valor $v$ en el punto variable $x$ se calcula asignando, a cada punto fijo, un peso $\alpha _i$ que depende de la posición del punto variable. Normalmente se pretende que el peso de cada punto esté en relación inversa con la distancia al punto móvil, de ese modo el valor estará más influenciado por los puntos más cercanos. Pero hay muchas formas de definir los pesos. Es justamente, la selección de pesos la que define el método de interpolación.\newline
+
+Una clasificación posible para los métodos de interpolación es en métodos locales y métodos globales: los métodos globales consideran todos los nodos. Para los métodos locales, sólo se consideran los nodos cercanos. En general se utilizan estos últimos métodos pues son algorítmicamente más veloces, sobre todo cuando se dispone de un método rápido para encontrar el conjunto de nodos cercanos.\newline
+
+Debido a que en un principio no se conocía como se iban a comportar las distintas técnicas de interpolación, se estudiaron y luego aplicaron distintas técnicas posibles, entre las cuales las siguientes se destacan:
+\begin{itemize}
+	\item Nearest neighbor
+	\item Ponderación lineal 
+	\item Kriging
+	\item Inverse distance weighting (IDW) 
+\end{itemize}
+
+A continuación, una descripción general de cada técnica y un breve resumen de su aplicación y/o resultados esperados:
+
+\paragraph{Nearest neighbor}
+El algoritmo del vecino más cercano selecciona el valor del punto más cercano y no tiene en cuenta los valores de otros puntos vecinos cercanos, produciendo un interpolante constante por trozos. El algoritmo es muy simple de implementar y se utilizó como referencia base.
+\paragraph{Ponderación lineal sobre la distancia}
+La ponderación lineal es un método que permite dado un conjunto de puntos y sus valores asociados, realizar estimaciones respecto a puntos donde se desconoce su valor asociado a través de una combinación lineal de los valores de los puntos conocidos. Además, se caracteriza por obtener el valor buscado a través de una asignación de pesos a los puntos conocidos.
+Este método toma la forma de: $$\sum_{i=0}^{N} \frac{w_i u_i}{\sum_{j=0}^{N} u_j(x)} $$ donde $W_i(x)$ representan los valores de los puntos conocidos, y $u_i$ representa la ponderación asignada. Dado que estamos queriendo interpolar una magnitud que varía con la distancia al punto a interpolar, resulta intuitivo que los valores ponderadores se correspondan con la distancia entre el punto a interpolar al punto conocido correspondiente, por lo que entonces $u_i$ representaría la distancia entre el punto $w_i$ conocido al punto a interpolar.
+
+\paragraph{Kriging}
+El método de Kriging es un método geoestadístico de estimación de puntos. Utiliza un modelo de variograma para la obtención de los ponderadores que se darán a cada punto de referencias usados en la estimación. Esta técnica de interpolación se basa en la premisa de que la variación espacial continúa con el mismo patrón. Fue desarrollada inicialmente por Danie G. Krige a partir del análisis de regresión entre muestras y bloques de mena, las cuales fijaron la base de la geoestadística lineal.\newline
+
+La precisión del estimador usado depende de varios factores:
+\begin{itemize}
+	\item \textit{el número de muestras tomadas}
+	\item \textit{la calidad de la medición en cada punto}
+	\item \textit{las ubicaciones de las muestras en la zona:} si las muestras son igualmente espaciadas se alcanza una mejor cobertura, dando mayor información acerca de la zona que aquella que se obtendría de muestras muy agrupadas en unos sectores y separadas en otros. Sin embargo, en la práctica, debido a las características de las regiones de estudio, muchas veces es preciso tomar muestras irregularmente espaciadas.
+	\item \textit{las distancias entre las muestras:} para la predicción es más confiable usar muestras vecinas que muestras distantes, esto es, la precisión mejora cuando la cercanía de las muestras aumenta, y se deteriora cuando esta disminuye.
+	\item \textit{la continuidad espacial de la variable o atributo en estudio:} es más fácil estimar el valor de una variable bastante regular en una región que una que presenta grandes fluctuaciones.
+\end{itemize}
+
+Existen distintos tipos de algoritmos categorizados como Kriging. Por un lado tenemos el kriging simple, que asume que las medias locales son relativamente constantes y de valor muy semejante a la media de la población que es conocida. La media de la población es utilizada para cada estimación local, en conjunto con los puntos vecinos establecidos como necesarios para la estimación. Existe además el kriging ordinario, en el que las medias locales no son necesariamente próximas de la media de la población, usándose apenas los puntos vecinos para la estimación. Es el método más ampliamente utilizado en los problemas ambientales.
+\paragraph{Ponderación de distancia inversa}
+Ponderación de Distancia Inversa o IDW por su sigla en inglés, es un tipo de método determinista utilizado para interpolaciones multivariables con un conjunto disperso de puntos conocidos. Los valores asignados a los puntos desconocidos son calculando como el promedio ponderado de los puntos conocidos disponibles.
+El nombre dado a este método es motivado por el promedio ponderado aplicado, puesto que dicha ponderación es calculada usando como base el inverso de la distancia a cada punto conocido.
+El resultado esperado es una asignación discreta de la función desconocido u en la región D de estudio:
+ $$u(x):x \rightarrow \mathbb{R}, x \in D \subset \mathbb{R}^n $$
+El conjunto de los N puntos conocidos y sus valores asociados se describe como una lista de tuplas:
+$$[(X_1,u_1),(x_2,u_2),...,(X_N,u_N)]$$
+La fórmula general para encontrar los valores interpolados $u$ en los puntos desconocidos $x: u_i = u(x_i)$: para $i=0,1,...,N$ usando IDW es una función interpoladora tal como:
+$$u(x) = \sum_{i=0}^{N} \frac{w_i(x)u_i}{\sum_{j=0}^{N} w_j(x)}i$$
+Donde los pesos $w_i$ se calculan como:
+$$w_i(x) = \frac{1}{d(x,x_i)^p}$$
+ 
+En esta ecuación, $d$ es la distancia entre el punto conocido $x_i$ al punto desconocido $x$, $N$ es el número total de puntos conocidos y usados en la interpolación y $p$ es un número real positivo, llamado parámetro de potencia.\newline
+
+En este caso, los pesos asignados disminuyen su valor a medida que la distancia a los puntos conocidos aumenta. Además, valores más grandes de $p$ asigna mayor influencia a los puntos que se encuentran más cercanos al punto que se desea interpolar. Para dos dimensiones, un parámetro de potencia $p<=2$, causa que la interpolación sea dominada por puntos lejanos.\newline
+En nuestro contexto, utilizaremos diferentes configuraciones de $p$ hasta encontrar aquella interpolación que se ajusta mejor a la magnitud interpolada que nos compete.\newline
+
+\section{ESyS-Particle}
+% \subsubsection{Motivación}
+Cuando la cantidad de datos que se obtienen como resultado de un algoritmo numérico es tan grande que analizar los datos de forma individual resulta inmanejable, se necesitan herramientas que permitan visualizar los resultados de forma gráfica. De esta forma una vez que se obtienen los datos crudos, se genera una representación gráfica o simulación mediante la cual resulta más intuitivo realizar conclusiones acerca de la solución alcanzada y potenciales mejoras. Además, cuando se maneja gran cantidad de datos, las herramientas de simulación a utilizar deben aprovechar la capacidad de procesamiento paralelo que los nuevos hardwares ofrecen.\newline
+
+Para cubrir esta falencia, se utiliza la herramienta o paquete de simulación numérica denominado ESyS-Particle. Teniendo presente el análisis realizado en el proyecto de grado “Paralelismo aplicado al estudio de medios granulares”, se asume como propia la conclusión a la que allí se arriba, en la cual se define ésta como la herramienta que mejores prestaciones brinda (considerando el contexto en el que se trabaja).
+
+% \subsubsection{Introducción}
+ESyS-Particle es un paquete de software para modelados numéricos basados en partículas. El software implementa el DEM, una técnica ampliamente utilizada para el modelado de procesos que involucran grandes deformaciones, flujos granulares y /o fragmentación.
+Las características relevantes de la herramienta son:
+\begin{itemize}
+	\item Motor de simulación paralelo basado en MPI
+	\item API en Python para la preparación y ejecución de simulaciones.
+	\item Preparación mediante scripts de modelos geométricos
+	\item Partículas esféricas rotacionales y no rotacionales
+	\item Mallas triangulares para especificación de condiciones de borde y pared.
+	\item Visualización de partículas utilizando POV-Ray y VTK.
+	\item Variedad de interacciones partícula-partícula y partícula-pared:
+	\subitem Repulsión elástica lineal entre partículas no enlazadas en contacto.
+	\subitem Repulsión elástica lineal entre pares de partículas enlazadas
+	\subitem Interacciones friccionales tanto rotacionales como no rotacionales entre partículas no enlazadas.
+	\subitem Enlaces rotacionales implementando torsión y coeficientes de rigidez.
+\end{itemize}
+
+% \subsubsection{Origen y actualidad}
+ESyS-Particle ha sido desarrollado dentro del Earth Systems Science Computational Centre (ESSCC) en la Universidad de Queensland, Brisbane, Australia desde 1994. El software fue denominado en sus comienzos como Lattice Solid Model, y más tarde se llamó LSMEarth antes de que Australian Computational Earth Systems Simulator (ACcESS) comenzara el financiamiento del desarrollo del software en el año 2002. Desde 2002 al 2007 y gracias al financiamiento económico el desarrollo ha avanzado gratuitamente hasta convertirse en un software DEM de uso comercial, distribuido gratuitamente bajo la licencia de software libre versión 3. Al día de hoy el desarrollo de ESyS-Particule continúa siendo financiado por el gobierno australiano, contando con la colaboración de desarrolladores de la universidad de RWTH en Aachen, Alemania, y de varios miembros de la comunidad de usuarios (incluyendo recientes incorporaciones por grupos de la Facultad de Ingeniería – Universidad de la República).\newline
+
+ESyS-Particle ha sido utilizado para simular terremotos, flujo de granos en silos, fragmentación de rocas, apertura de fallas, etc. 
+
+% \subsubsection{Diseño}
+ESyS-Particle está diseñado para ejecutar sobre supercomputadoras paralelas, clusters o computadores con varios núcleos corriendo Linux como sistema operativo base. El motor de simulación en C++ implementa una descomposición espacial del dominio mediante el uso de Message Passing Interface (MPI). Una API en Python provee flexibilidad en el diseño de modelos numéricos, en la especificación de parámetros del modelo e interacciones de contacto entre las partículas; así como interfaces con diferentes plataformas de visualización de los resultados de las simulaciones.\newline
+
+ESyS-Particle es una implementación paralela del DEM, que se caracteriza por ser OpenSource, está disponible gratuitamente, y puede ser modificada y extendida libremente. Se basa en una arquitectura de memoria distribuida utilizando MPI. Mientras que el tamaño del problema sea escalado adecuadamente con la cantidad de procesadores, el beneficio de agregar procesadores es casi lineal. Soporta varios millones de partículas en las simulaciones; en pruebas realizadas por los propios desarrolladores de la herramienta, llegaron a utilizar más de 10 millones de partículas.\newline
+
+Este paquete está diseñado para trabajar con otros programas individuales, que se encargan del pre-procesamiento de los datos que son la entrada de la simulación y post-procesamiento de los resultados de la misma. Esto posibilita que sea más fácil el desarrollo y mantenimiento de las distintas herramientas, en lugar de un paquete que incluya todo. Las funcionalidades de ESyS-Particle se manejan mediante scripts en Python y no posee un GUI interactiva. El uso de Python como lenguaje de scripting proporciona una programación orientada a objetos, fácil de utilizar, que posee una extensa librería estándar, y que además ya existe una implementación de la interfaz entre Python y el motor en C++ de ESyS-Particle (mediante la librería Boost-Python).\newline
+
+ESyS-Particle está compilado como una librería compartida y es utilizada como un módulo de Python, los scripts importan las librerías como mecanismo para hacer accesibles las funciones exportadas por ESyS-Particle. Las funciones de los scripts llaman a las funciones de C++ para inicializar el modelo, preparar las interacciones, mover los objetos, salvar datos, etc.\newline
+
+El proceso de simulación por pasos se describe gráficamente en la figura ~\ref{fig:esysparticle_iteracion}.
+\begin{figure}[!h]
+%	\setlength{\abovecaptionskip}{3pt}
+   	\centering
+	\includegraphics[scale=0.6]{images/esysparticle_iteracion.png}
+	\caption{Proceso de simulación por pasos del ESyS-Particle.}
+	\label{fig:esysparticle_iteracion}
+\end{figure}
+
+Lo pasos de la simulación se dividen entonces en:
+\begin{itemize}
+	\item inicialización de la simulación
+	\item actualización de la tabla de partículas vecinas
+	\item cálculo de fuerzas
+	\item actualización de posición y velocidad de las partículas
+	\item escritura de datos en flujo de salida
+	\item si existen pasos de simulación volver al punto 2, en caso contrario se termina la simulación
+\end{itemize}
+
+Una particularidad de los DEM aplicado a la interacción de partículas por contacto, es que las fuerzas son de corto alcance, es decir que una partícula sólo interactúa con las partículas más cercanas. ESyS-Particle toma en cuenta esta peculiaridad logrando reducir los costos computacionales de simulación. En su implementación interna utiliza para cada partícula, una lista de potenciales partículas vecinas a las cuales afecta (ver figura ~\ref{fig:esys_particle_proximas}). Dicha lista no necesita ser re-calculada en cada paso de simulación sino cuando alguna partícula se mueve más que un valor Dv (verlet distance) que dependerá de cada simulación.
+
+\begin{figure}[!h]
+%	\setlength{\abovecaptionskip}{3pt}
+   	\centering
+	\includegraphics[scale=0.6]{images/esys_particle_proximas.png}
+	\caption{Búsqueda de partículas vecinas por ESys-Particle.}
+	\label{fig:esys_particle_proximas}
+\end{figure}
+
+%\includegraphics[scale=1.5]{images/esys_particle_proximas.PNG}
+%%\includegraphics[width=\textwidth]{images/esys_particle_proximas.PNG}
+
+ESyS\-Particle puede hacer uso de más de un recurso de cómputo en la computación de la simulación. A continuación se explica el procedimiento de asignación: dado un dominio de simulación con partículas como el de la imagen a) de la figura ~\ref{fig:esys_particle_pelotitas_dominios}, ESyS\-Particle implementa una descomposición de dominio espacial para dividir el área de trabajo entre los recursos de cómputo disponibles.
+El dominio inicial es subdividido en $N_w$ sub-dominios ordenados en forma de matriz $(x, y, z)$ como se muestra en la imagen b) de la misma figura. Dado que las partículas muy cercanas a los límites tendrán efectos en las partículas del subdominio contiguo, cada recurso de cómputo recibe su subdominio y un buffer alrededor que incluye dichas partículas bordes tal como se muestra en la imagen c) en la misma figura. 
+
+De esta forma cada recurso de cómputo actualiza la posición y velocidad de las partículas de su subdominio estricto utilizando las partículas del subdominio con el buffer agregado. Para obtener una escalabilidad decente se requiere que los subdominios estrictos sean grandes en comparación con los subdominios con el buffer . Al final de cada paso de simulación las partículas de los bordes son comunicados de un recurso a otro.
+\begin{figure}[!h]
+	\setlength{\abovecaptionskip}{3pt}
+  	\centering
+	\includegraphics[scale=0.3]{images/esys_particle_pelotitas_dominios_a.png}
+	\includegraphics[scale=0.3]{images/esys_particle_pelotitas_dominios_b.png}
+	\includegraphics[scale=0.3]{images/esys_particle_pelotitas_dominios_c.png}
+	\caption{Descomposición por dominio de ESyS-Particle.}
+	\label{fig:esys_particle_pelotitas_dominios}
+\end{figure} %\includegraphics[scale=0.65]{images/esys_particle_pelotitas_dominios.PNG}
+%Esta es la forma en como ESyS-Particle distribuye el trabajo entre los diferentes recursos de cómputo.
+
+\chapter{Antecedentes}
+
+En este capítulo se presentan los antecedentes del proyecto.
+El cálculo exacto del potencial gravitatorio generado por $n$ partículas implica $O(n^2)$ operaciones, lo cual indica una complejidad computacional costosa cuando $n$ es del orden de millones de partículas. Diversas estrategias se han desarrollado para reducir el número de operaciones. 
+
+
+\textcolor{red}{The techniques presented are classified as static or dynamic
+domain decomposition techniques.
+Static hierarchical domain decomposition
+Static techniques for particle interaction are based on a domain decomposition
+that stays invariable during a simulation. According to Hockney and Eastwood
+(1988), static techniques are divided in three models: Particle-Particle (PP)
+methods, Particle-Mesh (PM) methods, and Particle-Particle Particle-Mesh
+(P3M) methods. PP are the simplest methods and consist of computing the
+forces directly between all the particles in the system. Despite being the most
+accurate, the PP model lacks the ability to scale in the number of particles due
+to its O(N2
+) execution time. PM methods consist of using a mesh over the
+simulated space and calculating the potential for each particle that belongs to
+the mesh. After that, the speed for the particles is calculated via an interpolation. According to Hockney and Eastwood (1988), although PM methods are
+less accurate than PP methods when computing the forces, PM methods are
+in general significantly faster than PP methods. However, in many practical
+applications, PM may need a mesh resolution that should result to be slower
+than a PP method; thus the PM model is not usually used to calculate contact
+forces. Finally, P3M methods combine the PP and the PM models. The P3M
+model divides the forces applied to a particle into short range and long range
+forces. The short range forces are calculated using a PP method and the long
+range forces are calculated using a PM method. The combination results in
+a fast and accurate method to simulate particle interaction. Many implementations and variations of the aforementioned three models are present in the
+literature. Some of the more relevant implementations are reviewed next.
+Couchman (1991) proposed a variation of the P3M algorithm, that applies
+a selective refinement of the grid depending on the particle density of a cell.
+The refinement is performed recursively while a density threshold is exceeded.
+8
+Given that the refinement is performed recursively, the particle mesh is an
+spatial division without overlapping zones to be calculated. This way, assigning a similar number of particles to each processing unit, a load balancing
+scheme is implemented. The results obtained after the refinements are then
+passed over to the father cell to be integrated via direct summation. There is
+a correlation between the level of refinement of the grid and the time spent to
+integrate the results calculated for the individual cells. The refinement level
+has to be calibrated for this method to be efficient. The method presented
+by Couchman has the constraint that the domain of the simulation must be
+cubic and also the space must be divided into an integer number of cells of the
+same size. Couchman stated that, in this method "The gain is in simplicity"
+(p. 24). Results presented by Couchman indicate that the algorithm is up to
+20 times faster than a P3M algorithm and also requires less memory.
+Kravtsov et al. (1997) presented an N-body solver called Adaptive Refinement Tree based on the particle-mesh method over a multilevel grid to perform
+the calculations of the forces on the system. The mesh is created over a cubic
+space that is divided by regular cells with cubic shape and a predefined size. A
+multilevel mesh is defined by dividing large cells into eight parts that have the
+same size depending on the particle density. The multilevel mesh is created
+at the beginning of the simulation and then it is partially updated when the
+forces need to be recalculated. The smallest size of an element of the grid
+is the resolution of the mesh (i.e., a cell). The implementation presented by
+Kravstov et al. was partially parallel. The section of the application that was
+parallelized is the one in which the forces are updated for the particles (i.e.,
+the force interpolation). Kravstov et al. stated that the solution is half as fast
+as the Fourier transform solver with the same number of cells. The method
+proposed by Kravstov et al. is similar to the method presented in this thesis, in
+the sense that it spawn an octal tree in which the maximum resolution is a cell
+in the mesh. On the other hand, in the method that Kravstov et al. proposed,
+the finer meshes are built when a predefined size threshold is exceeded, but in
+the method introduced in this thesis, a finer mesh is created when there are
+particles present in the cell.
+An implementation of a DEM simulator using the PM method was presented by Sánchez and Scheeres (2012). The same static domain decomposition
+9
+technique is used to calculate short range interactions as well as long range interactions. The space of the simulation scenario is divided in cubical cells that
+are many times bigger than the particles radius of the scenario. Then instead
+of considering individual particles to calculate the gravitational potential, the
+whole cell is considered as a particle. The calculations for N particles are
+still O(N2
+), but the authors claimed that the amount of calculations required
+decreased in one order of magnitude. The short range and the long range interactions are computed concurrently. However, the authors did not propose
+a parallel implementation. Thus, the method was able to compute efficiently
+simulations of systems with up to 8, 000 particles. The results presented by the
+authors show that the algorithm implemented is not suitable to perform large
+scale simulations that comprise hundreds of thousands of particles. In order
+to do so, a parallel or distributed implementation of the algorithm is needed.
+Dynamic hierarchical domain decomposition
+Dynamic techniques for particle interaction calculation use structures that are
+adapted or reconstructed from scratch during the simulation. A classic technique in this field is the method proposed by Barnes and Hut (1986). In this
+method, the simulated domain is divided in a hierarchical octal tree to accelerate the calculation of the gravitational potential in a N-body simulation. The
+tree is composed of nodes that represent a portion of the space of the simulation. The root node of the tree represents the complete space of the simulation.
+If a node (i.e., the space it represents) contains more than one particle, the
+space is divided into smaller pieces. In a two-dimension simulation, the space
+is divided in four smaller pieces. However, in a three-dimension simulation,
+the space is divided into eight pieces. Applying this domain decomposition
+Barnes and Hut affirmed that the long-range interactions are calculated in
+O(N log N), being N the number of particles in the domain. According to the
+authors, experimental results indicate that the error increases as the simulation runs. As one of the improvements for the algorithm presented, Barnes
+and Hut suggest implementing individual time steps for each particle, with
+the idea of updating more frequently those particles that move faster.
+Greengard and Rokhlin (1987) presented the Fast Multipole Method. The
+method consists of performing a multipole expansion of the space of the sim10
+ulation to be performed. The expansion is organized as a hierarchy of meshes
+rather than a tree. However, the elements of meshes with higher resolution
+that are an expansion of an element of a lower resolution mesh are considered
+its sons. According to the Greengard and Rohklin, clusters of particles can
+interact with one another as long as they are "well separated". The range of
+separation is defined as a configuration parameter before starting a simulation.
+The expansion is pure spatial. The spatial center of a father mesh box is one
+expansion center of the next level. The expansion is performed whether there
+are particles in the box or not. After creating the meshes, the potential is calculated for each center of all the meshes. Then, the potential for each particle
+is calculated as an extrapolation of the nearest neighbor boxes at the finest
+mesh level. Greengard and Rohklin implemented the algorithm and performed
+a comparison with a direct computation in single precision. The experimental evaluation was performed on a VAX-8600. The results on the comparison
+presented by Greengard and Rokhlin indicate that in an instance consisting
+of 12,800 particles the execution time of the method presented is 300× lower
+than the direct method. In addition, Greengard and Rohklin stated that the
+execution time grows linearly with the number of particles.
+Combined techniques
+Xu (1994) presented a variation of the P3M method called Tree Particle Mesh
+(TPM). The difference with P3M lies in that short-range interactions are calculated using the algorithm presented by Barnes and Hut. However, long-range
+interactions are calculated using a PM method. The TPM method consists of
+using the tree code only on the parts of the field that have a density over a certain threshold. Each of the trees created has a different time step. The regions
+that have low particle density are managed only by the PM method. Using
+the tree code on high density zones allows the PM method to have a lower
+resolution (i.e., less cells are created), hence the simulations run faster. The
+TPM method proposed by Xu was parallelized using a Multiple Instruction
+Multiple Data model. To provide load balance, the tree code was parallelized
+in two levels. In the first level, the trees are assigned to the available processors. The second level of the parallelism balances the load when the number
+of processors is higher than the number of trees. In the second level of parallelism, many processors work on a single tree. After a tree construction is
+11
+finished, the structure of the tree is broadcasted to a group of processors that
+are going to perform the tree walk and force summation. Xu explained that
+the construction of the trees was not parallelized due to the fact that only 2.5%
+of the time is spent on that activity. The algorithm showed a speedup of 26
+when running on 32 processors. The author also performed a comparison with
+the PM and the tree method. Results indicated that the pure tree method
+is 12× slower than the TPM code presented by Xu. Also, the PM method
+turned to be 1.2× faster when the PM box size (i.e., the resolution) is set to
+0.010 and the TPM box size is set to 0.003.
+Bode et al. (2000) presented an algorithm as an improvement of the TPM
+originally presented by Xu (1994). In the algorithm presented by Bode et al.
+(2000), the forces are calculated as a combination of the PM and a tree algorithm. This algorithm is used to calculate and evolve the short range interactions. On the one hand, the forces internal to the tree are calculated by a tree
+algorithm. On the other hand, the long range interactions are managed by a
+PM algorithm. At the beginning of a simulation the time step is the same for
+PM and the tree algorithm. The tree algorithm can use a smaller time step if
+needed. According to Bode et al., the algorithm divides the space into regions
+based on particle density, called clusters. Before creating the clusters, cells of
+the grid that have a density that is above a defined threshold are assigned a
+key that identifies them. Then, for each of the cells with a density above the
+threshold, the surrounding cells that also have a density above the threshold
+are given the same key and becoming a cluster. The density threshold is defined as a function of the mean density of the cells and its standard deviation.
+Whereas the focus of the implementation are simulations of clusters of particles, the algorithm can be used to simulate other scenarios. A comparison
+with the P3M algorithm was performed. Experimental results showed that
+the TPM algorithm speeds up the simulations "by a factor of 3-4" (Bode et
+al. 1994 p.566) when the trees have individual time steps. The experimental
+evaluation was performed on a cluster of computers composed of SGI Origin
+2000. Results of a study of computational efficiency showed that the algorithm
+scales from 4 to 16 processors, then efficiency drops to 70% at 32 nodes.
+Bagla (2002) presented a method for performing simulations of large particle agglomerates simulations, called TreePM. The method combines the Barnes
+12
+and Hut tree code and the PM method. The method presented is similar to
+the TPM method proposed by Bode et al. (2000). The forces are divided into
+long range and short range forces. The long range forces are calculated using the PM method, whereas the short range forces are calculated using the
+Barnes and Hut algorithm. For the short range forces, the criteria is to calculate the contribution from particles or from grid cells. A cell is considered
+when a distance threshold is exceeded, instead if the threshold is not exceeded,
+the subcells or particles should be considered. According to Bagla, there are
+two differences between the TreePM method and the TPM method. One difference is that, while TPM uses the PM method to compute the long range
+forces, TreePM uses an explicit and experimentally defined distance to decide
+which method is used to compute the forces in a particular region. The other
+difference is that in TPM the forces are computed for each individual particle only for the particles that belong to high density regions, but in TreePM
+the forces are computed individually for all the particles. According to Bagla,
+experimental results indicated that TreePM is about 4.5x faster than a tree
+algorithm. Also, results show that the simulations scale in O(N log N), being
+N the number of particles.
+Khandai and Bagla (2009) presented a modification of the TreePM algorithm. Khandai and Bagla adapted the suggestion by Barnes and Hut (1986)
+in the context of the TreePM algorithm previously presented by Bagla (2002).
+The tree part of the algorithm is used to calculate the short range forces. In
+the optimization suggested by Barnes, the force is computed in only one tree
+walk. In addition, the particles are divided into groups, but instead of grouping them by their densities as suggested by Bode et al. (2000), the groups are
+created according to the particles number and volume. The authors performed
+experiments with scenarios with between 323
+to 2563 particles. Results indicated that a TreePM algorithm with group scheme and individual time steps
+for each group had a speed up of 12.72 compared to an unoptimized TreePM
+algorithm.
+Ishiyama et al. (2012) presented a variation of the TreePM method applied to a N-body simulation of one trillion particles which was executed using
+the full capacity (663552-cores) of the K Computer of the RIKEN institute
+(https://www.top500.org/system/177232). The results obtained were pre13
+sented as an entry for the Gordon-Bell performance prize. For the short-range
+forces, the Barnes & Hut algorithm was modified to create trees for groups of
+particles. Also, Ishiyama et al. performed modifications to implement a list of
+tree nodes and particles that is shared by a group of particles. By using this
+method, Ishiyama et al. stated that the algorithm "can reduce the computational cost of tree traversal by a factor of Ni" (p.3) being Ni the average number
+of particles of the groups. To measure the space of the simulation, Ishiyama et
+al. used the sampling method to perform a 3D multi-section decomposition.
+In addition, Ishiyama et al. implemented load balancing by adjusting the size
+of the cells according to the cost of calculating the potential for the cells. As
+a complement, the interactions were calculated using the Single Instruction
+Multiple Data paradigm, combined with loop unrolling. Regarding the PM
+method, Ishiyama et al. implemented a distributed Fast Fourier Transform
+(Cochran et al. (1967)). Reported results indicated that the algorithm proposed has good scalability in terms of the number of nodes used, which means
+that there is not a significative overhead in the communications. Using 82,944
+computing nodes, Ishiyama et al. stated that the algorithm achieved a performance of 4.45 Pflops and an efficiency of 43%. The algorithm presented is
+1.44x faster compared to the Gordon-Bell winner of the previous year.}
+
+
+Una estrategia es sustituir el valor exacto del potencial gravitatorio por una función suave de la posición. Se han utilizado armónicos esféricos y bi\-esféricos como funciones de ajuste \cite{6}. Cada partícula se propaga en este campo de fondo durante un breve periodo de tiempo antes de que se vuelva a calcular el ajuste. Este método requiere operaciones del orden de $O(n.log(n))$, pero su desventaja es la pérdida de precisión. Otro enfoque propone el uso de un método de agrupación jerárquica. Appel\cite{7} utilizó una estructura de árbol para representar los sistemas de n-cuerpo, almacenando las partículas en las hojas y agrupando partículas cercanas como hojas de ramas cercanas. Una implementación eficiente de un enfoque de árbol jerárquico completo fue presentado por Barnes y Hut\cite{8}, y posteriormente incorporado en un algoritmo de integración por Richardson\cite{9} para simular la evolución dinámica de planetesimales y la evolución rotacional y colisional de asteroides. Este enfoque también requiere del orden de $O (n.log(n))$ operaciones. Usando estructuras paralelas fueron capaces de simular hasta millones de partículas que interactúan\cite{10}; pero el paso de tiempo utilizado (5s) era demasiado grande para simular adecuadamente las interacciones mecánicas de las partículas blandas (DEM simulaciones por lo general requieren timesteps de $10^{-2}$s \cite{11}). Por lo tanto, si el timestep se reduce al valor requerido por las simulaciones DEM, el cálculo de la auto-gravedad sigue siendo costoso.
+
+Sánchez y Scheeres\cite{12} utilizaron un enfoque ligeramente diferente: mientras que en un código de árbol la subdivisión del espacio es dinámica y depende de la distribución espacial de las partículas, ellos utilizaron una cuadrícula regular y estática para dividir el espacio. Este enfoque parece ser más adecuado para los agregados granulares auto-gravitantes en una fase densa como un asteroide de escombros. Sin embargo, el código no fue paralelizado y las simulaciones se limitaron a unos pocos miles de partículas.
+
+Para tratar de manera eficiente los aglomerados auto-gravitantes formados por un número mayor de partículas que las abordadas por los esfuerzos anteriores, nuestro algoritmo de cálculo incorpora elementos de todos ellos, incluida la sustitución de una función de ajuste liso por el valor exacto del potencial gravitatorio, un método de agrupación jerárquica para acelerar el cálculo de autogravedad de los nodos de cuadrícula y una cuadrícula regular y estática para dividir el espacio.
+
+\chapter{Desafio planteado}
+
+En este capítulo se presenta el problema a resolver.
+
+\section{Simulación de medios granulares bajo los efectos de fuerzas gravitatorias}
+% En esta sección se presenta el principal problema a resolver y se describe un problema relacionado abordado.
+% \subsection{}
+
+% problema principal
+El problema a resolver es el cálculo y simulación del comportamiento de un aglomerado de partículas bajo los efectos de fuerzas gravitatorias en ambientes de baja gravedad. 
+
+\textcolor{red}{esto es parte central. necesita mas contenido}
+
+Para esto se debe calcular la auto-gravedad en cada partícula del aglomerado a pequeños intervalos de tiempo. Este procedimiento si bien es simple, es computacionalmente demasiado costoso cuando se tienen del orden de un millón de objetos. Debido a esto, se necesitan aplicar técnicas de computación de alto desempeño para disminuir el tiempo de cómputo y así permitir abordar simulaciones en tiempos decentes.
+
+Para conseguir este objetivo se identifican las siguientes tareas a abordar: 1. calculo de auto-gravedad: dado un aglomerado de N partículas, desarrollar un algoritmo que permita calcular al auto-gravedad en cualquier punto del mismo, 2. algoritmo paralelo de auto-gravedad: inclusión de técnicas de computación de alto desempeño al algoritmo de cálculo de auto-gravedad anterior y 3. integración a un paquete de simulación: inclusión del algoritmo paralelo a un paquete de simulación numérica que permita visualizar los resultados.
+
+
+% compactacion de aglomerados
+
+\section{Compactación de aglomerados}
+En el transcurso del proyecto se abordo la compactación de partículas esféricas como problema relacionado. Este problema si bien puede ser relativamente fácil de resolver si se consideran partículas perfectamente esféricas y de igual tamaño, crece exponencialmente su complejidad si se consideran partículas de distintos tamaños. El problema se puede pensar como un problema de optimización, donde se debe minimizar el espacio libre en la caja, es decir el espacio no ocupado por las partículas.
+
+%La compactación de partículas tiene grandes aplicaciones, por ejemplo en el transporte y almacenaje de granos. 
+En la simulación numérica del comportamiento de medios granulares resulta de gran importancia la compactación y aleatoriedad que estos medios presentan. Técnicas utilizadas actualmente se basan en generar valores de radios de partículas (con una distribución de probabilidad dada) los cuales se ordenan de forma descendiente. Se realiza luego el llenado aleatorio de la caja comenzando por las partículas más grandes y terminando por las más pequeñas (verificando que ninguna partícula se superponga con las ya colocadas). Utilizando esta técnica se logra una compactación real no mayor a 0.45, la cual es considerada por debajo de lo deseado.
+
+Debido a la importancia y calidad de las simulaciones numéricas que se desea obtener en este proyecto, se decide implementar un algoritmo propio de generación de aglomerados de partículas con una distribución de tamaños dada con alto grado de compactación. 
+% SE PODRIA BORRAR: Debido a la importancia y calidad de las simulaciones numéricas que se desea obtener en este proyecto y considerando que la herramienta de simulación utilizada no incluye la capacidad de generar condiciones iniciales de esta forma, es que se decide implementar para el paquete GenGeo de generación de condiciones iniciales (incluido en ESyS-Particle), un algoritmo de generación de aglomerados de partículas con una distribución de tamaños dada con alto grado de compactación. \newline
+
+Teniendo en cuenta que se toman en consideración del orden de un millón de partículas sobre un espacio tridimensional (cada partícula se toca con la siguiente en algún punto de su superficie y con los bordes del contenedor) este problema es de complejidad NP.
+
+\chapter{Diseño y arquitectura}
+
+En este capítulo se presenta el diseño y arquitectura de la solución.
+
+\section{Compactación de aglomerados}
+En esta sección se presentan las características del algoritmo evolutivo desarrollado para resolver el problema de compactación de aglomerados.
+
+\subsection{Representación}
+El algoritmo evolutivo diseñado considera a cada individuo como una caja de dimensiones conocidas. Cada individuo contiene un conjunto de partículas. Se generaliza entonces para entender el concepto de población a evolucionar como el conjunto de individuos (es decir de cajas) con cierta compactación definida de partículas.
+
+Cada partícula generada ha de contener la información de posición dentro de la caja y su radio correspondiente. Además, cada individuo debe contener la información de todas las partículas y su fitness asociado.
+
+\begin{figure}[!h]
+	\setlength{\abovecaptionskip}{3pt}
+   	\centering
+	\includegraphics[scale=0.9]{images/representacion.png}
+	\caption{Representación de la población.}
+	\label{fig:representacion_ae}
+\end{figure}
+
+%Se resolvió abordar un subdominio con una cantidad de partículas que no dificulte su procesamiento con hardware típico, y que permita establecer las condiciones necesarias para lograr obtener un concepto de algoritmo evolutivo aplicable a otras escalas.
+
+\subsection{Población inicial}
+La población inicial se construye generando valores de radios de partículas (con una distribución de probabilidad dada) los cuales se ordenan de forma descendiente. Se realiza luego el llenado aleatorio de la caja comenzando por las partículas más grandes y terminando por las más pequeñas (verificando que ninguna partícula se superponga con las ya colocadas). Utilizando esta técnica se logra una compactación real no mayor a 0.45 de individuos.
+
+%Debido a que el proceso de generación de individuos iniciales insume un tiempo mayor al que se desea, se desacopló la tarea de generación de condiciones iniciales del proceso evolutivo. Por lo que se tiene una cantidad relativamente grade de individuos generados previamente y el algoritmo toma individuos aleatoriamente de esta población superior. Esto se realizó con la finalidad de que la ejecución del algoritmo en condiciones de testeo sea lo suficientemente veloz como para poder evaluarlo. En un contexto de evaluación real este desacoplamiento puede influir negativamente en la evolución y concepción del mismo.
+
+Para ubicar cada partícula en la caja se generan tres números aleatorios $(r_x,r_y,r_z)$ tal que cada valor corresponde a una coordenada de la caja. Los valores se generan cumpliendo una distribución uniforme de parámetros $[0, M]$, donde $M$ representa la mayor dimensión de la caja para la coordenada a generar. 
+Para cada individuo generado, se tiene:
+\begin{itemize}
+	\item un conjunto de partículas del individuo
+	\item un conjunto de partículas que no pertenecen al individuo puesto que no se pudieron ubicar en las dimensiones de la caja, pero que pertenecen a la distribución inicial. Este conjunto de partículas se llama stock, y se utiliza en el proceso de mutación.
+\end{itemize}
+
+%Merece la pena destacar el uso del generador de números aleatorios llamado MersenneTwister.
+%Dada la cantidad de valores aleatorios necesarios (del orden de 80000 por individuo, lo que resulta en poco más de un millón por población), se entendió conveniente utilizar un generador aleatorio con un periodo adecuado, característica que MersenneTwister satisface adecuadamente. La generación de radios de las partículas obedece una distribución normal movida en el eje X y escalada de forma tal de obtener radios en el entorno [0,1]. Esta distribución normal a su vez es generada transformando una distribución uniforme (0,1) la cual también es generada utilizando el generador de números aleatorios MersseneTwister.
+
+Una vez generada una población inicial, comienza el proceso iterativo del algoritmo evolutivo.
+
+\subsection{Operadores}
+En esta sección se definen los operadores evolutivos involucrados.
+\paragraph{Operador de selección}
+Se implementaron dos operadores de selección: selección por torneo y selección por torneo.
+
+%sin embargo, al ejecutar el algoritmo con diferentes configuraciones, se encontró que esta implementación se comporta mejor utilizando un operador de selección por rango. Este operador toma la población, ordena los individuos en orden decreciente por su valor de fitness y toma la primera mitad. Los individuos resultantes de este proceso son los responsables de la evolución, también llamados padres.
+
+\paragraph{Operador de cruzamiento}
+El operador de cruzamiento consiste en dividir la caja horizontalmente e intercambiar las secciones entre diferentes individuos, como se indica en la figura ~\ref{fig:rep_op_de_cruzamiento}.
+
+\begin{figure}[!h]
+	\setlength{\abovecaptionskip}{3pt}
+   	\centering
+	\includegraphics[scale=0.9]{images/operador_de_cruzamiento.png}
+	\caption{Representación del operador de cruzamiento en una sección.}
+	\label{fig:rep_op_de_cruzamiento}
+\end{figure}
+%La cantidad de secciones en la cual se divide la caja se pensó para no perder la variedad en el tamaño de las partículas. 
+Inicialmente se propuso un operador de cruzamiento que divide a cada individuo en cinco secciones, como se representa en la figura ~\ref{fig:rep_op_de_cruzamiento5}. Sin embargo realizar tantas divisiones sobre el individuo para cruzar las parejas de padres degrada el fitness, impidiendo al algoritmo evolutivo de convergir. Para evitar ello, se decidió dividir cada individuo en solo una sección horizontal, obteniendo dos partes (superior e inferior).
+
+\begin{figure}[!h]
+	\setlength{\abovecaptionskip}{3pt}
+   	\centering
+	\includegraphics[scale=0.9]{images/operador_de_cruzamiento5.png}
+	\caption{Representación del operador de cruzamiento en múltiples secciones.}
+	\label{fig:rep_op_de_cruzamiento5}
+\end{figure}
+
+\paragraph{Operador de mutación}
+El operador de mutación implementado resulta de aplicar las siguientes transformaciones: 1. mover la partícula y 2. intercambiar partículas con el stock de partículas disponibles.
+El operador de mutación consiste en los siguientes pasos: 
+Para una cantidad de veces $i$:
+\begin{enumerate}
+	\item Elegir una partícula $p_i$ de la caja
+	\item Identificar si la partícula $p_i$ está contenida en una esfera de radio mayor al radio de la partícula, de forma tal de que si la partícula tuviera dicho radio, no colisionaría con otra partícula de la caja.
+	\item Si $p_i$ está contenida en un radio mayor
+	\subitem Mover la partícula $p_i$ de forma de que quede lo más próxima posible a la primera partícula con la que eventualmente colisionaría.
+	\subitem Al mover la partícula $p_i$ quedó un espacio libre, intentar posicionar una de las partículas que se tienen en el stock de partículas.
+	\item Si $p_i$ no está contenida en un radio mayor se continua con la siguiente partícula.
+\end{enumerate}
+
+La mutación elegida identifica espacios vacios, compacta las partículas hacia esos huecos e inserta partículas nuevas en los espacios libres (respetando la distribución de probabilidad).
+
+\paragraph{Operador de reemplazo de la generación}
+El operador de reemplazo corresponde a un modelo poblacional llamado solapado, debido a que los individuos padres y sus descendientes compiten por la descendencia generada. El operador sigue los siguientes pasos: 1. se ordena toda la población de forma decreciente según su valor de fitness y 2. se quitan los peores $n$ primeros individuos, con $n$ igual a la cantidad de hijos producidos. 
+
+Siendo que se descartan tantos individuos como nuevos hijos generados, el tamaño de la población se mantiene constante. %La forma de codificación de los individuos tomar en cuenta los operadores involucrados y realiza el mayor esfuerzo para que dichos operadores no sean costosos de aplicar.
+
+%Teniendo en cuenta que una de las partes más frágil del algoritmo resulta en el intercambio de las secciones a cruzar, se propone ordenar todas las partículas según su posición ‘z’, con lo cual seleccionar las partículas que se encuentran por dentro de una sección vertical resulta simple. Esta codificación también toma en cuenta el proceso de ‘pegar’ secciones intercambiadas, puesto que al tenerlas ordenadas se puede lograr un más rápido acoplamiento de secciones que están en contacto. La posibilidad de dividir la población en sub-bloques de datos también se pensó para estar un paso adelantado en caso de que el algoritmo sea trabajado a futuro y se decida implementar utilizando técnicas de computación paralela. Para lo cual las secciones intercambiadas se enviarán a individuos ejecutando en distintos nodos.
+
+
+\begin{comment}
+
+\subsection{Adaptaciones}
+Se identificó pérdida del fitness al no poder ensamblar perfectamente los individuos padres en el punto de corte. Para evitar la perdida de fitness se adaptó el proceso de evolución de la población al aplicar el operador de cruzamiento. A continuación se exponen las dos mejoras realizadas: operador de cruzamiento y suavizado del punto de corte.
+
+\subparagraph{Aproximación de padres}
+
+\textcolor{red}{
+La aproximación de los padres (llamémosles left y right) se realiza según el siguiente pseudocódigo:
+\begin{enumerate}
+	\item Obtener punto de corte randómico (llamémosle randZ), este es un valor numérico entre 0 y la altura de las cajas).
+	\item Evaluar forma de cruzamiento, es decir si conviene cruzar la parte superior de left con la inferior de right, o viceversa (entiéndase convenir como cual me genera un individuo de mayor fitness). Supongamos solo a modo de ejemplo, que conviene cruzar la parte superior de left con la inferior de right.
+	\item Se toman todas las partículas del individuo left que se encuentran por encima de randZ
+	\item Se toman todas las partículas del individuo right que se encuentran por debajo de randZ.
+	\item Se toman las partículas pares en stock de left y las impares en stock de right.
+	\item Con los datos obtenidos se genera un nuevo individuo.
+\end{enumerate}
+Este proceso de cruzamiento tiene la deficiencia de perder muchas partículas que pertenecen al punto de corte. Se logró mejorar dicho operador, modificando los pasos 3 y 4 antes esbozados, quedando entonces dichos pasos como:
+\begin{enumerate}
+	\setcounter{enumi}{2}
+	\item Se toman todas las partículas del individuo left que se encuentran por encima de randZ. Se guarda en memoria además el valor de la partícula que tiene menor valor de Z, llamémosle minorLeftZ (recordar que el individuo left es el que se cruza usando su parte superior, en caso contrario sería ‘mayor valor de Z’).
+	\item Se toman todas las partículas del individuo right que se encuentran por debajo de minorLeftZ. Esta simple modificación permitió mejorar en una pequeña proporción el fitness de la nueva generación, puesto que las partículas se aproximan de mejor manera en el punto de corte, lo que implica una mejoría del operador.
+\end{enumerate}
+}
+
+\subparagraph{Suavizado del punto de corte}
+\textcolor{red}{
+Otra adaptación surge utilizando las partículas que se encuentran en el stock del individuo resultante. Luego de que se generó el punto de corte y se aproximaron lo mejor posible las cajas, se intenta ubicar las partículas que están en dicho stock en el plano del corte. La forma de ubicar las partículas toma en cuenta sus radios, es decir dado el plano de corte se genera una grilla, con una resolución dependiente del radio de la partícula a ubicar. Para partículas grandes se utiliza una resolución de mayor valor numérico que para una partícula con una radio pequeña, puesto que dicha partícula pequeña puede entrar en espacios muy reducidos. De esta forma, dado un corte que no es perfectamente acoplado (quedando espacios irregulares vacíos, como sucede en la práctica), se intenta suavizarlo.
+}
+
+\end{comment}
+
+\section{Simulación de medios granulares bajo los efectos de fuerzas gravitatorias}
+En esta sección se presentan el algoritmo de simulación de medios granulares.
+%antecedentes
+%Metodología
+%Paralelicidad del algoritmo
+%modelo de programación paralela
+%MADA
+%esquema generado y el manejo de memoria compartida
+
+
+\subsection{Metodología}
+Una vez que se conocen las posiciones de las partículas que componen el medio granular, se genera una grilla que se solapa en el espacio con el medio granular. La grilla divide el medio granular en diferentes celdas o cubos. 
+%La grilla es generada dinámicamente basada en parámetros de configuración, permitiendo personalizar las diferentes ejecuciones según las características del medio granular a simular y los recursos de cómputo disponibles. 
+%El procedimiento de cálculo es como sigue: para cada celda de la grilla se itera sobre las partículas contenidas en cada celda y se calcula la fuerza de gravedad inducida por cada una de ellas sobre el centro espacial de cada celda.
+Considérese una grilla en 2D resultante de dividir el dominio en 3 divisiones en el eje $X$ y en el eje $Y$, subdividiendo el espacio en 16 celdas tal como se muestra en la figura~\ref{fig:metodologia}. En la figura~\ref{fig:metodologia} las partículas se representan como puntos azules, el centro espacial $O$ de la celda con coordenadas $(x=1,y=2)$ y el centro de masa $CM$ de las partículas $p_1$ y $p_2$ contenidas en la celda $(x=2, y=3)$.
+
+\begin{figure}[!h]
+	\setlength{\abovecaptionskip}{3pt}
+   	\centering
+	\includegraphics[scale=0.9]{images/metodologia.PNG}
+	\caption{Metodología de calculo de autogravedad.}
+	\label{fig:metodologia}
+\end{figure}
+%\includegraphics[scale=0.5]{images/metodologia.PNG}
+%\includegraphics[width=\textwidth]{images/metodologia.PNG}
+
+El algoritmo calcula en cada centro espacial de cada celda la fuerza gravitatoria generada por cada partícula del aglomerado. El cálculo de la fuerza gravitatoria en cada punto $O$ es independiente al del resto de las celdas de la grilla. 
+%Se utiliza un método para aproximar partículas lejanas por el centro de masa de todas las partículas contenidas en la celda lejana. Se profundizará sobre el método en capítulos posteriores. En el caso particular de la figura anterior, se denota como CM el centro de masa de las partículas para la celda considerada.\newline
+%Una vez calculada la fuerza gravitatoria del centro de masa CM sobre el punto O (según las fórmulas ya expuestas), se procede a calcular la influencia de la siguiente celda. Dicho procedimiento continua para el punto O, hasta que la influencia de todas las celdas es calculada y sumada. \newline
+%A continuación, se selecciona como punto O el siguiente centro espacial de la siguiente celda. 
+Cuando la fuerza gravitatoria es calculada para todos los centros espaciales de todas las celdas entonces el algoritmo finaliza.
+
+\subsection{Paralelicidad del algoritmo}
+En el algoritmo paralelo desarrollado se tienen secciones secuenciales y paralelas. Se considera la paralelización de una sección dependiendo de la necesidad y/o ganancia que se obtendría en la paralelicidad y la complejidad resultante.\newline
+
+Las secciones que requieren mayor poder de cómputo, y por consecuencia donde el algoritmo gasta la mayor parte del tiempo, son las secciones donde la paralelicidad obtiene la mayor ganancia.
+% Tal como se puede intuir, las secciones que requieren mayor poder de cómputo (y por consecuencia donde el algoritmo gasta la mayor parte del tiempo) son las secciones donde la paralelicidad obtiene la mayor ganancia.\newline
+En el algoritmo paralelo existen dos secciones paralelas, en la primera se calcula la fuerza gravitatoria en cada celda de la grilla y en la segunda se realiza el cálculo de la interpolación. En la figura ~\ref{fig:paralelicidad} se muestran las distintas secciones:
+
+\begin{figure}[!h]
+	\setlength{\abovecaptionskip}{3pt}
+   	\centering
+	\includegraphics[scale=0.55]{images/paralelicidad.PNG}
+	\caption{Paralelicidad del algoritmo.}
+	\label{fig:paralelicidad}
+\end{figure}
+
+%\includegraphics[scale=0.5]{images/paralelicidad.PNG}
+%\includegraphics[width=\textwidth]{images/paralelicidad.PNG}
+
+En el gráfico anterior se puede reconocer las secciones principales que conforman el algoritmo paralelo:
+\begin{itemize}
+	\item Etapa 1. Initialization of shared memory: inicializa estructuras de memoria compartida. Read config values: se leen valores de configuración
+	\item Etapa 2. Threads initialization: se crean las estructuras de hilos y objetos necesarios. 
+	\item Etapa 3. Self-gravity calculus: sección paralela donde se procesa el cálculo de la auto-gravedad. Los objetos Worker representados en el diagrama, son los encargados de ejecutar el trabajo pesado de la sección paralela.
+	\item Etapa 4. Interpolation calculus: sección paralela donde se procesa el cálculo de la interpolación. Los objetos Worker representados en el diagrama son los mismo que para la etapa 3.
+	\item Etapa 5. Output result: etapa en la cual ya se ha terminado el procesamiento pesado y se procede a devolver los resultados obtenidos.
+\end{itemize}
+
+\subsection{Modelo de programación paralela}
+Uno de los aspectos importantes a la hora de definir un algoritmo paralelo es definir el modelo paralelo que se aplicará y cómo. En esta sección se describe el modelo de programación paralela utilizado y su implementación conceptual.\newline
+Tal como se describieron existen dos modelos, uno basado en descomposición de dominio o datos y otro basado en descomposición funcional. Analizando el algoritmo de calculo gravitatorio, se concluye que se tiene fundamentalmente una sola función a computar que se repite en el dominio de estudio. 
+% Por esa razon, se decidio a una descomposición basada en el dominio puesto que resulta muy intuitiva y además ventajosa puesto que la grilla divide el área de interés en secciones que (con cierto cuidado en los bordes) pueden ser procesadas de forma independiente.  
+Por esa razon, se optó por implementar un modelo de programación paralela basado en la descomposición de datos, siendo la grilla el dominio a descomponer y las celdas la mínima unidad a procesar.\newline
+
+% \paragraph{Estrategia de asignación de nodos del dominio}
+La forma en como las celdas a procesar se asignan a los recursos de computo disponible impacta en el comportamiento del algoritmo. Se pueden diferenciar dos categorías de estrategias para asignar las celdas, una categoría estática y una categoría dinamica. En la categoría estática se encuentran aquellas estrategias que no toman en cuenta el comportamiento de la ejecución, mientras que en la categoría dinamica se encuentran aquellas estrategias que modifican su comportamiento segun se comporte la ejecución. 
+
+% asignar las celdas de forma estática al comienzo del algoritmo o se pueden asignar de forma dinamica segun  
+% Además del modelo básico de asignación de celdas a los recursos de cómputo disponible, resulta importante y necesario diseñar la naturaleza de dicha asignación. Es decir, si la asignación del dominio de datos a los distintos recursos de cómputo se definirá de forma estática al comienzo del algoritmo (y será independiente del comportamiento y variación en la disponibilidad de los recursos de cómputo) o si será coordinada dinámicamente en el transcurso de la ejecución a partir del análisis del comportamiento del mismo.\newline
+
+% Las celdas a procesar se pueden asignar a los recursos de cómputo siguiendo diferentes estrategias. 
+En esta sección se analiza el comportamiento de diferentes estrategias de asignación de nodos o celdas de la grilla a los diferentes recursos de cómputo.\newline
+En el proceso de estudiar el comportamiento del algoritmo se implementaron las siguientes estrategias de recorrida del dominio de datos:
+\begin{enumerate}
+	\item Estrategia de interbloqueo lineal con igual comienzo
+	\item Estrategia circular con\-céntrica
+	\item Estrategia aislada lineal básica 
+	\item Estrategia aislada lineal avanzada 
+\end{enumerate}
+
+\subparagraph{Estrategia de interbloqueo lineal con igual comienzo}
+% En un principio se comenzó con una estrategia lineal de asignación de celdas a hilos. 
+Los hilos son ordenados lexicográficamente desde $1$ a $n$, y todos los hilos empiezan desde el mismo punto inicial. La primera celda libre (celda nro. 1) es asignada al primer hilo, la segunda celda libre (celda nro. 2) es asignada al segundo hilo, y así sucesivamente, hasta que todos los hilos tienen una celda para realizar el procesamiento. Luego, cada vez que un hilo $h$ termina de procesar una celda $c$ y requiere una celda para seguir trabajando, se busca la siguiente celda sin procesar a partir de $c$ y se le asigna al hilo $h$.\newline
+
+La figura ~\ref{fig:estrategia_asignacion_1} muestra la estrategia de interbloqueo lineal, donde cada color es usado para representar las celdas siendo asignadas a diferentes hilos (colores completos representan celdas ya procesadas, colores en degradé representan celdas siendo procesadas y celdas blancas son sin procesar):
+
+\begin{figure}[!h]
+	\setlength{\abovecaptionskip}{3pt}
+   	\centering
+	\includegraphics[scale=0.7]{images/estrategia_asignacion_1.PNG}
+	\caption{Estrategia de interbloqueo lineal con igual comienzo.}
+	\label{fig:estrategia_asignacion_1}
+\end{figure}
+
+%\includegraphics[scale=0.8]{images/estrategia_asignación_1.PNG}
+%\includegraphics[width=\textwidth]{images/estrategia_asignacion_1.PNG}
+
+Algo evidente es la necesidad de sincronizar el acceso a cada celda, para evitar que una misma celda sea procesada repetidas veces por los diferentes hilos. Para eso se agregó un semáforo que permite sincronizar el acceso al área de memoria compartida en la cual se especifica el estado de las celdas (es decir el conjunto de celdas sin procesar, ya procesadas, etc.). Si bien esto garantiza la correctitud en la solución, la sincronización de una cantidad relativamente alta de hilos en un solo punto crea un cuello de botella que enlentece la ganancia agregada con la paralelización. Para solucionar dicho cuello de botella se sustituyó el único semáforo por un conjunto de semáforos, asignando uno a cada celda, de esta forma se tiene una solución más sencilla, mejor control y más fino de qué hilo se está bloqueando.\newline
+
+Una vez ésta estrategia de recorrida lineal con un mismo comienzo estaba funcionando correctamente, se buscó mejorarla teniendo en cuenta los cálculos, el orden y los valores cacheados en el proceso. 
+
+\subparagraph{Estrategia circular concéntrica}
+En esta estrategia la mitad de los hilos empiezan desde el centro de la grilla, y la otra mitad de los hilos empiezan desde las celdas más alejadas del centro de la grilla. Cuando el algoritmo ejecuta, para cada celda a procesar cada hilo debe calcular el centro de masa de la celda. Este valor solo depende de las particulas contenidas en la celda y no cambia hasta que termina la ejecucion, por lo cual el valor es almacenado en memoria como dato derivado de la celda.
+Lo que se busca con esta estrategia, es reutilizar dichos valores de centro de masa por los distintos hilos en el transcurso de su procesamiento. Los hilos que ejecutan desde el centro hacia afuera calculan y almacenan ciertos valores que seran reutilizados por los hilos que ejecutan en sentido contrario, y viceversa. Las ideas básicas de esta estrategia se muestran en la figura ~\ref{fig:estrategia_asignacion_2}.
+
+\begin{figure}[!h]
+	\setlength{\abovecaptionskip}{3pt}
+   	\centering
+	\includegraphics[scale=0.7]{images/estrategia_asignacion_2.PNG}
+	\caption{Estrategia circular concéntrica.}
+	\label{fig:estrategia_asignacion_2}
+\end{figure}
+
+%\includegraphics[scale=0.8]{images/estrategia_asignacion_2.PNG}
+%\includegraphics[width=\textwidth]{images/estrategia_asignacion_2.PNG}
+
+Dado que la mitad de los hilos arrancan desde la misma celda en el centro de la grilla y la otra mitad de los hilos arranca en una de las celdas más alejadas del centro de la grilla, igualmente necesitamos semáforos para sincronizar la ejecución y asegurar que no se procesa una misma celda múltiples veces. Nótese que la forma en cómo comienzan las dos mitades de los hilos (en el centro de la celda y en la celda más alejada del centro) es similar a la forma en cómo ejecuta la estrategia anterior.
+
+La poca complejidad algorítmica involucrada en el calculo del centro de masa en comparacion con el calculo de autogravedad, hacen que esta estrategia no tenga una ganancia significativa como veremos en los siguientes capitulos.
+% y por ende la ventaja de reutilizar dichos valores no resulta en una ganancia significativa, mientras que aún tenemos el conjunto de semáforos y el degradado que eso acarrea.\newline
+
+% Si bien la idea de reutilizar cálculos parecía muy acertada, la poca complejidad algorítmica involucrada en dicho cálculo y por ende la ventaja de reutilizar dichos valores no resulta en una ganancia significativa, mientras que aún tenemos el conjunto de semáforos y el degradado que eso acarrea.\newline
+
+\subparagraph{Estrategia aislada lineal básica}
+Esta estrategia surge al considerar que los hilos no comienzan en la misma celda, sino que distribuidos de forma tal de minimizar las colisiones en el acceso a la memoria compartida. Esta estrategia se caracteriza por realizar una recorrida lineal de las cajas, tal como la primera estrategia descrita, pero asignando a cada hilo un comienzo distinto, no consecutivo y distribuido uniformemente. Es decir, si se considera el conjunto de celdas $c_i$ con $i$ desde $0$ a $n-1$ y el conjunto de hilos $h_i$ con $i$ desde $0$ a $h-1$, se divide dicho conjunto $n$ de celdas entre el conjunto $h$ de hilos disponibles, de tal forma que para cada hilo $h_i$, se le asigna como comienzo la celda $h_i*(n/h)$. De esta forma los hilos tienen el mismo porcentaje de dominio libre para procesar antes de toparse con una celda que ya fue calculada por otro hilo. En esta estrategia no se necesita manejar semáforos para cada celda, por lo que podría apreciarse una mejora en la performance. La estrategia se puede visualizar en la figura ~\ref{fig:estrategia_asignacion_3}.
+
+\begin{figure}[!h]
+	\setlength{\abovecaptionskip}{3pt}
+   	\centering
+	\includegraphics[scale=0.7]{images/estrategia_asignacion_3.PNG}
+	\caption{Estrategia aislada lineal básica.}
+	\label{fig:estrategia_asignacion_3}
+\end{figure}
+
+%\includegraphics[scale=0.8]{images/estrategia_asignacion_3.PNG}
+%\includegraphics[width=\textwidth]{images/estrategia_asignacion_3.PNG}
+
+Esta estrategia pertenece a la categoria de estrategias estaticas, es decir los hilos no cambian su comportamiento segun se comporte la ejecución (el resto de los hilos). Para ejemplificar un posible escenario, un hilo que termina su sección asignada estáticamente no continuará ejecutando nuevas celdas en otra sección, sino que finalizará la ejecución. Esto impacta en el tiempo total que le toma al algoritmo.
+
+Notar cómo en esta estrategia se sacrifica el dinamismo en la asignación de celdas en pos de mejorar la performance obtenida.
+
+\subparagraph{Estrategia aislada lineal avanzada}
+Esta estrategia incorpora a la estrategia anterior la capacidad de ejecutar nuevas celdas en otras secciones una vez que la sección asignada al inicio se completa.
+
+La idea fundamental de esta estrategia es presentada en la figura ~\ref{fig:estrategia_asignacion_4}.
+
+\begin{figure}[!h]
+	\setlength{\abovecaptionskip}{3pt}
+   	\centering
+	\includegraphics[scale=0.7]{images/estrategia_asignacion_4.PNG}
+	\caption{Estrategia aislada lineal avanzada.}
+	\label{fig:estrategia_asignacion_4}
+\end{figure}
+%\includegraphics[scale=0.8]{images/estrategia_asignacion_4.PNG}
+%\includegraphics[width=\textwidth]{images/estrategia_asignacion_4.PNG}
+
+% \textcolor{red}{\Huge SEGUIR  PROCESANDO}
+% \Huge{\textcolor{red}{SEGUIR  PROCESANDO  IMAGENES}}
+
+La estrategia divide el procesamiento en dos etapas: la primera etapa es idéntica a la estrategia anterior hasta que el espacio de celdas asignado a un hilo se completa, en ese momento comienza la segunda etapa que se comporta como la estrategia nombrada "Aislada lineal básica". En esta etapa se comienzan a procesar celdas en los espacios de celdas de otros hilos. 
+Esta estrategia combina las mejores características de ambas estrategias.
+
+\subsection{Aproximación de masas por distancia}
+\paragraph{Motivación}
+Como ya se mencionó, uno de los aspectos complejos del problema resulta en el alto número de partículas a considerar. Para soportar el cálculo (desde un punto de vista computacional) cuando la cantidad de partículas crece, se necesita reducir el número total de cálculos efectuados. Para eso, hay que recordar que, a una distancia suficientemente grande, desde el punto de vista del efecto gravitatorio, la masa de dos cuerpos puede ser considerada como condensada a su centro de masa (sin generar esto errores significativos). Por tanto, para disminuir el orden de magnitud del cálculo, se puede aplicar un algoritmo con una estructura de datos adecuada que agrupe a las partículas lejanas sustituyendolas por una masa combinada y una distancia media o centro de masa.
+Este concepto nos permite abordar magnitudes del orden de millones de particulas.
+\paragraph{Metodología}
+Considérese un conjunto de partículas con sus coordenadas correspondientes, y sobre cada grupo de partículas una celda perteneciente a la grilla que las contiene, tal como se muestra en la figura ~\ref{fig:estrategia_asignacion_4}.
+
+%\Huge{\textcolor{red}{SEGUIR \newlinePROCESANDO \newlineIMAGENES\newlineA \newlinePARTIR\newlineDE\newlineACA\newline}}
+
+\begin{figure}[!h]
+	\setlength{\abovecaptionskip}{3pt}
+   	\centering
+	\includegraphics[width=300px]{images/mada.PNG}
+	\caption{Aproximación de masas por distancia.}
+	\label{fig:mada}
+\end{figure}
+%\includegraphics[width=200px]{images/mada.PNG}
+
+Desde el punto origen situado en $O$, realizar el cálculo de la auto-gravedad utilizando cada partícula contenida en la celda $A$ o utilizando solamente el centro de masa de las partículas de la celda $A$ (punto $P_j$), se pueden aproximar (cuando la distancia de $O$ a $P_j$ es significativa) sin ser esto una fuente de error considerable.
+
+Siguiendo ese razonamiento para todas las partículas dentro de la grilla, se puede calcular su centro de masa y posición y usar dichos valores para el cálculo del potencial en cualquier punto. En este caso, en vez de iterar sobre todas las partículas para calcular el potencial en un punto $O$, solo se toman en cuenta los centros de masa de cada celda de la grilla definida. Considerando que enfocamos nuestra problematica en aglomerados densos, se tienen menos centros de masa que particulas, por lo que la complejidad algoritmica disminuye. Se le denomina MADA a dicha estrategia por su sigla en ingles (Mass approximation distance algorithm).
+
+
+% \begin{figure}[!h]
+% 	\setlength{\abovecaptionskip}{3pt}
+%   	\centering
+% % 	\includegraphics[width=300px]{images/mada.PNG}
+% 	\includegraphics[width=150px]{images/mada_2.PNG}
+% 	\caption{Aproximación de masas por distancia.}
+% 	\label{fig:mada}
+% \end{figure}
+
+
+
+\paragraph{Celdas virtuales}
+La aplicación de MADA incurre en errores significativos en aquellos escenarios en los que el punto origen $O$ se encuentra próximo al centro de masa.
+Una mejora de esta estrategia surge al subdividir las celdas de la grilla de forma dinámica dependiendo de la distancia al punto origen $O$.
+Para explicar este concepto resulta útil definir el siguiente vocabulario: se denomina celda de primer nivel a las celdas tal como se presentaron hasta ahora (en la figura ~\ref{fig:mada_subdivision} tales celdas estan representadas con borde negro), se denomina celdas de segundo nivel a las celdas con una división interna con lo que definen 4 nuevas sub-celdas (en la figura ~\ref{fig:mada_subdivision} dichas celdas estan representadas con borde azul) finalmente se denomina  celdas de tercer nivel a las celdas con dos divisiones con lo que definen 16 nuevas sub-celdas (en la figura ~\ref{fig:mada_subdivision} son las celdas de borde rojo). 
+
+\begin{figure}[!h]
+	\setlength{\abovecaptionskip}{3pt}
+  	\centering
+% 	\includegraphics[width=300px]{images/mada.PNG}
+% 	\includegraphics[width=150px]{images/mada_2.PNG}
+    \includegraphics[width=230px]{images/mada_celdas_virtuales.PNG}
+	\caption{Subdivision de celdas de MADA.}
+	\label{fig:mada_subdivision}
+\end{figure}
+
+%\includegraphics[width=200px]{images/mada_celdas_virtuales.PNG}
+
+Lo que esta mejora propone es dividir las celdas en sub-celdas de diferentes niveles (mayor nivel a medida que se acerca al punto origen $O$) y utilizar los centros de masa de las partículas contenidas por dentro de estas sub-celdas en vez del centro de masa de la celda de primer nivel. Nótese que la  celda que contiene el punto origen $O$, no utiliza el centro de masa de la celda, sino que calcula directamente utilizando las partículas.
+Con esta mejora mantenemos la disminución algorítmica lograda con MADA para partículas distantes mientra que se asegura no cometer errores con partículas cercanas. 
+
+\paragraph{Configuración de la malla}
+
+El MADA es influido por la cantidad de subdivisiones totales que se realizan a las celdas de primer nivel. Por otro lado, según el aglomerado que se está estudiando se preferirá una u otra forma de dividir las celdas. Por las dos razones anteriores, es que se necesita permitir configurar al usuario que ejecuta el algoritmo la forma en como se dividen las celdas de la grilla.
+
+Las implicancias que tiene la elección de los valores configurables son:
+
+\begin{itemize}
+	\item marco de trabajo: en su forma más intuitiva la grilla define el área de interés. En caso de que la resolución de la grilla sea muy gruesa, o no se defina correctamente (corrida respecto a las coordenadas del medio granular) se pueden estar perdiendo valores de interés. En el otro extremo, si se define una grilla muy grande (para asegurar que todo el medio granular es cubierto) puede generar muchas celdas vacías, se estarían procesando celdas sin datos útiles, por lo que no se estaría haciendo un uso útil de los recursos de cómputo disponibles.
+	\item paralelicidad: influye en la paralelicidad debido a que cada celda representa el mínimo elemento que se asigna para procesar. Por lo que el tamaño de la grilla influirá en la resolución de la paralelicidad posible: una grilla fina permitirá tener un control más riguroso en la asignación de celdas, pero si ésta resulta excesivamente fina hará que cada hilo necesite constantemente pedir nuevas celdas que procesar, agregando sobre procesamiento inútil.
+	\item volumen de resultados: debido a que es en el centro de cada celda donde se calcula el valor de auto-gravedad. Por lo que una grilla fina incrementará el poder de cómputo requerido pudiendo suceder que se obtengan más datos de los necesarios, mientras que una grilla gruesa generará pocos resultados, pudiendo no ser realmente útil la ejecución en este último caso.
+	\item una malla gruesa podría no capturar todas las características del problema y podría conducir a resultados no exactos; una rejilla fina proporcionará un control más estricto sobre la asignación de las celdas, pero una muy fina rejilla obligará a cada hilo para aumentar significativamente la comunicación y tiempos de sincronización.
+\end{itemize}
+
+\subsection{Modelo de memoria compartida}
+% \subparagraph{Introducción}
+El algorítmo desarrollado se basa en el modelo de memoria compartida, en el cual todos los hilos de ejecución tienen acceso a un único repositorio central de datos.
+% \subparagraph{Modelo de memoria compartida}
+% Como se mencionó previamente en este modelo, todos los procesadores comparten una zona de memoria, por lo que los datos escritos en ella por un recurso de cómputo son visibles al resto.
+
+% En el diagrama ~\ref{fig:shared_memory} se representan los datos compartidos:
+
+\begin{figure}[!h]
+	\setlength{\abovecaptionskip}{3pt}
+  	\centering
+    % \includegraphics[width=230px]{images/mada_celdas_virtuales.PNG}
+    \includegraphics[width=300px]{images/memoria_compartida.PNG}
+	\caption{Modelo de memoria compartida.}
+	\label{fig:shared_memory}
+\end{figure}
+
+En el diagrama ~\ref{fig:shared_memory} se muestran las áreas de memoria que se comparten:
+
+\begin{enumerate}
+	\item Esquema generado: el esquema generado con su conjunto de celdas y estructuras necesarias.
+	\item Partículas: todas las partículas iniciales una vez se terminan de leer desde archivo.
+	\item Datos de configuración: el conjunto de valores de configuración utilizados por los diferentes hilos.
+	\item Datos calculados: todos los datos que se obtienen como resultado de la ejecución del algorítmo.
+\end{enumerate}
+
+Los puntos del 1 al 3 son datos que una vez leídos desde archivo se mantienen en memoria y solo son leídos por el algoritmo, no se actualizan durante la ejecución, por lo que no se necesita sincronizar el acceso desde múltiples hilos.
+
+% le durante la  necesitan ser leídos por lo que no hay que preocuparse por conflictos producidos por el acceso desde múltiples hilos. 
+
+En el punto 4, se mantienen en memoria compartida los datos producto de la ejecución del algoritmo.
+Para ésta área de memoria compartida, se sincroniza el acceso al espacio de memoria a través de un semáforo dedicado.
+
+\subsection{Interpolación}
+La motivación detras de aplicar técnicas de interpolación se basa en disminuir el costo computacional. Aplicar el cálculo del potencial gravitatorio sobre una malla gruesa y luego una técnica de interpolación sobre una malla más fina, es menos costoso computacionalmente que aplicar el cálculo del potencial sobre una malla fina.
+
+A continuación enumeramos las técnicas de interpolación y luego se realiza un análisis teórico de cada una de ellas:
+
+\begin{itemize}
+	\item Nearest neighbor
+	\item Ponderación lineal 
+	\item Kriging
+	\item Inverse distance weighting (IDW) 
+\end{itemize}
+
+La primer técnica de interpolación simplemente asigna al nuevo valor interpolado el valor más cercano (como distancia euclideana). Está técnica es simple de implementar y brinda una referencia base contra que comparar.
+
+A través del análisis de la ecuación de la segunda técnica de interpolación, se concluye que se está asignado a los puntos mas lejanos al valor origen $O$ a interpolar, mayor importancia en el resultado que los puntos cercanos. Esto se contradice con la magnitud que se está interpolando (potencial gravitatorio), la cual se hace más débil con la distancia. Esta técnica de interpolacion produciría valores incorrectos. Como conclusión de este análisis, concluímos que necesitamos una técnica que proponga lo opuesto, es decir asignar mayor relevancia a puntos cercanos al valor a interpolar, o que permita decidir cuánta relevancia se quiere asignar a los valores conocidos respecto a la distancia al punto origen $O$ a interpolar.
+
+La técnica de Kriging es un algoritmo muy conocido para estimar variables estadísticas. El método puede ser entendido como una predicción lineal o una forma de inferencia bayesiana. Esta técnica parte del principio de que puntos próximos en el espacio tienden a tener valores más parecidos que los puntos más distantes. La técnica de kriging asume que los datos recogidos de una determinada población se encuentran correlacionados en el espacio. A modo de ejemplo, si en un vertedero de residuos tóxicos y peligrosos la concentración de zinc en un punto $p$ es $x$, será muy probable que se encuentren resultados muy próximos a $x$ cuanto más próximos se esté del punto $p$ (principio de geoestadística). Sin embargo, desde una cierta distancia de $p$, ciertamente no se encontrarán valores próximos a $x$ porque la correlación espacial puede dejar de existir.
+
+A diferencia del método de Ponderación lineal, la técnica IDW sí se adapta a la magnitud interpolada, puesto que asigna mayor relevancia a puntos cercanos al valor a interpolar. Además, la técnica de Kriging permite indicar cuánta relevancia queremos asignar a los puntos respecto a la distancia al punto a interpolar.
+
+Luego de haber descartado durante esta etapa de análisis teórico la técnica de "Ponderación lineal", se vera en el capitulo ~\ref{ch:ch5} el  análisis experimental de ambas técnicas de Kriging y IDW.
+
+% \subsubsection{Paralelicidad de la interpolación\newline}
+
+\subsection{Paralelicidad en el cálculo de la autogravedad y cálculo de la interpolación}
+
+% A continuación se representa la figura  ~\ref{fig:etapas_paralelicidad_autogravedad_interpolacion} con el flujo del algoritmo teniendo en cuenta el cálculo de la autogravedad y el cálculo de la interpolación:
+
+
+% \begin{figure}[!h]
+% 	\setlength{\abovecaptionskip}{3pt}
+%   	\centering
+%     % \includegraphics[width=230px]{images/mada_celdas_virtuales.PNG}
+%     % \includegraphics[width=300px]{images/memoria_compartida.PNG}
+%     \includegraphics[width=350px]{images/interpolacion_paralelicidad.PNG}
+% 	\caption{Etapas del cálculo de autogravedad e interpolación}
+% 	\label{fig:etapas_paralelicidad_autogravedad_interpolacion}
+% \end{figure}
+Los calculos de autogravedad e interpolacion son los que demandan mayor recursos de computo. Debido a esta demanda de computo se integraron técnicas de paralelización en dichas etapas.
+
+En vez de crear y destruir el conjunto de hilos a usar en cada sección paralela, se utilizan las mismas instancias de los hilos en todo momento. Esto tiene como ventaja que no se necesita hacer un llamado al sistema operativo para crear y/o destruir hilos, logrando reutilizar recursos costosos como son los hilos. Igualmente, la desventaja que esto acarrea es que para diferentes secciones que presentan diferente complejidad y necesidad de cálculo no se podría dedicar diferente cantidad de hilos. Por ejemplo, en el cálculo de auto-gravedad se dedica una cantidad de hilos X que se adapta dependiendo de la dimensión del problema planteado. Sin embargo, por lo general el cálculo de la interpolación (que es la sección que ejecutaría a continuación) no demanda tanto poder de cálculo, pero igualmente no se puede evitar destinar la misma cantidad de hilos a su ejecución. Esto puede generar una pérdida de la performance por un cuello de botella en la sincronización entre más hilos de los necesarios. De todas formas, esta rigidez en la asignación de hilos se podría superar fácilmente agregando más hilos a los ya creados si eso fuera necesario, o utilizar un subconjunto de los disponibles manteniendo el resto no utilizado en un estado en espera.\newline
+
+Una vez seleccionado el algoritmo resta decidir cuáles puntos utilizar como entrada en la interpolación. La técnica IDW no nos limita un máximo ni un mínimo, sin embargo puntos muy lejanos tienen una mínima influencia comparado con puntos vecinos. Luego de algunos análisis experimentales se definió que utilizar los ocho puntos más cercanos nos brinda un buen compromiso entre cantidad de datos y calidad del resultado obtenido.
+
+\subsection{Integración al paquete ESyS-Particle}
+
+En esta sección se describen los cambios realizados en el algoritmo para integrarlo con el paquete ESyS-Particle. 
+
+\textcolor{red}{Involucrados:En las distintas etapas del proceso de integración con el paquete ESyS-Particle hubieron distintos involucrados, entre los cuales están: Steffen Abe (Investigador Postdoctoral, Instituto de Gestión de Recursos Geotérmicos, Mainz, Alemania), Dion Weatherley (Investigador Postdoctoral en la Universidad de Queensland, Australia), Sergio Nesmachnow (FING - UdelaR), Gonzalo Tancredi (FCIEN - UdelaR), Francisco Lopez (FCIEN - UdelaR), Néstor Rocchetti (FING - UdelaR) y Daniel Frascarelli.}
+
+% \subsubsection{Introducción}
+% En está sección se describe el proceso de integración del código desarrollado en el paquete de simulación númerica ESyS-Particle.
+% Como se comentó anteriormente, cuando la cantidad de datos que se obtienen como resultado de un algoritmo numérico es tan grande que analizar los datos de forma individual resulta inmanejable, se necesitan herramientas que permitan visualizar los resultados de forma gráfica. En nuestro caso lo que se busca es poder integrar en estas simulaciones gráficas el efecto de auto-gravedad generado por el algoritmo implementado. El paquete de simulación en el cual se eligió integrar el código realizado es el ESyS-Particle ya nombrado anteriormente.
+
+% A continuación se describe el diseño del paquete antes de la integración, los cambios realizados y el estado actual.
+
+% \subsubsection{Integraciones}
+Se realizaron dos tipos de integraciones al paquete ESyS-Particle, una que denominamos integración FewParticles y otra que en contraposición denominamos integración ManyParticles. La integración FewParticles, hace un cálculo exacto sobre todas las partículas del dominio. Para ellos es necesario de disponer de todas las partículas en el recurso de cómputo, por lo que esta forma de integración limita la escalabilidad de la solución final (recuérdese que ESyS-Particle divide partículas entre recursos de cómputo). La segunda forma de integración ManyParticles no hace un cálculo exacto sino que realiza diferentes aproximaciones (como la ya vista MADA) comunicando los valores de autogravedad calculados entre los distintos recurso de cómputo. A continuación se describe en profundidad cada forma de integración.
+
+\paragraph{Integración FewParticles}
+Para poder simular el comportamiento de partículas bajo el efecto de una fuerza de auto-gravedad es necesaria la incorporación de nuevas interacciones al producto ESyS-Particle. 
+ESyS-Particle permite agregar nuevos tipos de fuerzas que aún no estén implementadas por dentro del paquete de forma relativamente sencilla. Sin embargo, dada la arquitectura paralela maestro-esclavo y la interfaz Python, es necesario agregar pequeños trozos de código a lo largo de todo el código fuente.
+
+Existen cuatro tipos de interacciones en ESyS-Particle que difieren en la forma en que son implementados:
+\begin{itemize}
+	\item Interacciones no enlazadas entre pares de partículas.
+	\item Interacciones enlazadas entre pares de partículas.
+	\item Interacciones entre partículas y muros o mallas.
+	\item Campos de fuerza tales como la gravedad, que son implementados como interacciones de una sola partícula.
+\end{itemize}
+
+El tipo de interacción que se debe agregar coincide con el cuarto tipo de interacción antes comentado. En el proyecto de grado Paralelismo aplicado al estudio de medios granulares (L. Heredia y P. Richeri) se integra una interacción de tipo Hertzian Visco Elastic Friction, que si bien difiere en algunos aspectos resulta similar el esfuerzo necesario. \textcolor{red}{agregar referencia al proyecto de grado. como se agrega la referencia ? @Nestor  tenes algun ejemplo?}
+
+Esta interacción calcula el potencial gravitatorio $V_j$ en cada partícula $j$ de un aglomerado de $N$ partículas de masa $M_i$ y posición $r_i$ mediante la siguiente fórmula:
+$$\sum_{i \neq j} \frac{G M_i}{\parallel \overrightarrow{r_j} - \overrightarrow{r_i} \parallel}$$
+
+En cada paso de simulación se calcula para cada partícula el potencial gravitatorio generado por el resto de las partículas y se aplica la fuerza resultante. Esta forma de integrar el calculo de auto-gravedad en ESyS-Particle esta bien soportado y resulta simple considerando la arquitectura interna del paquete. Por otro lado, una desventaja clara es la limitación impuesta en la escalabilidad resultante puesto que solo se puede utilizar un recurso de cómputo.
+
+% Además de las ya mencionadas ventajas, esta forma de integración tiene una ventaja muy importante: está forma de integrar el cálculo de auto-gravedad está completamente contemplado en ESyS-Particle y encaja correctamente con la arquitectura base interna. Por lo que podemos estar seguros que no estamos modificando aspectos centrales del paquete. 
+
+\paragraph{Integración ManyParticles}
+Esta integración con el paquete ESyS-Particle está diseñada para simular del orden de millones de partículas. Esto no es viable con la integración FewParticles, en el cual solo se puede utilizar un recurso de cómputo para procesar todas las partículas. Para esta integracción denominada $ManyParticles$ es necesario utilizar más de un recurso de cómputo y habilitar la subdivisión del dominio de trabajo del ESyS-Particle.
+
+Cuando el número de partículas crece la fórmula anterior de orden $O(N^2)$ resulta demasiado costoso computacionalmente. Para ello se diseña una solución que no re-calcula la autogravedad en todos los pasos de simulación, sino que solo recalcula la auto-gravedad cuando ocurren una de dos cosas: o pasaron un número de pasos de simulación dado o las partículas en su promedio se mueven más que un valor $D_a$. El gráfico a continuación, inspirado en el diseño de ESyS-Particle básico, describe el flujo de cálculo resultante:
+
+\includegraphics[scale=0.7]{images/many_particles.PNG}
+%\includegraphics[width=\textwidth]{images/many_particles.PNG}
+
+Como se puede ver en la imagen, el paso de calculo de la autogravedad, solo se ejecuta segun cierta condicional. Debido a ello, el cálculo de auto-gravedad obtenido sólo es exacto en el primer paso de simulación, subsecuentes pasos de simulación utilizarán un valor aproximado. 
+Si bien la aproximación es muy buena (puede verse una análisis del error en el Análisis experimental), este valor aproximado genera en simulaciones largas un error que se arrastra y modifica notoriamente el comportamiento del aglomerado. Se diseñaron e implementaron diferentes estrategias para corregir el efecto obtenido, dichas estrategias se describen más adelante en las mejoras posteriores realizadas.\newline
+
+Para atacar del orden de millones de partículas sin que los tiempos de simulación se disparen, se diseñó un procedimiento de cálculo que, como ya se comentó, permite que el cálculo de auto-gravedad sea independiente del número de partículas. Para eso es que se define una malla que se solapa con el medio granular, y en los puntos de la malla es donde se calcula la autogravedad. Dicho cálculo de autogravedad se realiza en un recurso de cómputo principal de entre los que corre el ESyS-Particle, y dichos valores y puntos calculados se comunican a los otros recursos de cómputo (posiblemente distribuidos) que realizarán los cálculos de cada paso de simulación.
+
+Una de las ventajas obvias de esta integración es que permite trabajar con del orden de millones de partículas. Además los distintos parámetros que permiten por ejemplo configurar el uso de recursos usados para calcular la autogravedad, la frecuencia con la que se realiza el cálculo, la resolución de las mallas de cálculo de autogravedad, etc permiten adaptar y hacer un uso adecuado de los recursos de hardware disponibles para cada problema específico. Como desventaja, esta forma de integración no realiza un cálculo exacto de la autogravedad, sino que realiza aproximaciones (necesarias para impedir que el orden de los cálculos sea dependiente del orden de las partículas), las cuales afectan la simulación generada.\newline
+
+Una vez integrado el algoritmo, las secciones anteriormente diseñadas cambian ligeramente:
+ 
+\includegraphics[scale=0.5]{images/many_particles_secciones.PNG}
+%\includegraphics[width=\textwidth]{images/many_particles_secciones.PNG}
+
+Estos cambios son debido a que al integrar el cálculo de autogravedad en el paquete ESyS-Particle, el cálculo de autogravedad en los nodos de la maya configurable se realiza en el nodo maestro. Una vez obtenidos dichos valores se envían a los procesos esclavos del ESyS-Particle (posiblemente distribuidos) los cuales utilizando estos valores interpolan el valor de la fuerza de auto-gravedad en las posiciones de las partículas del subdominio que le corresponde. Esta distribución de los cálculos impide tener el algoritmo de interpolación por dentro del código de auto-gravedad, sino que se migró a los procesos esclavos.
+
+
+Analizando la dinamica de ejecucion del paquete ESySParticle surge la necesidad de modificar cómo se calcula la interpolación, por lo que el código de interpolación ya no forma parte del algoritmo paralelo de autogravedad, sino que se agregó por dentro del código de ESyS-Particle. Si bien esto implica que el desarrollo de la interpolación en paralelo quedará obsoleta, el análisis experimental sobre cuál técnica se aplica mejor en nuestro caso sigue siendo válida.\newline
+Estos cambios se ven con mayor profundidad en la siguiente sección.
+
+\chapter{Análisis experimental} \label{ch:ch5}
+
+\section{Algoritmo evolutivo}
+Una vez diseñado e implementado el algoritmo evolutivo, se realizó el análisis experimental para determinar los nivel de compactación.
+
+%Lamentablemente no se obtuvieron mejorías respecto de la versión de GenGeo utilizada hasta el momento. Debido a esto se congeló el desarrollo de este problema relacionado y se prosiguió con la implementación y optimización del cálculo del algoritmo paralelo de auto-gravedad que es el objetivo primario.
+
+\texttt
+{
+  \textit
+  {
+      \textcolor{red}
+      {
+        no tengo resultados útiles del algoritmo evolutivo, que hacer?
+      }
+  }
+}
+
+\section{Interpolación}
+Se analizó el comportamiento de los métodos de interpolación Kriging e IDW. Los errores relativos para el algoritmo de Kriging e IDW se muestran en la figura~\ref{fig:err-rel-interpolation}. De la figura~\ref{fig:err-rel-interpolation} se desprende que los algoritmos IDW tienen menor error relativo.
+%Para seleccionar el método de interpolación que mejor se aplique al tipo de problema que estamos atacando se implementaron y analizaron las distintas técnicas propuestas para conocer cómo se comportan. 
+%La técnica de interpolación de Ponderación lineal con la distancia fue descartada durante el análisis, por lo que no se hizo un análisis experimental de la misma. Además la técnica del “Vecino más cercano” se utilizó sólo como referencia, por lo que realmente solo teníamos dos técnicas prometedoras que comparar: Kriging y IDW.
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/interpolacion_kriging.png} 
+        \caption{Error relativo del algoritmo Kriging} \label{fig:interpol_riging}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/interpolacion_idw_1.png} 
+        \caption{Error relativo del algoritmo IDW con parámetro $p=1$} \label{fig:interpol_idw_1}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/interpolacion_idw_2.png} 
+        \caption{Error relativo del algoritmo IDW con parámetro $p=2$} \label{fig:interpol_idw_2}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/interpolacion_idw_3.png} 
+        \caption{Error relativo del algoritmo IDW con parámetro $p=3$} \label{fig:interpol_idw_3}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.84\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/interpolacion_idw_4.png} 
+        \caption{Error relativo del algoritmo IDW con parámetro $p=4$} \label{fig:interpol_idw_4}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/interpolacion_idw_7.png} 
+        \caption{Error relativo del algoritmo IDW con parámetro $p=7$} \label{fig:interpol_idw_7}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/interpolacion_idw_14.png} 
+        \caption{Error relativo del algoritmo IDW con parámetro $p=14$} \label{fig:interpol_idw_14}
+    \end{subfigure}
+    \caption{Errores relativos de los algoritmos de interpolación}
+    \label{fig:err-rel-interpolation}
+\end{figure}
+En la figura~\ref{fig:err-rel-idw} se muestran los errores relativos mínimo, promedio y máximo para los algoritmos IDW. En las figura~\ref{fig:err-rel-idw_avg-error} y~\ref{fig:err-rel-idw_max-error} se observa que los errores relativos promedio y máximo no varía considerablemente para los algoritmos IDW. En la figura~\ref{fig:err-rel-idw_min-error} se observa que el algoritmo IDW con parámetro cuatro 
+presenta menor error relativo mínimo. Por tener menor error relativo mínimo pero similares errores promedio y máximo se seleccionó el algoritmo de IDW con parámetro cuatro.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.7\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/idw_avg-error.png} 
+        \caption{Errores relativos promedio de los algoritmos IDW}
+        \label{fig:err-rel-idw_avg-error}
+    \end{subfigure}    
+    \begin{subfigure}[t]{0.7\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/idw_max-error.png} 
+        \caption{Errores relativos máximos de los algoritmos IDW}
+        \label{fig:err-rel-idw_max-error}
+    \end{subfigure}    
+    \begin{subfigure}[t]{0.7\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/idw_min-error.png} 
+        \caption{Errores relativos mínimo de los algoritmos IDW}
+        \label{fig:err-rel-idw_min-error}
+    \end{subfigure}    
+    \caption{Errores mínimos, promedio y máximo relativos de los algoritmos IDW}
+    \label{fig:err-rel-idw}
+\end{figure}
+
+\section{Cálculo paralelo de simulación de medios granulares}
+Esta sección presenta el análisis experimental del calculo paralelo de la simulación de medios granulares. 
+El análisis experimental fue realizado en un servidor AMD Opteron 6172 (2.1GHz) 24-Core, 24 GB RAM con CentOS Linux, del Cluster Fing. Se analizó el error relativo del algoritmo implementado, la eficiencia computacional y el speedup.
+
+Se definieron seis escenarios para evaluar el algoritmo:
+
+\begin{itemize}
+	\item A: 26.344 partículas de radio \textcolor{red}{XXX}m contenidas en una esfera de radio \textcolor{red}{YY}m
+	\item B: 61.432 partículas de radio \textcolor{red}{XXX}m contenidas en una esfera de radio \textcolor{red}{YY}m
+	\item C: 101.849 partículas de radio \textcolor{red}{XXX}m contenidas en una esfera de radio \textcolor{red}{YY}m
+	\item D: 257.776 partículas de radio \textcolor{red}{XXX}m contenidas en una esfera de radio \textcolor{red}{YY}m
+	\item E: 605.808 partículas de radio \textcolor{red}{XXX}m contenidas en una esfera de radio \textcolor{red}{YY}m
+	\item F: 1.022.208 partículas de radio \textcolor{red}{XXX}m contenidas en una esfera de radio \textcolor{red}{YY}m
+\end{itemize}
+
+Los escenarios utilizados tienen simetría esférica, por lo que existe una expresión analítica para calcular el potencial gravitatorio en función de la distancia al centro de masa. La figura~\ref{fig:alg-par-valor-dist} muestra el potencial gravitatorio calculado a partir de la expresión analítica en función de la distancia al centro. En la figura ~\ref{fig:alg-par-valor-dist} también se muestra superpuesto al valor teórico, el potencial gravitatorio calculado a partir del computo del algoritmo implementado.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=1]{images/algoritmo_paralelo_valores_distancia.png}
+	\caption{Potencial gravitatorio versus la distancia al centro de masa para cerca de un millón de partículas (el valor teórico está sobre dibujado).}
+	\label{fig:alg-par-valor-dist}
+\end{figure}
+
+La figura~\ref{fig:alg-par-errores-relativos} muestra el error relativo del potencial gravitatorio computado respecto al valor teórico en función de la distancia al centro del aglomerado. El error relativo en el interior de la esfera que contiene las partículas es menor que $8$x$10^{-3}$ y en el exterior de la esfera es menor que $2$x$10^{-3}$.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.5]{images/algoritmo_paralelo_errores_relativos.png}
+	\caption{Error relativo del potencial gravitatorio computado respecto al valor teórico en función de la distancia al centro del aglomerado.}
+	\label{fig:alg-par-errores-relativos}
+\end{figure}
+
+Para estudiar la eficiencia computacional del algoritmo, se analizó el tiempo de ejecución de los distintos escenarios al utilizar 1, 3, 6, 9, 12, 15, 18, 21 y 24 hilos de ejecución. La figura~\ref{fig:alg-par-tiempo-threads} muestra el tiempo de ejecución en función del número de hilos. Una función potencial inversa se puede ajustar a cada curva.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.7]{images/algoritmo_paralelo_tiempo_vs_threads.png}
+	\caption{Tiempo de ejecución en función de la cantidad de hilos para los distintos escenarios.}
+	\label{fig:alg-par-tiempo-threads}
+\end{figure}
+
+El speed-up y los valores de eficiencia son reportados en las siguientes figuras respectivamente. Para el sistema de más de un millón de partículas y usando hasta 24 hilos, el cálculo tomó cerca de 100s mientras que el cálculo secuencial demanda 1100s. Usando 20 hilos obtuvimos un speedup de factor 10 y una eficiencia en el rango de 0.4-0.8, dependiendo del número de partículas usadas. Para dicho conjunto de más de un millón de partículas, obtuvimos un speedup cerca del lineal, pero la eficiencia se redujo para largos conjuntos.
+
+\begin{figure}
+	\centering
+    \includegraphics[scale=0.3]{images/algoritmo_paralelo_speedup_threads.PNG}
+	\label{fig:algoritmo_paralelo_speedup_threads}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \includegraphics[scale=0.3]{images/algoritmo_paralelo_eficiencia_vs_threads.PNG}
+	\label{fig:algoritmo_paralelo_eficiencia_vs_threads}
+\end{figure}
+Además también analizamos la dependencia de los tiempos de ejecución con el número de partículas cuando se varían la cantidad de hilos utilizados en el procesamiento. Los resultados se muestran en la siguiente figura.
+
+\begin{figure}
+	\centering
+    \includegraphics[scale=0.3]{images/algoritmo_paralelo_executiontime_vs_nrpparticulas.PNG}
+	\label{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}
+\end{figure}
+Las curvas se pueden ajustar a una función polinomial, que corresponde a un valor casi constante del tiempo de ejecución normalizado con respecto al número de partículas, como se observa en la figura siguiente para un número dado de hilos y más de $2 × 10^5$ partículas. Teniendo en cuenta que la dependencia con el número de hilos (n) se puede ajustar a una función de ley potencial inversa y el número de partículas (p) con una funciona polinomial lineal, se puede ajustar el tiempo de ejecución con $t = a + b.p.n^-c$ usado coeficientes $a = 13.65, b=1.049 x 10^-3 y c = 0.8682$.
+
+\begin{figure}
+	\centering
+    \includegraphics[scale=0.7]{images/algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas.PNG}
+    \label{fig:algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas}
+\end{figure}
+
+\subsection{Evaluación de las estrategias de asignación de trabajo}
+Los distintos algoritmos de asignación de nodos a recursos de cómputo fueron evaluados sobre distintos modelos de aglomerados realistas. Se trabajo con partículas de distintos tamaños encerradas en una esfera mayor.\newline
+Se definieron tres escenarios para evaluar las estrategias de paralelización implementadas:
+
+\begin{itemize}
+	\item escenario A: contiene 17621 partículas en una esfera de radio 10 m.
+	\item escenario B: contiene 148435 partículas en una esfera de radio 20m.
+	\item escenario C: contiene 1218024 partículas en una esfera de radio 40m.
+\end{itemize}
+
+Para evaluar la eficiencia computacional de las diferentes estrategias de distribución de trabajo, realizamos pruebas utilizando el escenario C y 12 hilos de ejecución en paralelo.
+La tabla siguiente muestra los promedios y la desviación estándar, para cinco ejecuciones independientes por cada estrategia.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.5]{images/estrategias_de_asignacion_de_trabajo.PNG}
+	\label{fig:estrategias_de_asignacion_de_trabajo}
+\end{figure}
+
+Para los resultados mostrados en la tabla anterior, concluimos que la estrategia “Advanced isolated linear” logra obtener la mejor performance para el escenario trabajado. Es además la más robusta, considerando que es la que arroja menor desviación estándar. La estrategia “Interlocking linear” es la segunda mejor opción. La estrategia circular concéntrica no toma ventaja de los valores pre calculados, y por el contrario la compleja lógica incluida para manejar la sincronización de hilos y la distribución circular hace que la estrategia sea menos eficiente que la estrategia de “Interlocking linear”.
+La estrategia “Basic isolated linear” es la que peor se comporta, fundamentalmente porque la carga de trabajo no está balanceado entre los distintos hilos. En esta estrategia, la performance del algoritmo en su totalidad está limitada por la performance obtenido por el hilo que más tiempo demore. Al incluir la metodología de dos etapas, con la estrategia “Advanced isolated linear” se logra reducir el tiempo considerablemente.
+
+La tabla siguiente muestra la eficiencia computacional (tiempo de ejecución y speedup) para la estrategia “Advanced isolated linear” utilizando diferente cantidad de hilos y para los tres escenarios estudiados. El promedio y la desviación estándar resultante son calculados a partir de seis ejecuciones independientes sobre cada escenario para cada hilo. 
+
+\includegraphics[scale=0.75]{images/estrategias_de_asignacion_de_trabajo_eficiencia_para_advanced.PNG}
+
+Las siguientes figuras muestran la ejecución para cada escenario cuando se varía el número de hilo.
+
+\includegraphics[scale=0.65]{images/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_A.PNG}
+
+\includegraphics[scale=0.7]{images/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_B.PNG}
+
+\includegraphics[scale=0.7]{images/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_C.PNG}
+
+Al utilizar 16 hilos se logra para el escenario más grande un speedup de factor 13.4, lo cual se corresponde con una eficiencia computacional de 0.85. El comportamiento del speedup para el algoritmo paralelo propuesto es casi linear. Además, el mejor speedup/eficiencia se obtuvo para la simulación que manipula la mayor cantidad de partículas, demostrando un buen comportamiento de escalabilidad. Simulaciones de más de un millón de partículas, que demanda 1920s (más de media hora) pueden realizarse en dos minutos y medio utilizando 16 hilos.
+
+\chapter{Conclusiones, mejoras y trabajos a futuro}
+
+\section{Conclusiones}
+En el contexto de este proyecto se diseñó e implementó un algoritmo de memoria compartida totalmente paralelo para calcular de forma eficiente el potencial gravitacional de un aglomerado de granos. El método propuesto es adecuado para los cálculos de autogravedad en los sistemas de partículas densamente empaquetados.
+El algoritmo escala de forma lineal con el número de partículas del sistema, y escala con una ley de potencia inversa de exponente 0.87 con el número de hilos utilizados en el cálculo. El comportamiento del speedup está cerca de ser lineal para sistemas de $2 × 10^5$ partículas.
+ 
+Se analizaron diferentes estrategias de paralelización para calcular de forma eficiente y escalable, escenarios de simulación realistas en tiempos de ejecución reducidos. Se realizaron evaluaciones experimentales de las diferentes estrategias, surgiendo que la estrategia denominada “Advanced isolated lineal” utilizando diferentes comienzos fue la más eficiente de las estudiadas. Esta técnica aplica un procesamiento en dos etapas, reduciendo la complejidad en la sincronización entre hilos mientras que se reducen demoras debido al desbalance.
+El código implementado se integró satisfactoriamente en el paquete de simulación ESyS-Particle en una fructífera colaboración con los desarrolladores del mismo Steffen Abe y Dion Whesley. Actualmente el código integrado se encuentra en etapa de testing en un repositorio privado, por lo  aún no se encuentra a disposición para ser descargado por la comunidad.
+El objetivo es poder integrar el código en la rama principal del paquete ESyS-Particle en un futuro cercano.
+  
+\section{Mejoras realizadas}
+Con la visita de Dion Weatherley, se cursó una asignatura dictada por él, en la cual se realizaron mejoras al código anterior desarrollado. Una mejora propuesta fue no realizar el cálculo de auto-gravedad en aquellas celdas en las cuales no se tenían partículas. Esto implico integrar contra el núcleo de ESyS-Particle para obtener aquellas celdas ocupadas. Este cambio permitió acelerar el calculo de auto-gravedad en hasta 50 veces.
+
+Por dentro del trabajo de maestría de Nestor Rochetti se tomó el código desarrollado como base y se propusieron diversas mejoras. Una de las mejoras implementadas consistió en mejorar el proceso de interpolación agregando un componente predictivo tomando en cuenta la aceleración calculada en la etapa de autog-gravedad. Esto permitió corregir errores intrínsecos en el propio diseño de calculo de auto-gravedad solo cada ciertos pasos de simulación. Otra mejora propuesta fue la implementación del algoritmo de Barnes-Hut para determinar y mejorar la elección de cuales partículas se toman en cuenta al calcular la auto-gravedad \cite{5}
+
+\section{Trabajos a futuro}
+Como trabajo a futuro se propone mejorar el algoritmo evolutivo para así alcanzar los umbrales perseguidos inicialmente. Esto implica invertir tiempo en estudiar mejor el estado del arte de la temática y volcar la experiencia acumulada en una re-estructuración del código desarrollado. 
+
+Respecto al método de interpolación utilizado consideramos que los pendientes visualizados fueron atacados en el proyecto de maestría de Nestor R. 
+
+Para integrar efectivamente el código desarrollado en la rama principal del paquete ESyS-Particle, es necesaria una revisión del código desarrollado con la finalidad de cumplir con ciertos estándares de código.
+
+\newpage
+
+\bibliographystyle{plain}
+
+\begin{thebibliography}{9}
+
+\bibitem{1} \textit{Proyectos premiados 2013}, \url{https://www.fing.edu.uy/node/9577} [citado Enero  2018]
+\bibitem{2} \textit{Computing of Self-gravity for Small Solar System Bodies}, \url{http://sbd14.sciencesconf.org}, SBD2014, Small Bodies Dynamics 2014 [citado Enero  2018]
+\bibitem{3} D. Frascarelli, S. Nesmachnow and G. Tancredi, \textit{High-Performance Computing of Self-Gravity for Small Solar System Bodies}, \url{http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=6898782}
+\bibitem{4} S. Nesmachnow, D. Frascarelli and G. Tancredi, \textit{A parallel multithreading algorithm for self-gravity calculation on agglomerates}, \url{https://link.springer.com/chapter/10.1007/978-3-319-32243-8_22}
+\bibitem{5} N. Rocchetti, D. Frascarelli, S. Nesmachnow and Gonzalo Tancredi, \textit{Performance improvements of a parallel multithreading self-gravity algorithm}, \url{https://link.springer.com/chapter/10.1007/978-3-319-73353-1_21}
+\bibitem{6} R. Hockney and J. Eastwood, \textit{Computer Simulation Using Particles} New York: McGraw-Hill, 1981.
+\bibitem{7} A. W. Appel, \textit{An efficient program for many-body simulation} SIAM J. Sci. Stat. Comp., vol. 6, no. 1, pp. 85–103, 1985.
+\bibitem{8} J. Barnes and P. Hut, \textit{A hierarchical O(N log N) force-calculation algorithm} Nature, vol. 324, no. 6096, pp. 446–449, 1986.
+\bibitem{9} D. Richardson, \textit{Tree Code Simulations of Planetary Rings}, Mon. Not. Roy. Astron. Soc., vol. 269, p. 493, 1994.
+\bibitem{10} D. Richardson, P. Michel, K. Walsh, and K. Flynn, \textit{Numerical simula¬tions of asteroids modelled as gravitational aggregates with cohesion}, Planet. \& Space Science, vol. 57, pp. 183–192, 2009.
+\bibitem{11} G. Tancredi, A. Maciel, L. Heredia, P. Richeri, and S. Nesmachnow, \textit{Granular physics in low-gravity environments using discrete element method}, Mon. Not. Roy. Astron. Soc., vol. 420, pp. 3368–3380, 2012.
+\bibitem{12} D. Sánchez and D. Scheeres, \textit{DEM simulation of rotation-induced reshaping and disruption of rubble-pile asteroids}, Icarus, vol. 218, pp. 876–894, 2012.
+\bibitem{13} Int\'l Astronomical Union, \textit{Definition of a Planet in the Solar System}, Resolution B5 of the XXVIth IAU General Assembly, 2006; \url{http://www.iau.org/static/resolutions/Resolution_GA26-5-6.pdf}.
+
+\bibitem{14} \textit{Planets, Dwarf Planets and Small Solar System Bodies}, \url{https://www.iau.org/public/themes/pluto}
+
+\bibitem{15} E. Asphaug, \textit{The Shifting Sands of Asteroids}, \textit{Science}, vol. 316, pp. 993--994, 2007.
+
+\bibitem{16} A.W. Harris, \textit{The Rotation Rates of Very Small Asteroids: Evidence for ‘Rubble Pile’ Structure}, abstract no. 1247, Abstracts of Papers Submitted to the 27th Lunar and Planetary Science Conf., 1996, pp. 493–494.
+
+\bibitem{17} M. Luciuk, \textit{Roche Limit: Why Do Comets Break Up?}, \url{http://www.asterism.org/tutorials/tut25-1.htm}.
+
+\bibitem{18} B. Meinke, \textit{When Comets Crack}, \url{http://hubblesite.org/hubble_discoveries/comet_ison/blogs/when-comets-crack}.
+
+\bibitem{19} N. Roccheti, \textit{Parallel multithreading algorithms for self-gravity computation in ESyS-Particle}, \url{https://www.colibri.udelar.edu.uy/jspui/bitstream/20.500.12008/27171/1/ROC20.pdf}.
+
+\bibitem{20} A A Mahmood, M Elektorowicz, \textit{A Review of Discrete Element Method Research on Particulate Systems}, \url{https://iopscience.iop.org/article/10.1088/1757-899X/136/1/012034/pdf}.
+
+% 1979
+\bibitem{21} Cundall, P. and Strack, O, \textit{A discrete numerical model for granular
+assemblies}, \url{https://www.icevirtuallibrary.com/doi/10.1680/geot.1979.29.1.47}.
+
+\bibitem{22} Ricardo Dobry, Tang-Tat Ng \textit{Discrete modeling of stress-strain behavior of granular media at small and large strains}, \url{https://www.researchgate.net/publication/235300289_Discrete_modeling_of_stress-strain_behavior_of_granular_media_at_small_and_large_strains/link/55e7215708ae3e1218420404/download}.
+
+
+
+
+\end{thebibliography}
+
+\end{document}
