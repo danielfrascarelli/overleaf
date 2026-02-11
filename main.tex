@@ -450,36 +450,7 @@ En las arquitecturas actuales en general se tiene múltiples chips con múltiple
 Un clúster, tal como se mencionó anteriormente, es una supercomputadora construida por agregación de recursos de computo conectados en una red de alta velocidad, dispuestos cercanos entre sí para optimizar las comunicaciones por red. La capacidad de computo de un clúster estará dada entonces tanto por la capacidad de computo de sus procesadores, como por la velocidad de la red de comunicaciones que lo integra.
 
 En este proyecto se utilizo el Cluster FING. El clúster FING es una infraestructura de computo paralelo distribuido de alto desempeño perteneciente a la Facultad de Ingeniería.
-% Fue adquirido con fondos del llamado “Fortalecimiento de Equipamientos para la Investigación de la Comisión Sectorial de Investigación Científica" (2008), y está operativo desde 2009. Desde el 2009 ha pasado por varias mejoras, hasta llegar a la estructura actual.
-
-% cuyos nodos y sus características se presentan en la siguiente tabla.
-
-% \begin{center}
-%   \begin{tabular}{ |c|c|c|c|c| }
-%     \hline
-%     Cantidad & hostname & clase & cores & GB RAM total \\ 
-%     \hline
-%     8 & node02-09 & 0 & 8-64 & 8-64 \\  
-%     4 & node20-23 & 1 & 8-32 & 24-96 \\
-%     3 & node30-32 & 2 & 24-72 & 24-72 \\
-%     6 & node33-38 & 3 & 24-144 & 72-432 \\
-%     1 & tesla & GPU & 8-8 & 48-48 \\
-%     Totales: & 22 & nodos & 320 & 712 \\
-%     \hline
-%   \end{tabular}
-% \end{center}
-
-% Como muestra la tabla, el clúster FING cuenta con 320 procesadores y 712 giga bytes de memoria RAM. Los nodos presentados en la tabla según su clase tienen las siguientes características:
-% \begin{itemize}
-% 	\item clase 0: Dos procesadores Quad core Xeon serie E5430 de 2.66Ghz, 1.333Ghz FSB.
-% 	\item clase 1: HP Proliant DL180 G6, con dos procesadores Quad core Xeon serie E5520 de 2.26Ghz, 1.066Ghz FSB.
-% 	\item clase 2: HP Proliant DL180 G6, con dos procesadores AMD Opteron 6172, cada uno con 12 cores de 2.1Ghz, 1.066GHz FSB.
-% 	\item clase 3: Proliant DL385 G7, con dos procesadores AMD Opteron 6172, cada uno con 12 cores de 2.1Ghz, salvo una que tiene procesadores 6174 de iguales prestaciones.
-% 	\item gpu: GPU server con dos procesadores Quad Core Intel Xeon serie E5530, de 2.66Ghz, 48GB de RAM y cuatro tarjetas nVidia Tesla C1060 de 240 núcleos de 1.33Ghz y 4GB de RAM cada una, totalizando 960 cores y 16GB de RAM. 
-% \end{itemize}
-    
-% Asimismo, el clúster FING cuenta con un servidor de acceso de las mismas características que los nodos de la clase 0, que funciona como servidor de archivos y servidor de base de datos, además de ser el punto de entrada para los usuarios, para comunicarse con el gestor y enviar trabajos para su ejecución. Los nodos están conectados en red Gigabit Ethernet por medio de un switch Dell Power Connect, de 24 bocas. Dispone también de un switch KVM y una consola para administración, así como de una UPS que permite cierto nivel de tolerancia a caídas de energía. El sistema operativo que corren los nodos es Centos 5.2. El clúster FING tiene su sitio web http://www.fing.edu.uy/cluster, donde puede encontrarse información actualizada de su composición, así como información en tiempo real de estado. También hay disponibles online en el sitio tutoriales sobre cómo utilizar la infraestructura, por lo que aquí no se profundiza en este tema. 
-
+ 
 \newpage
 
 \section{Interpolación}
