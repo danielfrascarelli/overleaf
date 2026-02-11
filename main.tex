@@ -83,55 +83,60 @@ El desarrollo fue integrado al paquete de simulación numérica ESyS-Particle y 
 \tableofcontents
 \newpage
 
+\chapter*{Prefacio}
+\addcontentsline{toc}{chapter}{Prefacio}
+
+Este trabajo se desarrolló en el marco de actividades de investigación y desarrollo vinculadas al estudio numérico de aglomerados auto-gravitantes en cuerpos menores del Sistema Solar (Small Solar System Bodies, SSSB). Durante su ejecución se obtuvieron hitos académicos y de difusión asociados al proyecto.
+
+En 2012 se obtuvo una beca de Iniciación a la Investigación subvencionada por la ANII. En la edición 2013 de \textit{Ingeniería Demuestra}, el proyecto recibió el primer premio en la categoría \textit{Baja Interpretación Intuitiva} \cite{1}. En agosto de 2014 se participó en el congreso SBD2014 con la presentación \textit{Computing of Self-gravity for Small Solar System Bodies} \cite{2}. Posteriormente, en setiembre de 2014 se publicó el artículo \textit{High-Performance Computing of Self-Gravity for Small Solar System Bodies} \cite{3}, y en abril de 2016 se publicó \textit{A parallel multithreading algorithm for self-gravity calculation on agglomerates} \cite{4}.
+
+Asimismo, se integró el código desarrollado con un paquete de simulación numérica a efectos de facilitar la visualización de los resultados. La visualización de simulaciones numéricas resulta relevante para el análisis e interpretación del comportamiento dinámico de aglomerados, complementando el cómputo numérico con una representación gráfica del fenómeno modelado.
+
+\newpage
+
 \chapter{Introducción}
 
-% Begin Contexto
-Los objetos que orbitan el sol pueden clasificarse en planetas, planetas enanos y en cuerpos menores del sistema solar (en inglés Small Solar System Body o SSSB)\cite{13}. Tanto los planetas como los planetas enanos tienen masa suficiente para su autogravedad superar las fuerzas rígidas del cuerpo, de modo que asumen un equilibrio hidrostático (casi redondeado). De este modo, estos objetos tienen un interior monolítico que sufre deformación plástica durante un largo período de tiempo. Los SSSB, que incluyen cometas y la mayoría de los asteroides y objetos trans-neptunianos, tienen menos de unos pocos cientos de kilómetros de diámetro y tienen varias estructuras que van desde cuerpos monolíticos, objetos fracturados internamente hasta pilas gravitacionales\cite{14}.
+\section{Contexto}
 
-Los astrónomos han especulado que algunos pequeños asteroides parecen ser grumos de grava unidos por un campo de autogravedad muy débil\cite{15}, basado en imágenes recogidas del asteroide 25143 Itokawa por la sonda espacial japonesa Hayabusa en 2005. Sin embargo, la estructura de estos aglomerados de grava y el tamaño de sus componentes internos son desconocidos. La composición química de los SSSB también es diversa: los asteroides están formados por rocas y metales, mientras que los cometas y posiblemente los objetos trans-neptunianos son una mezcla de hielo y material rocoso.
+Los objetos que orbitan el Sol pueden clasificarse en planetas, planetas enanos y cuerpos menores del Sistema Solar (en inglés Small Solar System Bodies, SSSB) \cite{13}. A diferencia de los planetas y planetas enanos, que poseen masa suficiente para que su autogravedad supere las fuerzas rígidas del material y alcancen equilibrio hidrostático, los SSSB presentan estructuras internas heterogéneas que pueden incluir cuerpos monolíticos, objetos fracturados y aglomerados gravitacionales \cite{14}.
 
-Hay muchas pruebas de que algunos asteroides y cometas son aglomerados de partículas pequeñas o granos, (a) la mayoría de los asteroides presentan periodos de rotación mayores que el límite de inestabilidad rotacional\cite{16}, que es consistente con una estructura de pila de escombros; (b) los asteroides y los cometas sufren alteraciones de las mareas cuando entran dentro del límite de Roche de un objeto masivo, lo que indica que tienen muy poca fuerza interna\cite{17} \cite{18}; (c) las cadenas de cráteres, como las que se observan en la luna de Júpiter, se forman tras la colisión de un asteroide o un cometa interrumpido; y (d) muchos asteroides y cometas tienen una densidad baja, que es sólo compatible con un material poroso que tiene grandes vacíos internos.
+Diversas evidencias observacionales indican que una fracción significativa de asteroides y cometas posee estructura tipo “pila de escombros” (rubble pile). Entre estas evidencias se destacan: (i) períodos de rotación superiores al límite de inestabilidad rotacional \cite{16}; (ii) alteraciones por efectos de marea al atravesar el límite de Roche de cuerpos masivos \cite{17,18}; (iii) cadenas de cráteres asociadas a fragmentaciones previas; y (iv) densidades aparentes bajas compatibles con materiales porosos. Observaciones como las realizadas sobre el asteroide 25143 Itokawa por la misión Hayabusa refuerzan esta hipótesis \cite{15}. 
 
-Además de la autogravedad, los granos o partículas que componen el aglomerado experimentan interacciones mecánicas (elásticas, friccionales y de colisión) con otros granos. Dichos aglomerados también están sujetos a influencias externas, tales como impactos con otros objetos pequeños y fuerzas gravitacionales y de marea ejercidas por objetos más grandes. Las interacciones entre los granos pueden ser simuladas usando métodos de elementos discretos (en ingles Discrete Element Method o DEM). Para reducir el costo computacional, los DEM asumen interacciones mecánicas de corto alcance, considerando que, los granos sólo interactúan con sus vecinos más cercanos. En consecuencia, los investigadores se han limitado hasta ahora a utilizar DEM para simular la física granular en entornos unidireccionales de gravedad, incluyendo recientemente casos de baja gravedad.
-%End Contexto
+Estos cuerpos pueden modelarse como aglomerados de partículas cohesionadas principalmente por su autogravedad, donde la dinámica global emerge de las interacciones microscópicas entre granos.
 
-% Begin Motivación
-% Motivación: está muy breve: argumentar por tamaño de sistemas, escalabilidad, etc
-Una deficiencia típica de la mayoría de los códigos DEM, es la falta de modelos para simular fuerzas de largo alcance como la gravedad entre las partículas del aglomerado. Este es un problema relevante en el caso de los asteroides y los cometas, que en muchos casos son aglomerados de rocas con una cierta distribución de tamaños. Al tratar con SSSB realistas (aglomerados del orden de millones de partículas) calcular las interacciones entre cada par de partículas tiene un costo computacional muy alto, haciendo difícil estudiar el movimiento del aglomerado por un periodo de tiempo significativo.
-Se necesita incorpora un nuevo enfoque DEM para calcular la auto-gravedad de sistemas compuestos de millones de partículas que permita estudiar el comportamiento de los SSSBs.
-% End Motivación
+\section{Modelado numérico y limitaciones}
 
-% Begin Propuesta
-% Propuesta/descripción: Incluir dos parrafos al menos
-Se propuso la realización de un desarrollo que permite abordar el análisis de aglomerados incluyendo un nuevo enfoque a las técnicas DEM existentes. Además, el método propuesto es adecuado para los cálculos de auto-gravedad en los sistemas de partículas densamente empaquetados, como los SSSBs. 
-% End Propuesta
+Los medios granulares pueden modelarse mediante el Método de Elementos Discretos (Discrete Element Method, DEM), que representa el sistema como un conjunto de partículas que interactúan mediante fuerzas de contacto (elásticas, friccionales y de colisión). Este enfoque ha demostrado ser eficaz en múltiples áreas de la ingeniería y la física de materiales granulares.
 
-% Begin Principales resultados
-% Principales resultados: Incluir / destacar
-El análisis experimental realizado demuestra que el algoritmo desarrollado escala de forma lineal con el número de partículas del sistema, así como con el numero de recursos de computo. 
-Diferentes estrategias de asignación de trabajo fueron desarrolladas permitiendo reducir el tiempos de computo final y logrando una eficiencia computacional de 0.85 para algomerados de millones de partículas.
+Sin embargo, una limitación habitual en implementaciones DEM es la ausencia de un tratamiento eficiente de fuerzas de largo alcance, como la gravedad entre partículas. El cálculo directo de la auto-gravedad en un sistema de $N$ partículas requiere evaluar todas las interacciones par a par, lo que implica una complejidad computacional $O(N^2)$. Para sistemas realistas compuestos por millones de partículas, este costo resulta prohibitivo y restringe el análisis dinámico a escalas reducidas.
 
-%y escala con una ley de potencia inversa de exponente 0.87 con el número de recursos de computo utilizados en el cálculo. El comportamiento del speedup está cerca de ser lineal para sistemas de $2 × 10^5$ partículas.
-%
-% The algorithm scales linearly with the number of particles in the system, and it scales with an inverse power law (exponent 0.87) with the number of threads used in the computation. The observed speedup is close to linear for systems containing up to 2 × 105 particles.
+\section{Enfoque propuesto}
 
-%\textcolor{red}{Toward that end, we have developed a state-of-the-art parallel algorithm for self-gravitating agglomerates that scales efficiently with the number of particles as well as the number of computational resources}
-% End Principales resultados
+Para superar esta limitación se adopta el algoritmo jerárquico de Barnes--Hut, el cual reduce la complejidad del cálculo gravitatorio a $O(N \log N)$ mediante la construcción de una estructura espacial tipo árbol (octree en tres dimensiones). Este método aproxima la contribución de grupos distantes de partículas utilizando criterios geométricos controlados por un parámetro de apertura.
 
-% Begin Contribuciones
-La principal contribución de este proyecto es el desarrollo de un algoritmo paralelo para calcular eficientemente la auto-gravedad de un aglomerado de granos. Este desarrollo permite simular y estudiar el comportamiento de aglomerados del orden de millones de partículas en tiempos razonables. 
-% End Contribuciones
+Sobre esta base, se desarrolla una implementación paralela orientada a arquitecturas de memoria compartida, utilizando técnicas de programación concurrente para distribuir el trabajo de cómputo entre múltiples núcleos. El diseño considera la construcción eficiente de la estructura jerárquica, el balance de carga entre hilos y la sincronización del acceso a estructuras de datos compartidas.
 
-%En este proyecto se desarrolla un algoritmo paralelo para el cálculo de la auto-gravedad en un agregado de partículas que permite abordar eficazmente los aglomerados formados por un número significativamente mayor de partículas que los abordados en la literatura mencionada.
+\section{Objetivo}
 
-En el transcurso del proyecto se realizaron diversas actividades vinculadas al mismo. En el año 2012 se obtuvo una beca de Iniciación a la Investigación subvencionada por la ANII. En la edición 2013 de Ingeniería Demuestra, el proyecto ganó el primer premio en la categoría \textit{Baja Interpretación Intuitiva}, con un bono premio de USD 300\cite{1}. En agosto de 2014, se participó en el congreso SBD2014 con la presentación \textit{Computing of Self-gravity for Small Solar System Bodies}\cite{2}.
-En setiembre 2014, se publicó un artículo en la revista IEEE, bajo el titulo \textit{High-Performance Computing of Self-Gravity for Small Solar System Bodies} \cite{3}. En abril 2016, se publicó un articulo como parte de la participación del congreso ISUM 2015, bajo el título \textit{A parallel multithreading algorithm for self-gravity calculation on agglomerates} \cite{4}
+El objetivo principal de este trabajo es diseñar, implementar y evaluar un algoritmo paralelo basado en Barnes--Hut para el cálculo eficiente de la auto-gravedad en aglomerados de partículas modelados mediante DEM, permitiendo abordar sistemas del orden de millones de partículas en tiempos de ejecución viables.
 
-La visualización gráfica de simulaciones numéricas permite a los investigadores comprender aspectos claves del comportamiento de aglomerados. Para poder visualizar gráficamente los resultados numéricos obtenidos por el algoritmo desarrollado se integró el código implementado con un paquete de simulación numérica. Como resultado de esta integración los investigadores del área tienen una herramienta que permite no solo realizar cálculos numéricos mediante modelos DEM, sino que pueden visualizar gráficamente el comportamiento obtenido.
+\section{Resultados principales}
 
-% Begin Estructura
-Lo que resta de la monografía se organiza de la forma que se describe a continuación. En el Capítulo 2 se describe el problema principal de diseño y desarrollo de un algoritmo para el calculo de la auto-gravedad de un aglomerado de partículas y una reseña de los principales trabajos del estado del arte. En el capítulo 3 se presenta el diseño y arquitectura del algoritmo propuesto. En el capítulo 4 se reporta el análisis experimental realizado para analizar el comportamiento del algoritmo implementado. A continuación, el capítulo 5 presenta las conclusiones y las principales líneas de trabajo futuro.
-%End Estructura
+El análisis experimental demuestra que la implementación paralela presenta un comportamiento de escalamiento cercano a lineal respecto al número de recursos de cómputo utilizados dentro del rango evaluado, alcanzando una eficiencia paralela aproximada de 0.85 en configuraciones de gran escala. 
+
+En términos de complejidad respecto al número de partículas, el comportamiento observado es consistente con la complejidad teórica $O(N \log N)$ del método de Barnes--Hut, lo que permite ampliar significativamente el tamaño de los sistemas abordables en comparación con implementaciones basadas en cálculo directo.
+
+\section{Contribuciones}
+
+La principal contribución de este trabajo es el desarrollo de un algoritmo paralelo eficiente para el cálculo de auto-gravedad en aglomerados de partículas, integrable a simulaciones DEM. Este desarrollo posibilita el estudio numérico de SSSB auto-gravitantes con tamaños significativamente mayores a los reportados en enfoques tradicionales.
+
+Adicionalmente, el código fue integrado a un paquete de simulación numérica, permitiendo la visualización gráfica de los resultados obtenidos y facilitando el análisis del comportamiento dinámico de los sistemas simulados.
+
+\section{Organización del documento}
+
+El resto del documento se organiza de la siguiente manera. En el Capítulo 2 se presenta el marco teórico necesario, incluyendo fundamentos de computación de alto rendimiento, DEM y técnicas de interpolación utilizadas. En el Capítulo 3 se describe el diseño y la arquitectura del algoritmo propuesto. En el Capítulo 4 se detalla la implementación y las estrategias de paralelización. En el Capítulo 5 se presenta el análisis experimental y la evaluación de desempeño. Finalmente, el Capítulo 6 expone las conclusiones y posibles líneas de trabajo futuro.
+
+
 
 \chapter{Marco teorico}
 En este capítulo se presentan conceptos teóricos relacionados que se utilizan a lo largo de los capítulos siguientes.
