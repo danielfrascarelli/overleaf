@@ -74,7 +74,7 @@ Este documento presenta el proyecto de grado ``Computación de alto desempeño p
 El trabajo aborda el problema del cálculo del potencial gravitatorio generado por un sistema discreto de partículas sobre una grilla tridimensional, operación que presenta alta complejidad computacional debido al número de interacciones involucradas. Se propone una implementación paralela del algoritmo de cálculo, utilizando técnicas de programación paralela orientadas a reducir el tiempo de ejecución manteniendo la precisión numérica del modelo físico.
 
 La evaluación experimental se realizó sobre sistemas de hasta $2\times10^{5}$ partículas, analizando métricas de speedup y eficiencia paralela bajo distintas configuraciones de ejecución. Los resultados obtenidos muestran un comportamiento cercano al escalamiento lineal en el rango experimental considerado, evidenciando la efectividad de la estrategia de paralelización implementada.
- 
+
 El desarrollo fue integrado al paquete de simulación numérica ESyS-Particle y sirvió como base para trabajos posteriores de investigación y publicaciones científicas.
 
 \vfill
@@ -136,6 +136,175 @@ Adicionalmente, el código fue integrado a un paquete de simulación numérica, 
 
 El resto del documento se organiza de la siguiente manera. En el Capítulo 2 se presenta el marco teórico necesario, incluyendo fundamentos de computación de alto rendimiento, DEM y técnicas de interpolación utilizadas. En el Capítulo 3 se describe el diseño y la arquitectura del algoritmo propuesto. En el Capítulo 4 se detalla la implementación y las estrategias de paralelización. En el Capítulo 5 se presenta el análisis experimental y la evaluación de desempeño. Finalmente, el Capítulo 6 expone las conclusiones y posibles líneas de trabajo futuro.
 
+
+\chapter{Marco teórico}
+
+\section{Método de Elementos Discretos}
+
+El Método de Elementos Discretos (Discrete Element Method, DEM) es una técnica numérica utilizada para modelar sistemas compuestos por un conjunto finito de partículas que interactúan entre sí mediante fuerzas de contacto. A diferencia de los métodos continuos, el DEM representa explícitamente cada partícula como una entidad individual, permitiendo capturar comportamientos emergentes a partir de interacciones microscópicas.
+
+\subsection*{Representación del sistema}
+
+Sea un sistema compuesto por $N$ partículas discretas. Cada partícula $i$ se caracteriza por:
+
+\begin{itemize}
+    \item Masa $m_i$
+    \item Radio $r_i$
+    \item Posición $\mathbf{x}_i(t)$
+    \item Velocidad $\mathbf{v}_i(t)$
+    \item Aceleración $\mathbf{a}_i(t)$
+\end{itemize}
+
+Las partículas se consideran rígidas y pueden experimentar traslación y, eventualmente, rotación dependiendo del modelo adoptado. En el contexto de este trabajo se consideran partículas esféricas, lo que simplifica la detección de contactos y el cálculo de fuerzas normales.
+
+\subsection*{Ecuaciones de movimiento}
+
+La dinámica de cada partícula está gobernada por la segunda ley de Newton:
+
+\[
+m_i \mathbf{a}_i = \mathbf{F}_i
+\]
+
+donde $\mathbf{F}_i$ representa la suma de todas las fuerzas que actúan sobre la partícula $i$:
+
+\[
+\mathbf{F}_i = \sum_{j \in \mathcal{C}_i} \mathbf{F}_{ij}^{\text{contacto}} + \mathbf{F}_i^{\text{externas}}
+\]
+
+Aquí, $\mathcal{C}_i$ denota el conjunto de partículas en contacto con la partícula $i$. En implementaciones clásicas del DEM, las fuerzas externas incluyen gravedad impuesta externamente y otras perturbaciones, pero no consideran interacciones gravitatorias entre partículas del sistema.
+
+\subsection*{Modelo de contacto}
+
+Cuando dos partículas $i$ y $j$ se superponen geométricamente, es decir, cuando
+
+\[
+\|\mathbf{x}_i - \mathbf{x}_j\| < r_i + r_j,
+\]
+
+se genera una fuerza de contacto que usualmente se descompone en una componente normal y una tangencial. En modelos simplificados se adopta una fuerza normal elástica lineal proporcional a la superposición:
+
+\[
+\mathbf{F}_{ij}^{\text{normal}} = k_n \delta_{ij} \mathbf{n}_{ij}
+\]
+
+donde:
+
+\begin{itemize}
+    \item $k_n$ es la constante de rigidez normal,
+    \item $\delta_{ij}$ es la superposición entre partículas,
+    \item $\mathbf{n}_{ij}$ es el versor normal unitario.
+\end{itemize}
+
+Dependiendo del nivel de fidelidad requerido, pueden incorporarse términos disipativos y fuerzas tangenciales friccionales.
+
+\subsection*{Integración temporal}
+
+El proceso de simulación consiste en la integración explícita de las ecuaciones de movimiento en pasos discretos de tiempo $\Delta t$. En cada paso se realizan las siguientes operaciones:
+
+\begin{enumerate}
+    \item Detección de contactos entre partículas.
+    \item Cálculo de fuerzas de contacto.
+    \item Evaluación de fuerzas externas.
+    \item Actualización de aceleraciones.
+    \item Actualización de velocidades y posiciones.
+\end{enumerate}
+
+El costo computacional dominante en DEM clásico proviene de la detección de contactos. Para reducirlo, se emplean estructuras auxiliares como listas de vecinos (Verlet lists), que restringen el cálculo a partículas próximas.
+
+\subsection*{Limitaciones del DEM clásico}
+
+Una característica fundamental del DEM es que las fuerzas de contacto son de corto alcance. Por lo tanto, el costo computacional puede mantenerse aproximadamente lineal respecto al número de partículas cuando se utilizan estructuras de vecindad eficientes.
+
+Sin embargo, cuando se desea incorporar fuerzas de largo alcance, como la interacción gravitatoria entre todas las partículas del sistema, el costo computacional se incrementa significativamente. El cálculo directo de interacciones gravitatorias requiere evaluar todas las parejas de partículas, lo que implica una complejidad $O(N^2)$. Esta limitación motiva la incorporación de técnicas de aproximación y paralelización que permitan abordar sistemas de gran escala, tal como se desarrolla en las secciones siguientes.
+
+\section{Auto-gravedad en sistemas discretos}
+
+La interacción gravitatoria es una fuerza de largo alcance que actúa entre todas las masas del sistema. En el contexto clásico newtoniano, la fuerza gravitatoria ejercida por una partícula $j$ sobre una partícula $i$ se expresa como:
+
+\[
+\mathbf{F}_{ij} = - G \frac{m_i m_j}{\|\mathbf{x}_i - \mathbf{x}_j\|^3} (\mathbf{x}_i - \mathbf{x}_j)
+\]
+
+donde:
+
+\begin{itemize}
+    \item $G$ es la constante de gravitación universal,
+    \item $m_i$ y $m_j$ son las masas de las partículas,
+    \item $\mathbf{x}_i$ y $\mathbf{x}_j$ son sus posiciones.
+\end{itemize}
+
+En un sistema compuesto por $N$ partículas, la fuerza total sobre la partícula $i$ es:
+
+\[
+\mathbf{F}_i = \sum_{\substack{j=1 \\ j \neq i}}^{N} \mathbf{F}_{ij}
+\]
+
+El cálculo directo de estas interacciones requiere evaluar $N(N-1)$ términos, lo que conduce a una complejidad computacional cuadrática $O(N^2)$.
+
+\subsection*{Potencial gravitatorio}
+
+Una formulación alternativa consiste en calcular el potencial gravitatorio escalar $V(\mathbf{r})$ generado por el conjunto de partículas en un punto arbitrario del espacio $\mathbf{r}$. Dicho potencial se define como:
+
+\[
+V(\mathbf{r}) = - \sum_{i=1}^{N} \frac{G m_i}{\|\mathbf{r} - \mathbf{x}_i\|}
+\]
+
+El potencial es una magnitud escalar que permite obtener la fuerza gravitatoria como el gradiente negativo:
+
+\[
+\mathbf{F}(\mathbf{r}) = - \nabla V(\mathbf{r})
+\]
+
+En el contexto de este trabajo, el potencial se evalúa sobre una malla tridimensional regular que discretiza el volumen de interés.
+
+\subsection*{Cálculo del potencial en una malla tridimensional}
+
+Sea un volumen cúbico discretizado mediante una grilla regular de dimensiones $L_x \times L_y \times L_z$, cuyos nodos se denotan por:
+
+\[
+\mathbf{r}_{lmn} = (x_l, y_m, z_n)
+\]
+
+donde $l = 1, \dots, L_x$, $m = 1, \dots, L_y$ y $n = 1, \dots, L_z$.
+
+El potencial en cada nodo de la grilla se calcula como:
+
+\[
+V_{lmn} = - \sum_{i=1}^{N} \frac{G m_i}{\|\mathbf{r}_{lmn} - \mathbf{x}_i\|}
+\]
+
+Este procedimiento debe repetirse para todos los nodos de la malla, lo que implica un costo total proporcional a:
+
+\[
+O(N \cdot N_{\text{nodos}})
+\]
+
+donde $N_{\text{nodos}} = L_x L_y L_z$.
+
+\subsection*{Obtención de fuerzas sobre partículas}
+
+Una vez evaluado el potencial en la malla, la fuerza gravitatoria sobre cada partícula puede obtenerse interpolando el campo de potencial en su posición y calculando el gradiente correspondiente. Formalmente:
+
+\[
+\mathbf{F}_i = - m_i \nabla V(\mathbf{x}_i)
+\]
+
+Dado que las posiciones de las partículas no coinciden en general con los nodos de la malla, se requiere una técnica de interpolación espacial para estimar el valor del potencial y sus derivadas en posiciones arbitrarias dentro del dominio.
+
+\subsection*{Limitaciones computacionales}
+
+El cálculo directo del potencial, tanto sobre partículas como sobre nodos de una malla, presenta una complejidad elevada cuando el número de partículas es grande. Para sistemas del orden de millones de partículas, el costo computacional resulta prohibitivo si no se emplean técnicas de aproximación o paralelización.
+
+Esta limitación constituye el núcleo del problema abordado en esta tesis y motiva el desarrollo de una implementación paralela eficiente para el cálculo de la auto-gravedad en aglomerados de partículas.
+
+
+\section{Optimización de configuraciones iniciales mediante algoritmos evolutivos}
+
+\section{Computación paralela y métricas de desempeño}
+
+\section{Interpolación espacial del potencial gravitatorio}
+
+\section{Integración con ESyS-Particle}
 
 
 \chapter{Marco teorico}
