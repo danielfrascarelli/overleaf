@@ -609,9 +609,72 @@ Por lo tanto, aunque el fenómeno modelado es físico (interacción gravitatoria
 
 La generación de condiciones iniciales compactas para los aglomerados constituye un problema complementario, abordado como apoyo experimental para la evaluación del algoritmo principal, pero no representa el foco central del trabajo.
 
-
-
 \section{Modelo adoptado para la auto-gravedad}
+\label{sec:modelo_autogravedad}
+
+El modelo adoptado para el cálculo de la auto-gravedad en este trabajo se basa en una aproximación jerárquica orientada a sistemas densos de partículas, como los denominados \textit{rubble piles} (aglomerados granulares mantenidos por auto-gravedad). La formulación se inspira en métodos jerárquicos existentes para el problema de N-cuerpos, pero adaptada a un esquema basado en grilla regular y paralelismo en memoria compartida, tal como fue presentado en el artículo \textit{High Performance Computing of Self-gravity for Small Solar System Bodies}.
+
+El cálculo exacto del potencial gravitatorio sobre una partícula $j$ está dado por:
+
+\[
+V_j = \sum_{i \ne j} \frac{G M_i}{\|\mathbf{r}_j - \mathbf{r}_i\|}
+\]
+
+donde $G$ es la constante de gravitación universal, $M_i$ la masa de la partícula $i$ y $\mathbf{r}_i$ su posición. Este cálculo directo requiere $O(N^2)$ operaciones por paso temporal, lo cual resulta prohibitivo para sistemas con $N$ del orden de millones de partículas.
+
+Con el objetivo de reducir la complejidad computacional manteniendo un nivel de precisión adecuado para simulaciones DEM con pasos temporales del orden de $10^{-4}$ s, se adopta un esquema basado en los siguientes principios:
+
+\subsection*{Grilla regular superpuesta}
+
+Se construye una grilla tridimensional regular que se superpone al dominio ocupado por las partículas. La grilla define celdas cúbicas que actúan como unidades mínimas de procesamiento. El tamaño de la grilla puede configurarse dinámicamente en función de las características del sistema y de los recursos computacionales disponibles.
+
+Esta estructura es particularmente adecuada para estados densos, donde la distribución espacial de partículas es relativamente homogénea, a diferencia de los métodos basados en árboles dinámicos.
+
+\subsection*{Aproximación jerárquica mediante MADA}
+
+Para acelerar el cálculo del potencial gravitatorio, se utiliza el método denominado \textbf{Mass Approximation Distance Algorithm (MADA)}, introducido en el trabajo mencionado.
+
+El principio fundamental de MADA consiste en reemplazar un conjunto de partículas suficientemente alejadas del punto donde se evalúa el potencial por una masa equivalente concentrada en el centro de masa del conjunto. Desde el punto de vista gravitatorio, la contribución de partículas distantes puede aproximarse adecuadamente por esta masa agregada sin introducir errores significativos.
+
+En términos operativos:
+
+\begin{itemize}
+    \item Para la celda que contiene el punto donde se evalúa el potencial (origen $O$), el cálculo se realiza utilizando todas las partículas individuales, sin aplicar aproximación.
+    \item Para celdas alejadas, se sustituye el conjunto de partículas por una masa única ubicada en el centro de masa de la celda.
+\end{itemize}
+
+La decisión de aplicar la aproximación o el cálculo exacto no se basa en un criterio adaptativo continuo, sino en una condición fija asociada a la estructura de la grilla y a la distancia relativa respecto al punto de evaluación.
+
+\subsection*{Subdivisión jerárquica multinivel}
+
+Con el fin de mejorar la precisión en regiones próximas al punto de evaluación, el modelo incluye un esquema general de subdivisión multinivel de celdas. Las celdas cercanas pueden subdividirse en subceldas, permitiendo aplicar la aproximación en niveles más finos cuando la distancia lo requiere.
+
+En la práctica:
+
+\begin{itemize}
+    \item Las celdas lejanas utilizan únicamente la masa agregada de primer nivel.
+    \item Las celdas intermedias pueden subdividirse y aproximarse mediante centros de masa de subceldas.
+    \item La celda que contiene el punto $O$ no se subdivide para aproximación gravitatoria: todas sus partículas se consideran individualmente.
+\end{itemize}
+
+Este esquema permite equilibrar precisión y eficiencia computacional, evitando errores significativos en regiones donde el potencial varía rápidamente, y reduciendo drásticamente el número de interacciones evaluadas en regiones distantes.
+
+\subsection*{Complejidad y comportamiento computacional}
+
+El modelo completo —grilla regular más agrupamiento jerárquico mediante MADA— permite reducir el costo del cálculo respecto al método directo $O(N^2)$. Tal como se reporta en el trabajo IEEE, el algoritmo presenta:
+
+\begin{itemize}
+    \item Escalamiento aproximadamente lineal con el número de partículas.
+    \item Escalamiento respecto al número de hilos que sigue una ley de potencia inversa con exponente cercano a $0.87$.
+\end{itemize}
+
+Este comportamiento lo hace adecuado para simulaciones de sistemas con millones de partículas bajo un esquema DEM con actualización periódica del campo gravitatorio.
+
+\subsection*{Ámbito de aplicación}
+
+El modelo está específicamente orientado a aglomerados densos auto-gravitantes, como los pequeños cuerpos del Sistema Solar. No se plantea como un método general para configuraciones altamente dispersas, sino como una solución optimizada para sistemas donde la densidad espacial de partículas es elevada y relativamente uniforme.
+
+El algoritmo desarrollado en esta tesis implementa este modelo dentro de un esquema paralelo en memoria compartida, permitiendo su integración posterior con un motor DEM.
 
 \section{Desafíos computacionales identificados}
 
