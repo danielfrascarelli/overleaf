@@ -411,127 +411,72 @@ La escalabilidad describe la evolución del desempeño al aumentar $N$. En térm
 Las métricas anteriores se emplean en el análisis experimental reportado en capítulos posteriores, donde se evalúa el comportamiento del algoritmo bajo distintas configuraciones de tamaño de problema y recursos de cómputo.
 
 \section{Interpolación espacial del potencial gravitatorio}
+\label{sec:interpolacion_potencial}
 
-\section{Integración con ESyS-Particle}
+La interpolación es un proceso mediante el cual se estima el valor de una magnitud en un punto del espacio a partir de valores conocidos en un conjunto finito de puntos de referencia. En este trabajo se utiliza interpolación para refinar espacialmente el potencial gravitatorio calculado sobre una malla tridimensional: resulta computacionalmente más eficiente evaluar el potencial sobre una malla gruesa y, posteriormente, estimar sus valores sobre una malla más fina mediante un método de interpolación apropiado, que realizar el cálculo directo sobre una malla fina desde el inicio.
 
+\subsection*{Formulación general}
 
-\chapter{Marco teorico}
-En este capítulo se presentan conceptos teóricos relacionados que se utilizan a lo largo de los capítulos siguientes.
-Se realiza una introducción conceptual a los siguientes temas: 1. Método de los elementos discretos, 2. Algoritmo Evolutivo, 3. Auto gravedad, 4. Computación de alto rendimiento, 5. Interpolación y 6. ESyS-Particule.
+Sea un conjunto de puntos de referencia $\{(\mathbf{p}_i, V_i)\}_{i=1}^{M}$, donde $\mathbf{p}_i=(x_i,y_i,z_i)\in\mathbb{R}^3$ es la posición del $i$-ésimo nodo y $V_i$ es el valor conocido del potencial en dicho nodo. Dado un punto $\mathbf{x}\in\mathbb{R}^3$ (no necesariamente coincidente con un nodo), se desea estimar el potencial $V(\mathbf{x})$.
 
-\section{Método de los elementos discretos}
-En esta sección se introduce el concepto del método de los elementos discretos (DEM por su sigla en ingles).
+Una formulación estándar para variables continuas consiste en un promedio ponderado:
+\[
+V(\mathbf{x}) = \sum_{i=1}^{M} \alpha_i(\mathbf{x})\, V_i,
+\]
+donde los pesos $\alpha_i(\mathbf{x})$ dependen de la ubicación de $\mathbf{x}$ respecto a los puntos de referencia. En general se busca que los puntos más cercanos tengan mayor influencia en el valor interpolado, asignando pesos decrecientes con la distancia.
 
-% \subsubsection{Motivación}
-Los medios granulares están formados por un cierto número de objetos macroscópicos (llamados granos) que interaccionan por medio de contactos temporales o permanentes. Todos los materiales que se presentan en forma de granulados (cereales, arena, etc.) o polvos (talco, harina, etc.) son estudiados por la física de medios granulares.
-Un desafío en las investigaciones actuales es la posibilidad de realizar simulaciones realistas de dichos medios granulares consistentes en miles o millones de partículas y analizar su comportamiento teórico basado en las micro interacciones a nivel de cada partícula.
+\subsection*{Métodos locales y globales}
 
-% \subsubsection{Reseña histórica}
-Las simulaciones mediante DEM han sido empleadas y validadas en diversas áreas, como: geo-mecánica (rocas, tierra), agricultura (transporte, manejo de grano y semillas), farmacia (manejo de polvo y píldoras), química (fluidización, ruptura de partículas), ingeniería de procesos (peening, efecto de virutas y aglomeración), petróleo y gas (bloqueo de conductos por la arena), y medio ambiente y biología (purificación de agua, sangre) entre otras.
-
-El primer hito importante en la historia de DEM se enmarca en 1970 \cite{20}, cuando aparecen las primeras simulaciones destinadas a estudiar los sistemas granulares (mecánica de rocas con pocas partículas muy grandes). Las primeras implementaciones fueron mejoradas hacía 1979 \cite{21}, para permitir el análisis de partículas más pequeñas, incrementando el rango de sistemas físicos a los cuales el modelos se podían aplicar. Finalmente hacia 1992 \cite{20}, se realiza una revisión de los métodos de simulaciones numéricas y se materializan códigos de DEM que permiten: desplazamientos finitos y rotaciones de los elementos discretos, así como el reconocimiento de nuevos contactos a medida que el cálculo avanza. A partir de las siguientes décadas, las publicaciones y referencias al DEM aumenta \cite{22}.
-
-Actualmente, el DEM es cada vez más aceptado como un método eficaz para hacer frente a los problemas de ingeniería de materiales granulares o discontinuos\cite{22}, especialmente en flujo de granos, mecánica de polvos y mecánica de rocas, dado que se puede adaptar fácilmente al área al cual se está aplicando.
-
-% \subsubsection{Método}
-
-Los procesos que involucran medios granulares se han estudiado experimentalmente, mediante el desarrollo de experiencias de laboratorio que reproducen los fenómenos, y en las últimas décadas en forma numérica. El DEM simula el comportamiento mecánico de un medio formado por un conjunto de partículas las cuales interaccionan entre sí a través de sus puntos de contacto. La disposición de las partículas dentro del medio granular es aleatoria, por lo que se pueden formar medios con diferentes tamaños de partículas distribuidos a lo largo del conjunto.
-
-Principalmente se pueden distinguir las siguientes propiedades básicas que definen el método de análisis numérico: 1. las partículas se consideran como elementos discretos que en su conjunto conforman el sistema complejo de partículas, 2. estas partículas se desplazan independientemente una de otras e interaccionan entre sí en las zonas de contacto y 3. a nivel de cada partícula se hace uso de la mecánica del cuerpo rígido y los elementos discretos se consideran elementos rígidos en sí.
-
-Habitualmente las partículas pueden tener cualquier forma, son elásticas y no sufren deformaciones permanentes. 
-% Las fuerzas de contacto consisten de una componente elástica lineal normal y otro componente elástico lineal tangencial.
-
-
-% \subsubsection{Aplicación}
-Una simulación usando DEM comienza por generar un modelo sistema, es decir, posicionar espacialmente todas las partículas asignando a cada partícula sus propiedades físicas (masa, forma, velocidad, densidad, centro de masa, elasticidad, etc.) que la caracterizan en la simulación. Las fuerzas que actúan sobre cada partícula son calculadas usando el modelo inicial, las leyes físicas que actúen sobre ellas y los modelos de contacto entre partículas. Generalmente, el proceso de simulación se entiende como la ejecución reiterada de las siguientes etapas:
+Los métodos de interpolación pueden clasificarse, en términos generales, en:
 \begin{itemize}
-	\item Inicialización del sistema de partículas
-	\item Inicialización de cada partícula y sus propiedades
-	\item Paso de integración %Simulación de un pequeño paso
-	\item Cálculo de la nueva posición de cada partícula tomando en cuenta sus propiedades, las fuerzas aplicadas e interacciones con partículas vecinas.
-	\item Post-procesamiento
-	\item Tareas de aceptación del nuevo sistema.
+    \item \textbf{Métodos globales:} utilizan todos los puntos de referencia en cada estimación.
+    \item \textbf{Métodos locales:} utilizan únicamente un subconjunto de puntos cercanos a $\mathbf{x}$.
 \end{itemize}
 
-El DEM hace un uso intenso de CPU, lo cual limita la cantidad de tiempo que se puede simular así como también la cantidad máxima de partículas que se pueden tomar en consideración. Algoritmos secuenciales para simulaciones DEM de sistemas de tamaño medio, compuesto de hasta unos pocos miles de partículas, pueden ser ejecutados en computadores personales. La potencia de cálculo requerida para las simulaciones de sistemas más grandes, del orden de un millón de partículas, supera ampliamente las capacidades de un computador personal si se espera obtener resultados útiles y en un tiempo razonable.
-Para estos casos es recomendable la aplicación de técnicas especiales de procesamiento que permiten, con una infraestructura de hardware adecuada, obtener mejores tiempos de ejecución, así como escalar la cantidad de partículas que forman parte del sistema simulado.
-De todas formas hay situaciones en las cuales la capacidad real de cómputo que se puede conseguir para hacer frente a un problema, se ve limitada por razones tanto teóricas (complejidad de algoritmos) como prácticas (hardware disponible). En estos casos surge como una alternativa realizar aproximaciones cuando el efecto de considerar cada partícula por separado o una aproximación de ellas, es un error acotado que se puede asumir.
+En la práctica, los métodos locales resultan atractivos por su menor costo computacional, especialmente en tres dimensiones, siempre que se disponga de un mecanismo eficiente para identificar el conjunto de vecinos relevantes.
 
-\section{Algoritmo evolutivo}
-En esta sección se introduce el concepto de algoritmo evolutivo.
-% \subsubsection{Motivación}
-Con el advenimiento de la informática surgieron problemas computacionales y el concepto de complejidad computacional comenzó a limitar los problemas que se lograban atacar utilizando herramientas determinísticas de resolución. Se clasificó entonces las clases de complejidad en los cuales un problema podía caer. Definiéndose clase P y clase NP. Un problema pertenece a la clase P si puede ser resuelto en un tiempo polinómico en una computadora determinística. Ejemplos de estos problemas son el ordenamiento, búsqueda binaria, multiplicación matricial, etc. Un problema pertenece a la clase NP si puede ser resuelto en un tiempo polinómico, pero usando una computadora no determinística. Son la clase de problemas para los cuales es difícil encontrar una solución, pero una vez hallada, es fácil verificarla.
+\subsection*{Técnicas consideradas}
 
-Dentro del conjunto de problemas NP se pueden encontrar comúnmente problemas de optimización. Estos problemas resultan fáciles de resolver cuando el espacio de direcciones a tomar en consideración es reducido, pero aumenta su complejidad conforme aumenta el espacio de valores a tomar en cuenta. Un típico ejemplo de estos problemas es el problema de viajero (TSP por sus siglas en inglés, Travelling Salesman Problem), que se define como encontrar una permutación que represente el recorrido de una serie de ciudades de tal forma que todas sean visitadas (sólo una vez) minimizando la distancia total viajada.
+Dado que inicialmente no se conocía el comportamiento relativo de distintas estrategias de interpolación en el contexto del potencial gravitatorio, se estudiaron y aplicaron las siguientes técnicas:
 
-En el transcurso del proyecto se utilizaron técnicas de computación evolutiva para optimizar la compactación de aglomerados de partículas.
-
-% \subsubsection{Metodología}
-Dado que la complejidad asociada a los problemas de clase NP crece a medida que se incrementa el tamaño del problema, se hace necesario utilizar algoritmos de resolución más eficientes que la búsqueda exhaustiva. En estos casos es cuando se vuelve útil explorar otras técnicas de resolución, como ser: 1. métodos de aproximación (encuentran una solución buena con un error conocido), 2. métodos aleatorios (con cierta probabilidad, encuentran una solución con un error máximo dado), 3. técnicas heurísticas (técnicas basadas en procesamientos conceptualmente simples encuentran soluciones de buena calidad a problemas difíciles de un modo sencillo y eficiente) y 4. meta-heurísticas (se definen como heurísticas de nivel más alto de abstracción, definen estrategias que guían el proceso de búsqueda, incluyendo en general heurísticas subordinadas). 
-
-Dentro del gran conjunto de meta-heurísticas existen las de computación evolutiva, estas técnicas trabajan sobre una población de soluciones que evoluciona mediante mecanismo de selección y construcción de soluciones candidatas por recombinación de características de las soluciones anteriores.
-
-Estas técnicas trabajan en las siguientes etapas: 1. evaluación de la función de fitness (en esta etapa se evalúa la calidad de las soluciones), 2. selección de individuos adecuados (de acuerdo al fitness calculado), 3. aplicación de operadores evolutivos y 4. reemplazo o recambio generacional.
-
-
-\section{Interpolación}
-La interpolación es un proceso por el cual se define un valor en un punto cualquiera a partir de los valores conocidos en algunos puntos dados. En general, tenemos un conjunto finito de nodos o puntos fijos con valores nodales asociados a cada uno de ellos: ${(P_i, V_i)}$, donde $Pi = {x_i, y_i, z_i)}$ es la posición del i-ésimo punto y Vi el valor conocido en el punto fijo; se pretende encontrar el valor v asociado a un punto de coordenadas x cualquiera.
-% \subsubsection{Motivación}
-En el contexto del proyecto, resulta necesario utilizar una técnica de interpolación para poder conocer con mejor detalle cómo se distribuye el dominio solución para el cual se aplicó el algoritmo de cálculo de potencial. Resulta más performante aplicar el cálculo de potencial sobre una malla gruesa y luego una técnica de interpolación apropiada sobre una malla una poco más fina, que aplicar el cálculo de potencial sobre una malla fina desde el principio.
-% \subsubsection{Técnicas}
-El proceso de interpolación define el valor asociado al punto variable. Podría, por ejemplo, asignarse el valor del punto más cercano o una combinación de valores cercanos o de todos los conocidos. En una sola dimensión es muy sencillo encontrar el punto más cercano o los dos nodos que “encierran” el punto buscado, pero en más dimensiones resulta más complicado.\newline
-
-La forma estándar, para variables continuas, consiste en hacer una suma de valores ponderados: 
-$V(x) =  \sum_{}^{} \alpha _i(x)V_i $. El valor $v$ en el punto variable $x$ se calcula asignando, a cada punto fijo, un peso $\alpha _i$ que depende de la posición del punto variable. Normalmente se pretende que el peso de cada punto esté en relación inversa con la distancia al punto móvil, de ese modo el valor estará más influenciado por los puntos más cercanos. Pero hay muchas formas de definir los pesos. Es justamente, la selección de pesos la que define el método de interpolación.\newline
-
-Una clasificación posible para los métodos de interpolación es en métodos locales y métodos globales: los métodos globales consideran todos los nodos. Para los métodos locales, sólo se consideran los nodos cercanos. En general se utilizan estos últimos métodos pues son algorítmicamente más veloces, sobre todo cuando se dispone de un método rápido para encontrar el conjunto de nodos cercanos.\newline
-
-Debido a que en un principio no se conocía como se iban a comportar las distintas técnicas de interpolación, se estudiaron y luego aplicaron distintas técnicas posibles, entre las cuales las siguientes se destacan:
 \begin{itemize}
-	\item Nearest neighbor
-	\item Ponderación lineal 
-	\item Kriging
-	\item Inverse distance weighting (IDW) 
+    \item Vecino más cercano (\textit{Nearest Neighbor})
+    \item Ponderación por distancia (promedio ponderado)
+    \item Kriging
+    \item Ponderación de distancia inversa (\textit{Inverse Distance Weighting}, IDW)
 \end{itemize}
 
-A continuación, una descripción general de cada técnica y un breve resumen de su aplicación y/o resultados esperados:
+A continuación se presenta una descripción general de cada técnica.
 
-\paragraph{Nearest neighbor}
-El algoritmo del vecino más cercano selecciona el valor del punto más cercano y no tiene en cuenta los valores de otros puntos vecinos cercanos, produciendo un interpolante constante por trozos. El algoritmo es muy simple de implementar y se utilizó como referencia base.
-\paragraph{Ponderación lineal sobre la distancia}
-La ponderación lineal es un método que permite dado un conjunto de puntos y sus valores asociados, realizar estimaciones respecto a puntos donde se desconoce su valor asociado a través de una combinación lineal de los valores de los puntos conocidos. Además, se caracteriza por obtener el valor buscado a través de una asignación de pesos a los puntos conocidos.
-Este método toma la forma de: $$\sum_{i=0}^{N} \frac{w_i u_i}{\sum_{j=0}^{N} u_j(x)} $$ donde $W_i(x)$ representan los valores de los puntos conocidos, y $u_i$ representa la ponderación asignada. Dado que estamos queriendo interpolar una magnitud que varía con la distancia al punto a interpolar, resulta intuitivo que los valores ponderadores se correspondan con la distancia entre el punto a interpolar al punto conocido correspondiente, por lo que entonces $u_i$ representaría la distancia entre el punto $w_i$ conocido al punto a interpolar.
+\paragraph{Vecino más cercano (Nearest Neighbor)}
+Este método asigna al punto $\mathbf{x}$ el valor del nodo más cercano:
+\[
+V(\mathbf{x}) = V_{i^\star}, \qquad i^\star = \arg\min_{i} \, d(\mathbf{x},\mathbf{p}_i),
+\]
+donde $d(\cdot,\cdot)$ es una métrica de distancia (en este trabajo, distancia euclídea). El resultado es un interpolante constante por regiones, y su simplicidad permite utilizarlo como referencia base.
+
+\paragraph{Promedio ponderado por distancia}
+En este enfoque se calcula el valor interpolado como un promedio ponderado de un conjunto de nodos de referencia:
+\[
+V(\mathbf{x}) = \frac{\sum_{i\in\mathcal{N}(\mathbf{x})} w_i(\mathbf{x})\, V_i}{\sum_{i\in\mathcal{N}(\mathbf{x})} w_i(\mathbf{x})},
+\]
+donde $\mathcal{N}(\mathbf{x})$ es el conjunto de nodos considerados (por ejemplo, los más cercanos) y $w_i(\mathbf{x})$ es una función de ponderación que depende de la distancia entre $\mathbf{x}$ y $\mathbf{p}_i$. Este esquema general permite definir múltiples variantes a partir de la elección de $w_i(\mathbf{x})$.
 
 \paragraph{Kriging}
-El método de Kriging es un método geoestadístico de estimación de puntos. Utiliza un modelo de variograma para la obtención de los ponderadores que se darán a cada punto de referencias usados en la estimación. Esta técnica de interpolación se basa en la premisa de que la variación espacial continúa con el mismo patrón. Fue desarrollada inicialmente por Danie G. Krige a partir del análisis de regresión entre muestras y bloques de mena, las cuales fijaron la base de la geoestadística lineal.\newline
+Kriging es una técnica geoestadística de estimación que determina pesos a partir de un modelo de variograma, bajo la premisa de que existe correlación espacial entre las muestras. En contraste con métodos deterministas basados únicamente en distancia, Kriging incorpora un modelo explícito de variabilidad espacial y puede producir estimaciones con propiedades estadísticas deseables. La precisión del estimador depende, entre otros factores, de la distribución espacial de las muestras y del ajuste del variograma.
 
-La precisión del estimador usado depende de varios factores:
-\begin{itemize}
-	\item \textit{el número de muestras tomadas}
-	\item \textit{la calidad de la medición en cada punto}
-	\item \textit{las ubicaciones de las muestras en la zona:} si las muestras son igualmente espaciadas se alcanza una mejor cobertura, dando mayor información acerca de la zona que aquella que se obtendría de muestras muy agrupadas en unos sectores y separadas en otros. Sin embargo, en la práctica, debido a las características de las regiones de estudio, muchas veces es preciso tomar muestras irregularmente espaciadas.
-	\item \textit{las distancias entre las muestras:} para la predicción es más confiable usar muestras vecinas que muestras distantes, esto es, la precisión mejora cuando la cercanía de las muestras aumenta, y se deteriora cuando esta disminuye.
-	\item \textit{la continuidad espacial de la variable o atributo en estudio:} es más fácil estimar el valor de una variable bastante regular en una región que una que presenta grandes fluctuaciones.
-\end{itemize}
+\paragraph{Ponderación de distancia inversa (IDW)}
+IDW es un método determinista que asigna pesos inversamente proporcionales a la distancia entre $\mathbf{x}$ y los puntos de referencia. Utilizando el esquema de promedio ponderado, los pesos se definen como:
+\[
+w_i(\mathbf{x}) = \frac{1}{d(\mathbf{x},\mathbf{p}_i)^p},
+\]
+donde $p>0$ es el parámetro de potencia. Con esta elección, el valor interpolado queda:
+\[
+V(\mathbf{x}) = \frac{\sum_{i\in\mathcal{N}(\mathbf{x})} \frac{V_i}{d(\mathbf{x},\mathbf{p}_i)^p}}
+{\sum_{i\in\mathcal{N}(\mathbf{x})} \frac{1}{d(\mathbf{x},\mathbf{p}_i)^p}}.
+\]
+El parámetro $p$ controla el grado de influencia de los nodos cercanos: valores mayores de $p$ incrementan la contribución relativa de puntos próximos a $\mathbf{x}$. En el contexto de este trabajo se evaluaron distintas configuraciones de $p$ con el objetivo de identificar un compromiso adecuado entre suavidad del campo interpolado y fidelidad local del potencial.
 
-Existen distintos tipos de algoritmos categorizados como Kriging. Por un lado tenemos el kriging simple, que asume que las medias locales son relativamente constantes y de valor muy semejante a la media de la población que es conocida. La media de la población es utilizada para cada estimación local, en conjunto con los puntos vecinos establecidos como necesarios para la estimación. Existe además el kriging ordinario, en el que las medias locales no son necesariamente próximas de la media de la población, usándose apenas los puntos vecinos para la estimación. Es el método más ampliamente utilizado en los problemas ambientales.
-\paragraph{Ponderación de distancia inversa}
-Ponderación de Distancia Inversa o IDW por su sigla en inglés, es un tipo de método determinista utilizado para interpolaciones multivariables con un conjunto disperso de puntos conocidos. Los valores asignados a los puntos desconocidos son calculando como el promedio ponderado de los puntos conocidos disponibles.
-El nombre dado a este método es motivado por el promedio ponderado aplicado, puesto que dicha ponderación es calculada usando como base el inverso de la distancia a cada punto conocido.
-El resultado esperado es una asignación discreta de la función desconocido u en la región D de estudio:
- $$u(x):x \rightarrow \mathbb{R}, x \in D \subset \mathbb{R}^n $$
-El conjunto de los N puntos conocidos y sus valores asociados se describe como una lista de tuplas:
-$$[(X_1,u_1),(x_2,u_2),...,(X_N,u_N)]$$
-La fórmula general para encontrar los valores interpolados $u$ en los puntos desconocidos $x: u_i = u(x_i)$: para $i=0,1,...,N$ usando IDW es una función interpoladora tal como:
-$$u(x) = \sum_{i=0}^{N} \frac{w_i(x)u_i}{\sum_{j=0}^{N} w_j(x)}i$$
-Donde los pesos $w_i$ se calculan como:
-$$w_i(x) = \frac{1}{d(x,x_i)^p}$$
- 
-En esta ecuación, $d$ es la distancia entre el punto conocido $x_i$ al punto desconocido $x$, $N$ es el número total de puntos conocidos y usados en la interpolación y $p$ es un número real positivo, llamado parámetro de potencia.\newline
-
-En este caso, los pesos asignados disminuyen su valor a medida que la distancia a los puntos conocidos aumenta. Además, valores más grandes de $p$ asigna mayor influencia a los puntos que se encuentran más cercanos al punto que se desea interpolar. Para dos dimensiones, un parámetro de potencia $p<=2$, causa que la interpolación sea dominada por puntos lejanos.\newline
-En nuestro contexto, utilizaremos diferentes configuraciones de $p$ hasta encontrar aquella interpolación que se ajusta mejor a la magnitud interpolada que nos compete.\newline
 
 \section{ESyS-Particle}
 % \subsubsection{Motivación}
