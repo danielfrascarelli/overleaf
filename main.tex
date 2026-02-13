@@ -298,7 +298,52 @@ El cálculo directo del potencial, tanto sobre partículas como sobre nodos de u
 Esta limitación constituye el núcleo del problema abordado en esta tesis y motiva el desarrollo de una implementación paralela eficiente para el cálculo de la auto-gravedad en aglomerados de partículas.
 
 
-\section{Optimización de configuraciones iniciales mediante algoritmos evolutivos}
+\\section{Optimización de configuraciones iniciales mediante algoritmos evolutivos}
+\label{sec:alg_evolutivo}
+
+En el marco de este trabajo se emplea un algoritmo evolutivo como técnica de optimización para generar configuraciones iniciales compactas de aglomerados tridimensionales de partículas. Estas configuraciones constituyen el estado inicial de los sistemas utilizados posteriormente en los experimentos de auto-gravedad (Capítulo~\ref{chap:desafio_planteado}, Sección~\ref{sec:compactacion_aglomerados}).
+
+Los algoritmos evolutivos son métodos de optimización poblacional que operan sobre un conjunto de soluciones candidatas, denominadas individuos, las cuales evolucionan a lo largo de generaciones mediante mecanismos de selección guiados por una función de evaluación (fitness). Este enfoque resulta adecuado para problemas geométricos de alta dimensionalidad con restricciones no lineales, como es el caso de la compactación de partículas esféricas en tres dimensiones.
+
+\subsection*{Representación del individuo}
+
+Sea un aglomerado compuesto por $N$ partículas esféricas. Cada partícula $i$ se caracteriza por su posición en el espacio tridimensional $\mathbf{x}_i = (x_i, y_i, z_i)$ y su radio $r_i$. La distribución de radios se genera previamente de acuerdo con una distribución especificada y permanece fija durante el proceso de optimización.
+
+Un individuo del algoritmo evolutivo representa una configuración completa del sistema, es decir, el conjunto:
+
+\[
+\mathcal{S} = \{(\mathbf{x}_i, r_i)\}_{i=1}^{N}
+\]
+
+donde las posiciones $\{\mathbf{x}_i\}$ determinan la disposición espacial de todas las partículas dentro del dominio de trabajo.
+
+\subsection*{Función objetivo}
+
+El objetivo del proceso de compactación es maximizar la densidad volumétrica del aglomerado, reduciendo al mínimo el volumen vacío entre partículas. Formalmente, el problema puede expresarse como:
+
+\[
+\max_{\{\mathbf{x}_i\}} \; \rho(\mathcal{S})
+\]
+
+donde $\rho(\mathcal{S})$ representa la fracción del volumen ocupado por las partículas respecto al volumen total del dominio considerado.
+
+\subsection*{Restricciones geométricas}
+
+El problema de optimización está sujeto a la restricción de no solapamiento entre partículas. Para toda pareja de partículas $i \neq j$, debe cumplirse:
+
+\[
+\| \mathbf{x}_i - \mathbf{x}_j \| \ge r_i + r_j
+\]
+
+donde $\|\cdot\|$ denota la norma euclídea en $\mathbb{R}^3$.
+
+Esta restricción garantiza que las partículas no se interpenetran geométricamente. Asimismo, la distribución de radios $\{r_i\}$ permanece constante durante el proceso evolutivo, preservando las características físicas del sistema.
+
+\subsection*{Esquema general del proceso evolutivo}
+
+El algoritmo evolutivo opera iterativamente sobre una población de configuraciones candidatas, evaluando la densidad asociada a cada individuo y seleccionando aquellas configuraciones que presentan mayor compactación. El proceso continúa hasta alcanzar un criterio de terminación predefinido, produciendo como resultado una configuración tridimensional densa y geométricamente consistente.
+
+El detalle de la implementación concreta del algoritmo, así como su parametrización y desempeño experimental, se presenta en la Sección~\ref{sec:compactacion_aglomerados}.
 
 \section{Computación paralela y métricas de desempeño}
 
