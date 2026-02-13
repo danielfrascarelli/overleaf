@@ -546,6 +546,123 @@ Sánchez y Scheeres \cite{12} utilizaron un enfoque ligeramente diferente: mient
 Para tratar de manera eficiente los aglomerados auto-gravitantes formados por un número mayor de partículas que las abordadas por los esfuerzos anteriores, el algoritmo de cálculo desarrollado en este trabajo incorpora elementos de los enfoques descritos: (i) la sustitución mediante una función de ajuste suave del potencial, (ii) un método de agrupación jerárquica para acelerar el cálculo de auto-gravedad en nodos de la cuadrícula, y (iii) una cuadrícula regular y estática para dividir el espacio:contentReference[oaicite:7]{index=7}.
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\chapter{Formulación del problema y objetivos del desarrollo}
+
+\section{Definición del problema físico-computacional}
+
+El problema central abordado en esta tesis consiste en el cálculo eficiente de la auto-gravedad en un sistema discreto de partículas que modela un medio granular auto-gravitante.
+
+Sea un aglomerado compuesto por $N$ partículas, donde cada partícula $i$ posee masa $m_i$ y posición $\mathbf{x}_i \in \mathbb{R}^3$. En el marco de la mecánica newtoniana, la fuerza gravitatoria total ejercida sobre la partícula $i$ está dada por:
+
+\[
+\mathbf{F}_i = - \sum_{\substack{j=1 \\ j \neq i}}^{N}
+G \frac{m_i m_j}{\|\mathbf{x}_i - \mathbf{x}_j\|^3}
+(\mathbf{x}_i - \mathbf{x}_j),
+\]
+
+donde $G$ es la constante de gravitación universal.
+
+El cálculo directo de esta expresión implica evaluar todas las interacciones par a par entre partículas, lo que conduce a una complejidad computacional $O(N^2)$. Cuando el número de partículas es del orden de $10^5$ o superior —como en los escenarios considerados en este trabajo— el costo computacional del cálculo directo resulta prohibitivo.
+
+En simulaciones basadas en el Método de Elementos Discretos (DEM), este cálculo debe realizarse de manera repetida a lo largo del tiempo de simulación, utilizando pasos temporales del orden de $10^{-4}$ s. En consecuencia, el costo total de la simulación se incrementa significativamente si no se adoptan estrategias que reduzcan el tiempo de cómputo por paso.
+
+Desde el punto de vista computacional, el problema puede formularse como:
+
+\begin{itemize}
+    \item Diseñar un algoritmo que permita calcular la auto-gravedad de un sistema discreto de $N$ partículas.
+    \item Reducir el costo computacional respecto al esquema directo $O(N^2)$.
+    \item Implementar dicho algoritmo utilizando técnicas de computación paralela.
+    \item Integrar la solución en un entorno de simulación DEM existente (ESyS-Particle).
+\end{itemize}
+
+Por lo tanto, aunque el fenómeno modelado es físico (interacción gravitatoria en un medio granular), el núcleo del problema abordado en esta tesis es computacional: desarrollar un método eficiente y escalable para el cálculo de interacciones gravitatorias en sistemas discretos de gran tamaño.
+
+La generación de condiciones iniciales compactas para los aglomerados constituye un problema complementario, abordado como apoyo experimental para la evaluación del algoritmo principal, pero no representa el foco central del trabajo.
+
+
+
+\section{Modelo adoptado para la auto-gravedad}
+
+\section{Desafíos computacionales identificados}
+
+\section{Objetivos del desarrollo}
+
+\section{Problema relacionado: generación de condiciones iniciales}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \chapter{Desafio planteado}
 
 En este capítulo se presenta el problema a resolver.
@@ -576,6 +693,69 @@ Debido a la importancia y calidad de las simulaciones numéricas que se desea ob
 % SE PODRIA BORRAR: Debido a la importancia y calidad de las simulaciones numéricas que se desea obtener en este proyecto y considerando que la herramienta de simulación utilizada no incluye la capacidad de generar condiciones iniciales de esta forma, es que se decide implementar para el paquete GenGeo de generación de condiciones iniciales (incluido en ESyS-Particle), un algoritmo de generación de aglomerados de partículas con una distribución de tamaños dada con alto grado de compactación. \newline
 
 Teniendo en cuenta que se toman en consideración del orden de un millón de partículas sobre un espacio tridimensional (cada partícula se toca con la siguiente en algún punto de su superficie y con los bordes del contenedor) este problema es de complejidad NP.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \chapter{Diseño y arquitectura}
 
