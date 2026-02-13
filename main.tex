@@ -411,92 +411,71 @@ Dentro del gran conjunto de meta-heurísticas existen las de computación evolut
 
 Estas técnicas trabajan en las siguientes etapas: 1. evaluación de la función de fitness (en esta etapa se evalúa la calidad de las soluciones), 2. selección de individuos adecuados (de acuerdo al fitness calculado), 3. aplicación de operadores evolutivos y 4. reemplazo o recambio generacional.
 
-\section{Auto gravedad}
-En esta sección se introduce el concepto de auto-gravedad.
-% \subsubsection{Concepto}
-La gravedad es una de las cuatro interacciones fundamentales observadas en la naturaleza. Origina la aceleración que experimenta un cuerpo físico en las cercanías de un objeto astronómico. También se denomina interacción gravitatoria o gravitación.
-La auto-gravedad es una fuerza que intenta comprimir un objeto hacia un punto en su centro de gravedad. Este concepto de auto-gravedad puede aplicarse tanto a nivel de partículas como electrones en un nivel cuántico, como a objetos de mayor escala como la tierra o asteroides en un nivel clásico.
+\section{Computación paralela y métricas de desempeño}
+\label{sec:computacion_paralela_metricas}
 
-% \subsubsection{Motivación}
-Si se considera un aglomerado de partículas y se lo contextualiza en un ambiente de baja gravedad (alejado de cualquier fuente de gravedad), se puede intuir que la auto-gravedad ejercida por las propias partículas que conforman el sistema cobra relevancia en el comportamiento del medio granular. Si además se pretende estudiar el comportamiento de un medio granular por la acción de objetos externos (como por ejemplo choques de proyectiles o influencia de fuerzas a distancia) resulta imprescindible conocer el comportamiento del sistema en su conjunto.\newline
+La computación paralela es un paradigma de cómputo en el cual múltiples operaciones se ejecutan de manera concurrente con el objetivo de reducir el tiempo total de ejecución o incrementar el tamaño de los problemas abordables. En términos generales, un problema se descompone en subtareas que pueden ejecutarse simultáneamente, coordinando su ejecución mediante mecanismos de comunicación y sincronización. Este enfoque introduce desafíos adicionales respecto a la programación secuencial, tales como condiciones de carrera, sobrecostos de sincronización y desbalance de carga.
 
-Se sabe que se puede considerar por ejemplo ciertos asteroides como medios granulares, es decir conformados por un conjunto variado de partículas, las cuales se mantienen unidas por efecto de la auto-gravedad entre ellas. Dado que los asteroides se encuentran mayormente alejados de grandes objetos gravitacionales, la auto-gravedad existente cobra relevancia en su comportamiento. %Ahora bien, considérese que un grupo de astrónomos predicen para el futuro cercano, un choque similar al cual se sabe provocó la extinción de los queridos dinosaurios, es decir un asteroide de dimensiones considerables que impactaría contra la tierra provocando una fatalidad. En este contexto resulta imprescindible conocer cómo se comportaría dicho objeto, para intentar entender cómo se comportaría ante diferentes estrategias que pretendan desviar su curso poco feliz. En esta área se han dado a conocer tantas estrategias que algunas hasta parecen ficticias, y otras poco intuitivas. Las más obvias, claro, resultan de hacer impactar el asteroide por un objeto (y aquí se tiene el primer caso antes citado: impacto de un proyectil contra un medio granular) intentando desviar su trayectoria. Sin embargo, si el asteroide es en realidad un medio granular, el impacto del proyectil puede separar las partículas que lo conforman, convirtiendo un solo impacto puntual en una metralla de impactos producidos por la disgregación del medio granular. Otra de las estrategias conocidas como “tractor de gravedad” resulta en influenciar el trayecto del asteroide utilizando simplemente la fuerza de la gravedad. Esta estrategia supone posicionar un objeto muy masivo cercano al asteroide, el cual ejercería una pequeña fuerza gravitacional sobre este, “tirando” sobre el asteroide, desviando su trayectoria original. Nuevamente en este caso surge la interrogante: cómo se comportará el asteroide si éste es en realidad un medio granular. Una posibilidad es que el objeto tractor, en realidad estire el asteroide como si fuera un “chicle”, generando nuevamente una metralla de partículas de mayor ancho que el original.\newline
+En el contexto de este trabajo se utiliza una infraestructura de cómputo basada en un clúster, combinando paralelismo en memoria compartida (multihilo) y paralelismo en memoria distribuida (MPI), con el fin de aprovechar recursos de cómputo disponibles y facilitar la integración con ESyS-Particle.
 
-%Dadas las estrategias enumeradas resulta imprescindible conocer con precisión el comportamiento del medio granular en contextos donde su auto-gravedad cobra relevancia.\newline
+\subsection*{Modelos de paralelismo}
 
-Se plantea a continuación el problema formalmente:\newline
-Considérense N esferas de radios diferentes, con una distribución en un cierto rango de tamaños. \newline
+Existen dos estrategias habituales para dividir un problema y explotar paralelismo:
 
-Dado este conjunto de N esferas en un volumen cúbico, se solapa el mismo con una grilla definida, y sobre esta grilla se procede al cálculo del potencial gravitatorio. Sobre cada nodo de la grilla se calcula el potencial ejercido por las N partículas, y este proceso se repite por cada nodo de la grilla.\newline
-
-El potencial calculado sobre un nodo de coordenadas (l, m, n) de la grilla tiene la forma:
-$$V(l,m,n) =  \sum_{n=1}^{} V(i) = \sum_{i}^{} \frac{GM_i}{\norm{R_0(i)-R(l,m,n)}}$$
-
-Donde $M_i$ es la masa de la partícula $i$, $G$ la constante de la Gravitación Universal, $R_0(i)$ es la posición de la partícula $i$ y $R(l,m,n)$ la posición del punto $(l,m,n)$ de la grilla. El denominador es la norma de la resta de los vectores posición $R_0(i)$ y $R(l,m,n)$.
-
-\section{Computación paralela}
-% \subsubsection{Concepto}
-La computación paralela es una forma de cómputo en la que muchas instrucciones se ejecutan simultáneamente, operando sobre el principio de que problemas grandes, a menudo se pueden dividir en unos más pequeños, que luego son resueltos simultáneamente (en paralelo). Los programas informáticos paralelos son más difíciles de escribir que los secuenciales, porque la concurrencia introduce nuevos tipos de errores de software, siendo las condiciones de carrera los más comunes. La comunicación y sincronización entre diferentes subtareas son algunos de los mayores obstáculos para obtener un buen rendimiento del programa paralelo.\newline
-
-La computación en paralelo utiliza simultáneamente múltiples elementos de procesamiento para resolver un problema. Esto se logra mediante la división del problema en partes independientes de modo que cada elemento de procesamiento pueda ejecutar su parte del algoritmo de manera simultánea con los otros. Los elementos de procesamiento son diversos e incluyen recursos tales como una computadora con múltiples procesadores, varios ordenadores en red, hardware especializado, o cualquier combinación de los anteriores. \newline
-
-En el contexto de la computación paralela, se denomina proceso a una unidad de actividad que se caracteriza por la ejecución de una secuencia de instrucciones, un estado actual, y un conjunto de recursos del sistema asociados. Cada proceso tiene su contador de programa, registros y variables, aislados de otros procesos, incluso siendo el mismo programa en ejecución 2 veces. Cuando este último caso sucede, el sistema operativo usa la misma región de memoria de código, debido a que dicho código no cambiará, a menos que se ejecute una versión distinta del programa.\newline
-
-Los procesos son gestionados por el sistema operativo y están formados por:
-\begin{itemize}
-	\item Las instrucciones de un programa destinadas a ser ejecutadas por el microprocesador.
-	\item Su estado de ejecución en un momento dado, esto es, los valores de los registros de la unidad central de procesamiento para dicho programa.
-	\item Su memoria de trabajo (memoria crítica), es decir, la memoria que ha reservado y sus contenidos.
-	\item Otra información que permite al sistema operativo su planificación.
-\end{itemize}
-
-Esta definición varía ligeramente en el caso de sistemas operativos multihilo, donde un proceso consta de uno o más hilos, la memoria de trabajo (compartida por todos los hilos) y la información de planificación. Cada hilo consta de instrucciones y estado de ejecución.\newline
-
-Formalmente un hilo de ejecución, hebra o subproceso es la unidad de procesamiento más pequeña que puede ser planificada por un sistema operativo. La creación de un nuevo hilo es una característica que permite a una aplicación realizar varias tareas a la vez (concurrentemente). Los distintos hilos de ejecución comparten una serie de recursos tales como el espacio de memoria, los archivos abiertos, situación de autenticación, etc. Esta técnica permite simplificar el diseño de una aplicación que debe llevar a cabo distintas funciones simultáneamente.
-
-% \subsubsection{Modelos de programación paralela}
-Dado un problema complejo a resolver, los modelos de programación paralelo determinan la forma en cómo subdividir el problema inicial en subproblemas de menor complejidad los cuales se puedan resolver de forma independiente. La identificación de la división del problema original en subtareas y la posterior recomposición de la solución a partir de la resolución de los sub-problemas resulta crucial.\newline
-Existen dos estrategias para dividir el problema original en subproblemas:
 \paragraph{Descomposición por dominio}
-Técnica enfocada en dividir los datos manejados por el programa en (preferentemente) partes disjuntas, a ser procesadas en paralelo por diferentes unidades de procesamiento.
+Consiste en particionar el conjunto de datos de entrada en subconjuntos, procesados en paralelo por diferentes unidades de ejecución. Este enfoque es frecuente en simulaciones numéricas, donde el dominio espacial o el conjunto de entidades (por ejemplo, partículas o nodos de una malla) puede distribuirse entre recursos.
+
 \paragraph{Descomposición funcional}
-Técnica basada en identificar unidades funcionales que realizan diferentes tareas en el programa, esas tareas son entonces ejecutadas en paralelo en diferentes unidades de procesamiento.\newline
+Consiste en identificar etapas o funciones diferentes del algoritmo y ejecutarlas en paralelo. Este enfoque resulta útil cuando existen componentes relativamente independientes o pipelines de cómputo.
 
-Ambas técnicas dependen en comunicación y sincronización a través de un recurso compartido (usualmente una memoria compartida) o pasaje explícito de mensajes, para implementar la cooperación que permite resolver los subproblemas e integrarlos para construir la solución original.
+En ambos casos, el rendimiento final depende de la proporción del trabajo efectivamente paralelizable, del costo de coordinación entre tareas (comunicación/sincronización) y del grado de balanceo del trabajo asignado.
 
-% \subsubsection{Métricas de performance}
-Luego de aplicadas técnicas de HPC en la resolución de un problema, resulta muy importante evaluar la performance obtenida por los cambios introducidos. Generalmente comparando los tiempos de ejecución de nuestra solución paralela con los de una solución secuencial, o con una estimación, podemos saber si nos lleva menos tiempo, pero también es de interés, saber qué tanto mejora nuestra solución al agregar recursos de cómputo. Es decir, se necesita conocer como escala nuestra solución tanto para saber qué tan capaces somos de resolver el problema más rápido, como de resolver problemas más complejos.\newline
-A continuación, se explican algunas de las métricas que se utilizan habitualmente para evaluar los resultados: 
-\paragraph{Speedup} 
-Es una medida de la mejora del rendimiento (performance) de un algoritmo paralelo al aumentar la cantidad de procesadores (comparado con el rendimiento al utilizar un solo procesador). Según cómo se interpreten ejecución serial y paralela, se puede arribar a distintas variantes del speedup, en nuestro caso comentaremos sólo dos:
-\paragraph{Speedup absoluto}
-Se compara el tiempo de ejecución de un algoritmo paralelo utilizando N procesadores contra el tiempo de ejecución del mejor algoritmo secuencial. El speedup absoluto SABS(N) se define como SABS(N) = T / TN donde T es el tiempo que toma al mejor algoritmo secuencial en resolver el problema, “N” es la cantidad de procesadores utilizados y TN el tiempo que le toma a nuestro algoritmo paralelo en resolver el problema con N procesadores. Esta no es muy utilizada porque normalmente no se conoce el mejor algoritmo secuencial que resuelve el problema.
-\paragraph{Speedup relativo o algorítmico}
-Conceptualmente similar al speedup absoluto, pero en vez de comparar con el tiempo que le lleva al mejor algoritmo secuencial, se compara con el tiempo de ejecución en un procesador serial. Se calcula como S(N) = T1 x TN siendo T1 el tiempo de ejecución en un procesador serial. Al igual que para el speedup absoluto no significa nada si no viene acompañado por el número de procesadores para el que fue calculada. 
-\paragraph{Eficiencia computacional}
-Es una medida relativa que permite comparar el desempeño de un algoritmo paralelo en diferentes entornos, consiste en dividir el speedup por la cantidad de procesadores. La eficiencia computacional E(N) se define como E(N) = T(1) / N x T(N). Corresponde a un valor normalizado del speedup (entre 0 y 1), respecto a la cantidad de procesadores utilizados. Valores cercanos al uno indicarán en general situaciones casi ideales de mejora de performance.
-\paragraph{Paralelicibilidad}
-Es una medida para evaluar el desempeño de un algoritmo paralelo, que consiste en comparar el tiempo de ejecución de este en un computador paralelo utilizando N procesadores, con el tiempo de ejecución del mismo algoritmo utilizando el mismo computador, pero solo un procesador. Se calcula como P = TP1 / TPN, donde TP1 el tiempo que toma a un computador paralelo ejecutar un algoritmo paralelo en un único procesador y TPN el tiempo que toma al mismo computador paralelo ejecutar el mismo algoritmo paralelo en N procesadores.\newline
-La paralelicibilidad y el speedup si bien similares, miden aspectos diferentes del algoritmo paralelo. El speedup considera el tiempo de un algoritmo secuencial (el mejor existente o conocido) para la comparación, mientras que la paralelicibilidad toma en cuenta el tiempo de ejecución de un algoritmo paralelo en un único procesador. El speedup evalúa la mejora de desempeño al utilizar técnicas de programación paralela. La paralelicibilidad da una medida de cuán paralelizable o escalable resulta el algoritmo paralelo utilizado
+\subsection*{Memoria compartida y multihilo}
 
-\section{Computación de alto rendimiento}
-% \subsubsection{Motivación}
-Cada vez se hace más difícil y a la vez más importante, el poder satisfacer los requisitos crecientes de poder de cómputo. Esto se debe a que cada vez más los informáticos están atacando problemas más complejos, aplicando modelos más complejos, analizando volúmenes de datos más grandes o necesitando una capacidad de respuesta en tiempo limitado para nuevos problemas (sistemas de tiempo real y semejantes).\newline
+En arquitecturas de memoria compartida, múltiples hilos de ejecución acceden al mismo espacio de direcciones, compartiendo estructuras de datos. Este modelo permite comunicación implícita mediante memoria, pero requiere mecanismos explícitos de sincronización para proteger regiones críticas y evitar condiciones de carrera.
 
-El objetivo de este proyecto es desarrollar una herramienta que permite atacar problemas con volúmenes de datos y complejidad matemática considerable, utilizando técnicas informáticas conocidas como ‘Computación de Alto Rendimiento’ las cuales consisten en la aplicación de una familia de técnicas, que se utilizan para lograr tareas concurrentes, con el fin de reducir el tiempo de procesamiento. Se debe contar con una arquitectura de hardware paralelo que permita el procesamiento simultáneo de tareas. La cantidad requerida de circuitos para el procesamiento paralelo es mayor que en el procesamiento serial, pero en la actualidad esto no es un problema, ya que los costos de hardware son relativamente bajos.
+En este trabajo se utiliza paralelismo multihilo para explotar los múltiples núcleos disponibles dentro de un nodo de cómputo, distribuyendo el trabajo entre hilos y coordinando el acceso a datos compartidos cuando corresponde.
 
-Este tipo de infraestructura de cómputo compuesta por agregación de recursos de cómputo, potencialmente heterogéneos, conectados a través de una red, son las computadoras más potentes de hoy en da y se llaman clusters ó grids. En general por clúster se denota a recursos de cómputo integrados en un mismo lugar físico, mientras que el término grid en general se refiere a la integración de recursos de más de un dominio de administración (i.e. de más de una institución), potencialmente con distribución geográfica. Existe un ranking de las 500 computadoras más potentes del mundo en cuanto a capacidad de procesamiento (en adelante top500) que anualmente publica dicho ranking en el sitio www.top500.org. El top500 hoy en día se encuentra dominado por los clústeres, tanto homogéneos como heterogéneos, muchos de estos incluyendo procesadores gráficos. También existen otros dos rankings que reordenan las mismas 500 computadoras del top500, pero en vez de hacerlo por capacidad de cómputo lo hacen por consumo de energía (www.green500.org), y capacidad de procesamiento intensivo en datos (www.graph500.org).
+\subsection*{Memoria distribuida y MPI}
 
-Las infraestructuras de cómputo con arquitecturas de múltiples procesadores se dividen en dos grandes grupos: las de múltiples procesadores en memoria compartida; o las de múltiples procesadores en memoria distribuida, o sea, múltiples computadoras con uno o más procesadores en memoria compartida, conectadas a través de una red. Las arquitecturas de múltiples procesadores en memoria compartida, pueden dividirse dependiendo de si estos procesadores están integrados en el mismo chip, en cuyo caso comparten además de la memoria principal de la computadora, memoria más cercana al procesador llamada caché. O si estos se encuentran en chips separados, compartiendo únicamente la memoria principal. También pueden dividirse dependiendo de si todos los procesadores acceden a la memoria principal de manera uniforme, o no, en cuyo caso la memoria principal está dividida en regiones que se corresponden a procesadores, un procesador accede de forma directa a una región, pero para acceder a las demás debe comunicarse con el procesador correspondiente.
+En arquitecturas de memoria distribuida, los recursos de cómputo se componen típicamente de múltiples nodos conectados por red, donde cada nodo posee su propia memoria principal. En este modelo, el intercambio de datos se realiza mediante pasaje de mensajes. Una interfaz estándar ampliamente utilizada para este propósito es Message Passing Interface (MPI).
 
-En las arquitecturas actuales en general se tiene múltiples chips con múltiples procesadores, y en estos los procesadores en un mismo chip acceden de forma uniforme a memoria, mientras que aquellos en chips diferentes acceden de forma no uniforme. En general en las infraestructuras de cómputo de alto desempeño actuales, como la mayoría de las que figuran en el top500, son sistemas en memoria distribuida, compuestos por nodos de múltiples procesadores en memoria compartida. Para sacar provecho de dichas infraestructuras hacen falta técnicas o paradigmas de computación, que para el caso de múltiples procesadores en memoria compartida se suelen llamar técnicas de programación paralela, y para el caso de memoria distribuida, de programación distribuida. 
+En el contexto de esta tesis, MPI se utiliza para adaptar el cálculo a la arquitectura de ejecución del paquete ESyS-Particle, el cual se basa en descomposición de dominio y comunicación entre procesos.
 
-% \subsubsection{Infraestructuras utilizadas en el proyecto}
-Un clúster, tal como se mencionó anteriormente, es una supercomputadora construida por agregación de recursos de computo conectados en una red de alta velocidad, dispuestos cercanos entre sí para optimizar las comunicaciones por red. La capacidad de computo de un clúster estará dada entonces tanto por la capacidad de computo de sus procesadores, como por la velocidad de la red de comunicaciones que lo integra.
+\subsection*{Modelo híbrido}
 
-En este proyecto se utilizo el Cluster FING. El clúster FING es una infraestructura de computo paralelo distribuido de alto desempeño perteneciente a la Facultad de Ingeniería.
- 
-\newpage
+En infraestructuras actuales es frecuente disponer de nodos con múltiples núcleos (memoria compartida intra-nodo) conectados en un clúster (memoria distribuida inter-nodo). El modelo híbrido combina ambos niveles: paralelismo multihilo dentro de cada nodo y pasaje de mensajes entre nodos. Esta estrategia permite aprovechar la jerarquía del hardware, reduciendo comunicación a nivel de red y explotando paralelismo local cuando el patrón de acceso a datos lo permite.
+
+\subsection*{Infraestructura de ejecución}
+
+Los experimentos del trabajo se ejecutan sobre el Cluster FING, una infraestructura de cómputo de alto desempeño de la Facultad de Ingeniería. Este tipo de infraestructura permite abordar problemas con altos requerimientos de cómputo mediante la agregación de recursos (nodos) conectados por red, habilitando ejecución paralela a través de modelos de memoria compartida y distribuida.
+
+\subsection*{Métricas de desempeño}
+
+Luego de aplicar técnicas de programación paralela, resulta necesario cuantificar el desempeño obtenido y caracterizar la escalabilidad al incrementar los recursos de cómputo. En este trabajo se utilizan las siguientes métricas estándar:
+
+\paragraph{Tiempo de ejecución}
+Sea $T(N)$ el tiempo de ejecución al utilizar $N$ recursos de cómputo (por ejemplo, hilos o procesos, según el experimento). Sea $T(1)$ el tiempo utilizando un único recurso bajo las mismas condiciones experimentales.
+
+\paragraph{Speedup}
+El speedup se define como la razón entre el tiempo en un recurso y el tiempo en $N$ recursos:
+\[
+S(N) = \frac{T(1)}{T(N)}.
+\]
+Valores de $S(N)$ cercanos a $N$ indican un aprovechamiento eficiente de los recursos adicionales, mientras que desviaciones importantes reflejan sobrecostos de coordinación, desbalance o fracciones no paralelizables.
+
+\paragraph{Eficiencia paralela}
+La eficiencia paralela normaliza el speedup respecto a la cantidad de recursos utilizados:
+\[
+E(N) = \frac{S(N)}{N} = \frac{T(1)}{N \cdot T(N)}.
+\]
+El valor de $E(N)$ pertenece al intervalo $(0,1]$, donde valores cercanos a 1 corresponden a un comportamiento próximo al ideal.
+
+\paragraph{Escalabilidad}
+La escalabilidad describe la evolución del desempeño al aumentar $N$. En términos prácticos, se analiza si el speedup crece de forma aproximadamente proporcional al incremento de recursos y cómo se comporta la eficiencia al aumentar $N$. Esta evaluación permite caracterizar el rango en el cual el algoritmo aprovecha efectivamente los recursos disponibles y en qué punto comienzan a dominar los sobrecostos asociados a sincronización y comunicación.
+
+Las métricas anteriores se emplean en el análisis experimental reportado en capítulos posteriores, donde se evalúa el comportamiento del algoritmo bajo distintas configuraciones de tamaño de problema y recursos de cómputo.
+
 
 \section{Interpolación}
 La interpolación es un proceso por el cual se define un valor en un punto cualquiera a partir de los valores conocidos en algunos puntos dados. En general, tenemos un conjunto finito de nodos o puntos fijos con valores nodales asociados a cada uno de ellos: ${(P_i, V_i)}$, donde $Pi = {x_i, y_i, z_i)}$ es la posición del i-ésimo punto y Vi el valor conocido en el punto fijo; se pretende encontrar el valor v asociado a un punto de coordenadas x cualquiera.
