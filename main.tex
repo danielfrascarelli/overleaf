@@ -346,6 +346,69 @@ El algoritmo evolutivo opera iterativamente sobre una población de configuracio
 El detalle de la implementación concreta del algoritmo, así como su parametrización y desempeño experimental, se presenta en la Sección~\ref{sec:compactacion_aglomerados}.
 
 \section{Computación paralela y métricas de desempeño}
+\label{sec:computacion_paralela_metricas}
+
+La computación paralela es un paradigma de cómputo en el cual múltiples operaciones se ejecutan de manera concurrente con el objetivo de reducir el tiempo total de ejecución o incrementar el tamaño de los problemas abordables. En términos generales, un problema se descompone en subtareas que pueden ejecutarse simultáneamente, coordinando su ejecución mediante mecanismos de comunicación y sincronización. Este enfoque introduce desafíos adicionales respecto a la programación secuencial, tales como condiciones de carrera, sobrecostos de sincronización y desbalance de carga.
+
+En el contexto de este trabajo se utiliza una infraestructura de cómputo basada en un clúster, combinando paralelismo en memoria compartida (multihilo) y paralelismo en memoria distribuida (MPI), con el fin de aprovechar recursos de cómputo disponibles y facilitar la integración con ESyS-Particle.
+
+\subsection*{Modelos de paralelismo}
+
+Existen dos estrategias habituales para dividir un problema y explotar paralelismo:
+
+\paragraph{Descomposición por dominio}
+Consiste en particionar el conjunto de datos de entrada en subconjuntos, procesados en paralelo por diferentes unidades de ejecución. Este enfoque es frecuente en simulaciones numéricas, donde el dominio espacial o el conjunto de entidades (por ejemplo, partículas o nodos de una malla) puede distribuirse entre recursos.
+
+\paragraph{Descomposición funcional}
+Consiste en identificar etapas o funciones diferentes del algoritmo y ejecutarlas en paralelo. Este enfoque resulta útil cuando existen componentes relativamente independientes o pipelines de cómputo.
+
+En ambos casos, el rendimiento final depende de la proporción del trabajo efectivamente paralelizable, del costo de coordinación entre tareas (comunicación/sincronización) y del grado de balanceo del trabajo asignado.
+
+\subsection*{Memoria compartida y multihilo}
+
+En arquitecturas de memoria compartida, múltiples hilos de ejecución acceden al mismo espacio de direcciones, compartiendo estructuras de datos. Este modelo permite comunicación implícita mediante memoria, pero requiere mecanismos explícitos de sincronización para proteger regiones críticas y evitar condiciones de carrera.
+
+En este trabajo se utiliza paralelismo multihilo para explotar los múltiples núcleos disponibles dentro de un nodo de cómputo, distribuyendo el trabajo entre hilos y coordinando el acceso a datos compartidos cuando corresponde.
+
+\subsection*{Memoria distribuida y MPI}
+
+En arquitecturas de memoria distribuida, los recursos de cómputo se componen típicamente de múltiples nodos conectados por red, donde cada nodo posee su propia memoria principal. En este modelo, el intercambio de datos se realiza mediante pasaje de mensajes. Una interfaz estándar ampliamente utilizada para este propósito es Message Passing Interface (MPI).
+
+En el contexto de esta tesis, MPI se utiliza para adaptar el cálculo a la arquitectura de ejecución del paquete ESyS-Particle, el cual se basa en descomposición de dominio y comunicación entre procesos.
+
+\subsection*{Modelo híbrido}
+
+En infraestructuras actuales es frecuente disponer de nodos con múltiples núcleos (memoria compartida intra-nodo) conectados en un clúster (memoria distribuida inter-nodo). El modelo híbrido combina ambos niveles: paralelismo multihilo dentro de cada nodo y pasaje de mensajes entre nodos. Esta estrategia permite aprovechar la jerarquía del hardware, reduciendo comunicación a nivel de red y explotando paralelismo local cuando el patrón de acceso a datos lo permite.
+
+\subsection*{Infraestructura de ejecución}
+
+Los experimentos del trabajo se ejecutan sobre el Cluster FING, una infraestructura de cómputo de alto desempeño de la Facultad de Ingeniería. Este tipo de infraestructura permite abordar problemas con altos requerimientos de cómputo mediante la agregación de recursos (nodos) conectados por red, habilitando ejecución paralela a través de modelos de memoria compartida y distribuida.
+
+\subsection*{Métricas de desempeño}
+
+Luego de aplicar técnicas de programación paralela, resulta necesario cuantificar el desempeño obtenido y caracterizar la escalabilidad al incrementar los recursos de cómputo. En este trabajo se utilizan las siguientes métricas estándar:
+
+\paragraph{Tiempo de ejecución}
+Sea $T(N)$ el tiempo de ejecución al utilizar $N$ recursos de cómputo (por ejemplo, hilos o procesos, según el experimento). Sea $T(1)$ el tiempo utilizando un único recurso bajo las mismas condiciones experimentales.
+
+\paragraph{Speedup}
+El speedup se define como la razón entre el tiempo en un recurso y el tiempo en $N$ recursos:
+\[
+S(N) = \frac{T(1)}{T(N)}.
+\]
+Valores de $S(N)$ cercanos a $N$ indican un aprovechamiento eficiente de los recursos adicionales, mientras que desviaciones importantes reflejan sobrecostos de coordinación, desbalance o fracciones no paralelizables.
+
+\paragraph{Eficiencia paralela}
+La eficiencia paralela normaliza el speedup respecto a la cantidad de recursos utilizados:
+\[
+E(N) = \frac{S(N)}{N} = \frac{T(1)}{N \cdot T(N)}.
+\]
+El valor de $E(N)$ pertenece al intervalo $(0,1]$, donde valores cercanos a 1 corresponden a un comportamiento próximo al ideal.
+
+\paragraph{Escalabilidad}
+La escalabilidad describe la evolución del desempeño al aumentar $N$. En términos prácticos, se analiza si el speedup crece de forma aproximadamente proporcional al incremento de recursos y cómo se comporta la eficiencia al aumentar $N$. Esta evaluación permite caracterizar el rango en el cual el algoritmo aprovecha efectivamente los recursos disponibles y en qué punto comienzan a dominar los sobrecostos asociados a sincronización y comunicación.
+
+Las métricas anteriores se emplean en el análisis experimental reportado en capítulos posteriores, donde se evalúa el comportamiento del algoritmo bajo distintas configuraciones de tamaño de problema y recursos de cómputo.
 
 \section{Interpolación espacial del potencial gravitatorio}
 
@@ -410,71 +473,6 @@ Dado que la complejidad asociada a los problemas de clase NP crece a medida que 
 Dentro del gran conjunto de meta-heurísticas existen las de computación evolutiva, estas técnicas trabajan sobre una población de soluciones que evoluciona mediante mecanismo de selección y construcción de soluciones candidatas por recombinación de características de las soluciones anteriores.
 
 Estas técnicas trabajan en las siguientes etapas: 1. evaluación de la función de fitness (en esta etapa se evalúa la calidad de las soluciones), 2. selección de individuos adecuados (de acuerdo al fitness calculado), 3. aplicación de operadores evolutivos y 4. reemplazo o recambio generacional.
-
-\section{Computación paralela y métricas de desempeño}
-\label{sec:computacion_paralela_metricas}
-
-La computación paralela es un paradigma de cómputo en el cual múltiples operaciones se ejecutan de manera concurrente con el objetivo de reducir el tiempo total de ejecución o incrementar el tamaño de los problemas abordables. En términos generales, un problema se descompone en subtareas que pueden ejecutarse simultáneamente, coordinando su ejecución mediante mecanismos de comunicación y sincronización. Este enfoque introduce desafíos adicionales respecto a la programación secuencial, tales como condiciones de carrera, sobrecostos de sincronización y desbalance de carga.
-
-En el contexto de este trabajo se utiliza una infraestructura de cómputo basada en un clúster, combinando paralelismo en memoria compartida (multihilo) y paralelismo en memoria distribuida (MPI), con el fin de aprovechar recursos de cómputo disponibles y facilitar la integración con ESyS-Particle.
-
-\subsection*{Modelos de paralelismo}
-
-Existen dos estrategias habituales para dividir un problema y explotar paralelismo:
-
-\paragraph{Descomposición por dominio}
-Consiste en particionar el conjunto de datos de entrada en subconjuntos, procesados en paralelo por diferentes unidades de ejecución. Este enfoque es frecuente en simulaciones numéricas, donde el dominio espacial o el conjunto de entidades (por ejemplo, partículas o nodos de una malla) puede distribuirse entre recursos.
-
-\paragraph{Descomposición funcional}
-Consiste en identificar etapas o funciones diferentes del algoritmo y ejecutarlas en paralelo. Este enfoque resulta útil cuando existen componentes relativamente independientes o pipelines de cómputo.
-
-En ambos casos, el rendimiento final depende de la proporción del trabajo efectivamente paralelizable, del costo de coordinación entre tareas (comunicación/sincronización) y del grado de balanceo del trabajo asignado.
-
-\subsection*{Memoria compartida y multihilo}
-
-En arquitecturas de memoria compartida, múltiples hilos de ejecución acceden al mismo espacio de direcciones, compartiendo estructuras de datos. Este modelo permite comunicación implícita mediante memoria, pero requiere mecanismos explícitos de sincronización para proteger regiones críticas y evitar condiciones de carrera.
-
-En este trabajo se utiliza paralelismo multihilo para explotar los múltiples núcleos disponibles dentro de un nodo de cómputo, distribuyendo el trabajo entre hilos y coordinando el acceso a datos compartidos cuando corresponde.
-
-\subsection*{Memoria distribuida y MPI}
-
-En arquitecturas de memoria distribuida, los recursos de cómputo se componen típicamente de múltiples nodos conectados por red, donde cada nodo posee su propia memoria principal. En este modelo, el intercambio de datos se realiza mediante pasaje de mensajes. Una interfaz estándar ampliamente utilizada para este propósito es Message Passing Interface (MPI).
-
-En el contexto de esta tesis, MPI se utiliza para adaptar el cálculo a la arquitectura de ejecución del paquete ESyS-Particle, el cual se basa en descomposición de dominio y comunicación entre procesos.
-
-\subsection*{Modelo híbrido}
-
-En infraestructuras actuales es frecuente disponer de nodos con múltiples núcleos (memoria compartida intra-nodo) conectados en un clúster (memoria distribuida inter-nodo). El modelo híbrido combina ambos niveles: paralelismo multihilo dentro de cada nodo y pasaje de mensajes entre nodos. Esta estrategia permite aprovechar la jerarquía del hardware, reduciendo comunicación a nivel de red y explotando paralelismo local cuando el patrón de acceso a datos lo permite.
-
-\subsection*{Infraestructura de ejecución}
-
-Los experimentos del trabajo se ejecutan sobre el Cluster FING, una infraestructura de cómputo de alto desempeño de la Facultad de Ingeniería. Este tipo de infraestructura permite abordar problemas con altos requerimientos de cómputo mediante la agregación de recursos (nodos) conectados por red, habilitando ejecución paralela a través de modelos de memoria compartida y distribuida.
-
-\subsection*{Métricas de desempeño}
-
-Luego de aplicar técnicas de programación paralela, resulta necesario cuantificar el desempeño obtenido y caracterizar la escalabilidad al incrementar los recursos de cómputo. En este trabajo se utilizan las siguientes métricas estándar:
-
-\paragraph{Tiempo de ejecución}
-Sea $T(N)$ el tiempo de ejecución al utilizar $N$ recursos de cómputo (por ejemplo, hilos o procesos, según el experimento). Sea $T(1)$ el tiempo utilizando un único recurso bajo las mismas condiciones experimentales.
-
-\paragraph{Speedup}
-El speedup se define como la razón entre el tiempo en un recurso y el tiempo en $N$ recursos:
-\[
-S(N) = \frac{T(1)}{T(N)}.
-\]
-Valores de $S(N)$ cercanos a $N$ indican un aprovechamiento eficiente de los recursos adicionales, mientras que desviaciones importantes reflejan sobrecostos de coordinación, desbalance o fracciones no paralelizables.
-
-\paragraph{Eficiencia paralela}
-La eficiencia paralela normaliza el speedup respecto a la cantidad de recursos utilizados:
-\[
-E(N) = \frac{S(N)}{N} = \frac{T(1)}{N \cdot T(N)}.
-\]
-El valor de $E(N)$ pertenece al intervalo $(0,1]$, donde valores cercanos a 1 corresponden a un comportamiento próximo al ideal.
-
-\paragraph{Escalabilidad}
-La escalabilidad describe la evolución del desempeño al aumentar $N$. En términos prácticos, se analiza si el speedup crece de forma aproximadamente proporcional al incremento de recursos y cómo se comporta la eficiencia al aumentar $N$. Esta evaluación permite caracterizar el rango en el cual el algoritmo aprovecha efectivamente los recursos disponibles y en qué punto comienzan a dominar los sobrecostos asociados a sincronización y comunicación.
-
-Las métricas anteriores se emplean en el análisis experimental reportado en capítulos posteriores, donde se evalúa el comportamiento del algoritmo bajo distintas configuraciones de tamaño de problema y recursos de cómputo.
 
 
 \section{Interpolación}
