@@ -528,210 +528,23 @@ La integración permite que el cálculo gravitatorio se ejecute en conjunto con 
 
 Esta integración constituye un componente central del trabajo, ya que permite validar experimentalmente el algoritmo desarrollado dentro de un marco de simulación física consistente.
 
-
 \chapter{Antecedentes}
 
 En este capítulo se presentan los antecedentes del proyecto.
-El cálculo exacto del potencial gravitatorio generado por $n$ partículas implica $O(n^2)$ operaciones, lo cual indica una complejidad computacional costosa cuando $n$ es del orden de millones de partículas. Diversas estrategias se han desarrollado para reducir el número de operaciones. 
+
+El cálculo exacto del potencial gravitatorio generado por $n$ partículas implica $O(n^2)$ operaciones, lo cual resulta computacionalmente costoso cuando $n$ es del orden de millones. En consecuencia, se han desarrollado diversas estrategias para reducir el número de operaciones requeridas:contentReference[oaicite:2]{index=2}.
+
+Una primera estrategia consiste en sustituir el valor exacto del potencial gravitatorio por una función suave de la posición. Se han utilizado armónicos esféricos y bi-esféricos como funciones de ajuste \cite{6}. Cada partícula se propaga en este campo de fondo durante un breve periodo de tiempo antes de que se vuelva a calcular el ajuste. Este método requiere operaciones del orden de $O(n\log(n))$, pero su desventaja es la pérdida de precisión:contentReference[oaicite:3]{index=3}.
+
+Otro enfoque propone el uso de un método de agrupación jerárquica. Appel \cite{7} utilizó una estructura de árbol para representar los sistemas de $n$-cuerpo, almacenando las partículas en las hojas y agrupando partículas cercanas como hojas de ramas cercanas. Una implementación eficiente de un enfoque de árbol jerárquico completo fue presentada por Barnes y Hut \cite{8}, y posteriormente incorporada en un algoritmo de integración por Richardson \cite{9} para simular la evolución dinámica de planetesimales y la evolución rotacional y colisional de asteroides. Este enfoque también requiere del orden de $O(n\log(n))$ operaciones:contentReference[oaicite:4]{index=4}.
+
+Usando estructuras paralelas, se logró simular hasta millones de partículas que interactúan \cite{10}; sin embargo, el paso de tiempo utilizado (5\,s) era demasiado grande para simular adecuadamente las interacciones mecánicas de partículas blandas, dado que las simulaciones DEM por lo general requieren pasos de tiempo del orden de $10^{-4}$\,s \cite{11}. Por lo tanto, si el paso de tiempo se reduce al valor requerido por las simulaciones DEM, el cálculo de la auto-gravedad continúa siendo costoso.
 
 
-\textcolor{red}{The techniques presented are classified as static or dynamic
-domain decomposition techniques.
-Static hierarchical domain decomposition
-Static techniques for particle interaction are based on a domain decomposition
-that stays invariable during a simulation. According to Hockney and Eastwood
-(1988), static techniques are divided in three models: Particle-Particle (PP)
-methods, Particle-Mesh (PM) methods, and Particle-Particle Particle-Mesh
-(P3M) methods. PP are the simplest methods and consist of computing the
-forces directly between all the particles in the system. Despite being the most
-accurate, the PP model lacks the ability to scale in the number of particles due
-to its O(N2
-) execution time. PM methods consist of using a mesh over the
-simulated space and calculating the potential for each particle that belongs to
-the mesh. After that, the speed for the particles is calculated via an interpolation. According to Hockney and Eastwood (1988), although PM methods are
-less accurate than PP methods when computing the forces, PM methods are
-in general significantly faster than PP methods. However, in many practical
-applications, PM may need a mesh resolution that should result to be slower
-than a PP method; thus the PM model is not usually used to calculate contact
-forces. Finally, P3M methods combine the PP and the PM models. The P3M
-model divides the forces applied to a particle into short range and long range
-forces. The short range forces are calculated using a PP method and the long
-range forces are calculated using a PM method. The combination results in
-a fast and accurate method to simulate particle interaction. Many implementations and variations of the aforementioned three models are present in the
-literature. Some of the more relevant implementations are reviewed next.
-Couchman (1991) proposed a variation of the P3M algorithm, that applies
-a selective refinement of the grid depending on the particle density of a cell.
-The refinement is performed recursively while a density threshold is exceeded.
-8
-Given that the refinement is performed recursively, the particle mesh is an
-spatial division without overlapping zones to be calculated. This way, assigning a similar number of particles to each processing unit, a load balancing
-scheme is implemented. The results obtained after the refinements are then
-passed over to the father cell to be integrated via direct summation. There is
-a correlation between the level of refinement of the grid and the time spent to
-integrate the results calculated for the individual cells. The refinement level
-has to be calibrated for this method to be efficient. The method presented
-by Couchman has the constraint that the domain of the simulation must be
-cubic and also the space must be divided into an integer number of cells of the
-same size. Couchman stated that, in this method "The gain is in simplicity"
-(p. 24). Results presented by Couchman indicate that the algorithm is up to
-20 times faster than a P3M algorithm and also requires less memory.
-Kravtsov et al. (1997) presented an N-body solver called Adaptive Refinement Tree based on the particle-mesh method over a multilevel grid to perform
-the calculations of the forces on the system. The mesh is created over a cubic
-space that is divided by regular cells with cubic shape and a predefined size. A
-multilevel mesh is defined by dividing large cells into eight parts that have the
-same size depending on the particle density. The multilevel mesh is created
-at the beginning of the simulation and then it is partially updated when the
-forces need to be recalculated. The smallest size of an element of the grid
-is the resolution of the mesh (i.e., a cell). The implementation presented by
-Kravstov et al. was partially parallel. The section of the application that was
-parallelized is the one in which the forces are updated for the particles (i.e.,
-the force interpolation). Kravstov et al. stated that the solution is half as fast
-as the Fourier transform solver with the same number of cells. The method
-proposed by Kravstov et al. is similar to the method presented in this thesis, in
-the sense that it spawn an octal tree in which the maximum resolution is a cell
-in the mesh. On the other hand, in the method that Kravstov et al. proposed,
-the finer meshes are built when a predefined size threshold is exceeded, but in
-the method introduced in this thesis, a finer mesh is created when there are
-particles present in the cell.
-An implementation of a DEM simulator using the PM method was presented by Sánchez and Scheeres (2012). The same static domain decomposition
-9
-technique is used to calculate short range interactions as well as long range interactions. The space of the simulation scenario is divided in cubical cells that
-are many times bigger than the particles radius of the scenario. Then instead
-of considering individual particles to calculate the gravitational potential, the
-whole cell is considered as a particle. The calculations for N particles are
-still O(N2
-), but the authors claimed that the amount of calculations required
-decreased in one order of magnitude. The short range and the long range interactions are computed concurrently. However, the authors did not propose
-a parallel implementation. Thus, the method was able to compute efficiently
-simulations of systems with up to 8, 000 particles. The results presented by the
-authors show that the algorithm implemented is not suitable to perform large
-scale simulations that comprise hundreds of thousands of particles. In order
-to do so, a parallel or distributed implementation of the algorithm is needed.
-Dynamic hierarchical domain decomposition
-Dynamic techniques for particle interaction calculation use structures that are
-adapted or reconstructed from scratch during the simulation. A classic technique in this field is the method proposed by Barnes and Hut (1986). In this
-method, the simulated domain is divided in a hierarchical octal tree to accelerate the calculation of the gravitational potential in a N-body simulation. The
-tree is composed of nodes that represent a portion of the space of the simulation. The root node of the tree represents the complete space of the simulation.
-If a node (i.e., the space it represents) contains more than one particle, the
-space is divided into smaller pieces. In a two-dimension simulation, the space
-is divided in four smaller pieces. However, in a three-dimension simulation,
-the space is divided into eight pieces. Applying this domain decomposition
-Barnes and Hut affirmed that the long-range interactions are calculated in
-O(N log N), being N the number of particles in the domain. According to the
-authors, experimental results indicate that the error increases as the simulation runs. As one of the improvements for the algorithm presented, Barnes
-and Hut suggest implementing individual time steps for each particle, with
-the idea of updating more frequently those particles that move faster.
-Greengard and Rokhlin (1987) presented the Fast Multipole Method. The
-method consists of performing a multipole expansion of the space of the sim10
-ulation to be performed. The expansion is organized as a hierarchy of meshes
-rather than a tree. However, the elements of meshes with higher resolution
-that are an expansion of an element of a lower resolution mesh are considered
-its sons. According to the Greengard and Rohklin, clusters of particles can
-interact with one another as long as they are "well separated". The range of
-separation is defined as a configuration parameter before starting a simulation.
-The expansion is pure spatial. The spatial center of a father mesh box is one
-expansion center of the next level. The expansion is performed whether there
-are particles in the box or not. After creating the meshes, the potential is calculated for each center of all the meshes. Then, the potential for each particle
-is calculated as an extrapolation of the nearest neighbor boxes at the finest
-mesh level. Greengard and Rohklin implemented the algorithm and performed
-a comparison with a direct computation in single precision. The experimental evaluation was performed on a VAX-8600. The results on the comparison
-presented by Greengard and Rokhlin indicate that in an instance consisting
-of 12,800 particles the execution time of the method presented is 300× lower
-than the direct method. In addition, Greengard and Rohklin stated that the
-execution time grows linearly with the number of particles.
-Combined techniques
-Xu (1994) presented a variation of the P3M method called Tree Particle Mesh
-(TPM). The difference with P3M lies in that short-range interactions are calculated using the algorithm presented by Barnes and Hut. However, long-range
-interactions are calculated using a PM method. The TPM method consists of
-using the tree code only on the parts of the field that have a density over a certain threshold. Each of the trees created has a different time step. The regions
-that have low particle density are managed only by the PM method. Using
-the tree code on high density zones allows the PM method to have a lower
-resolution (i.e., less cells are created), hence the simulations run faster. The
-TPM method proposed by Xu was parallelized using a Multiple Instruction
-Multiple Data model. To provide load balance, the tree code was parallelized
-in two levels. In the first level, the trees are assigned to the available processors. The second level of the parallelism balances the load when the number
-of processors is higher than the number of trees. In the second level of parallelism, many processors work on a single tree. After a tree construction is
-11
-finished, the structure of the tree is broadcasted to a group of processors that
-are going to perform the tree walk and force summation. Xu explained that
-the construction of the trees was not parallelized due to the fact that only 2.5%
-of the time is spent on that activity. The algorithm showed a speedup of 26
-when running on 32 processors. The author also performed a comparison with
-the PM and the tree method. Results indicated that the pure tree method
-is 12× slower than the TPM code presented by Xu. Also, the PM method
-turned to be 1.2× faster when the PM box size (i.e., the resolution) is set to
-0.010 and the TPM box size is set to 0.003.
-Bode et al. (2000) presented an algorithm as an improvement of the TPM
-originally presented by Xu (1994). In the algorithm presented by Bode et al.
-(2000), the forces are calculated as a combination of the PM and a tree algorithm. This algorithm is used to calculate and evolve the short range interactions. On the one hand, the forces internal to the tree are calculated by a tree
-algorithm. On the other hand, the long range interactions are managed by a
-PM algorithm. At the beginning of a simulation the time step is the same for
-PM and the tree algorithm. The tree algorithm can use a smaller time step if
-needed. According to Bode et al., the algorithm divides the space into regions
-based on particle density, called clusters. Before creating the clusters, cells of
-the grid that have a density that is above a defined threshold are assigned a
-key that identifies them. Then, for each of the cells with a density above the
-threshold, the surrounding cells that also have a density above the threshold
-are given the same key and becoming a cluster. The density threshold is defined as a function of the mean density of the cells and its standard deviation.
-Whereas the focus of the implementation are simulations of clusters of particles, the algorithm can be used to simulate other scenarios. A comparison
-with the P3M algorithm was performed. Experimental results showed that
-the TPM algorithm speeds up the simulations "by a factor of 3-4" (Bode et
-al. 1994 p.566) when the trees have individual time steps. The experimental
-evaluation was performed on a cluster of computers composed of SGI Origin
-2000. Results of a study of computational efficiency showed that the algorithm
-scales from 4 to 16 processors, then efficiency drops to 70% at 32 nodes.
-Bagla (2002) presented a method for performing simulations of large particle agglomerates simulations, called TreePM. The method combines the Barnes
-12
-and Hut tree code and the PM method. The method presented is similar to
-the TPM method proposed by Bode et al. (2000). The forces are divided into
-long range and short range forces. The long range forces are calculated using the PM method, whereas the short range forces are calculated using the
-Barnes and Hut algorithm. For the short range forces, the criteria is to calculate the contribution from particles or from grid cells. A cell is considered
-when a distance threshold is exceeded, instead if the threshold is not exceeded,
-the subcells or particles should be considered. According to Bagla, there are
-two differences between the TreePM method and the TPM method. One difference is that, while TPM uses the PM method to compute the long range
-forces, TreePM uses an explicit and experimentally defined distance to decide
-which method is used to compute the forces in a particular region. The other
-difference is that in TPM the forces are computed for each individual particle only for the particles that belong to high density regions, but in TreePM
-the forces are computed individually for all the particles. According to Bagla,
-experimental results indicated that TreePM is about 4.5x faster than a tree
-algorithm. Also, results show that the simulations scale in O(N log N), being
-N the number of particles.
-Khandai and Bagla (2009) presented a modification of the TreePM algorithm. Khandai and Bagla adapted the suggestion by Barnes and Hut (1986)
-in the context of the TreePM algorithm previously presented by Bagla (2002).
-The tree part of the algorithm is used to calculate the short range forces. In
-the optimization suggested by Barnes, the force is computed in only one tree
-walk. In addition, the particles are divided into groups, but instead of grouping them by their densities as suggested by Bode et al. (2000), the groups are
-created according to the particles number and volume. The authors performed
-experiments with scenarios with between 323
-to 2563 particles. Results indicated that a TreePM algorithm with group scheme and individual time steps
-for each group had a speed up of 12.72 compared to an unoptimized TreePM
-algorithm.
-Ishiyama et al. (2012) presented a variation of the TreePM method applied to a N-body simulation of one trillion particles which was executed using
-the full capacity (663552-cores) of the K Computer of the RIKEN institute
-(https://www.top500.org/system/177232). The results obtained were pre13
-sented as an entry for the Gordon-Bell performance prize. For the short-range
-forces, the Barnes & Hut algorithm was modified to create trees for groups of
-particles. Also, Ishiyama et al. performed modifications to implement a list of
-tree nodes and particles that is shared by a group of particles. By using this
-method, Ishiyama et al. stated that the algorithm "can reduce the computational cost of tree traversal by a factor of Ni" (p.3) being Ni the average number
-of particles of the groups. To measure the space of the simulation, Ishiyama et
-al. used the sampling method to perform a 3D multi-section decomposition.
-In addition, Ishiyama et al. implemented load balancing by adjusting the size
-of the cells according to the cost of calculating the potential for the cells. As
-a complement, the interactions were calculated using the Single Instruction
-Multiple Data paradigm, combined with loop unrolling. Regarding the PM
-method, Ishiyama et al. implemented a distributed Fast Fourier Transform
-(Cochran et al. (1967)). Reported results indicated that the algorithm proposed has good scalability in terms of the number of nodes used, which means
-that there is not a significative overhead in the communications. Using 82,944
-computing nodes, Ishiyama et al. stated that the algorithm achieved a performance of 4.45 Pflops and an efficiency of 43%. The algorithm presented is
-1.44x faster compared to the Gordon-Bell winner of the previous year.}
+Sánchez y Scheeres \cite{12} utilizaron un enfoque ligeramente diferente: mientras que en un código de árbol la subdivisión del espacio es dinámica y depende de la distribución espacial de las partículas, ellos utilizaron una cuadrícula regular y estática para dividir el espacio. Este enfoque parece ser más adecuado para agregados granulares auto-gravitantes en una fase densa, como un asteroide de escombros. Sin embargo, el código no fue paralelizado y las simulaciones se limitaron a unos pocos miles de partículas:contentReference[oaicite:6]{index=6}.
 
+Para tratar de manera eficiente los aglomerados auto-gravitantes formados por un número mayor de partículas que las abordadas por los esfuerzos anteriores, el algoritmo de cálculo desarrollado en este trabajo incorpora elementos de los enfoques descritos: (i) la sustitución mediante una función de ajuste suave del potencial, (ii) un método de agrupación jerárquica para acelerar el cálculo de auto-gravedad en nodos de la cuadrícula, y (iii) una cuadrícula regular y estática para dividir el espacio:contentReference[oaicite:7]{index=7}.
 
-Una estrategia es sustituir el valor exacto del potencial gravitatorio por una función suave de la posición. Se han utilizado armónicos esféricos y bi\-esféricos como funciones de ajuste \cite{6}. Cada partícula se propaga en este campo de fondo durante un breve periodo de tiempo antes de que se vuelva a calcular el ajuste. Este método requiere operaciones del orden de $O(n.log(n))$, pero su desventaja es la pérdida de precisión. Otro enfoque propone el uso de un método de agrupación jerárquica. Appel\cite{7} utilizó una estructura de árbol para representar los sistemas de n-cuerpo, almacenando las partículas en las hojas y agrupando partículas cercanas como hojas de ramas cercanas. Una implementación eficiente de un enfoque de árbol jerárquico completo fue presentado por Barnes y Hut\cite{8}, y posteriormente incorporado en un algoritmo de integración por Richardson\cite{9} para simular la evolución dinámica de planetesimales y la evolución rotacional y colisional de asteroides. Este enfoque también requiere del orden de $O (n.log(n))$ operaciones. Usando estructuras paralelas fueron capaces de simular hasta millones de partículas que interactúan\cite{10}; pero el paso de tiempo utilizado (5s) era demasiado grande para simular adecuadamente las interacciones mecánicas de las partículas blandas (DEM simulaciones por lo general requieren timesteps de $10^{-2}$s \cite{11}). Por lo tanto, si el timestep se reduce al valor requerido por las simulaciones DEM, el cálculo de la auto-gravedad sigue siendo costoso.
-
-Sánchez y Scheeres\cite{12} utilizaron un enfoque ligeramente diferente: mientras que en un código de árbol la subdivisión del espacio es dinámica y depende de la distribución espacial de las partículas, ellos utilizaron una cuadrícula regular y estática para dividir el espacio. Este enfoque parece ser más adecuado para los agregados granulares auto-gravitantes en una fase densa como un asteroide de escombros. Sin embargo, el código no fue paralelizado y las simulaciones se limitaron a unos pocos miles de partículas.
-
-Para tratar de manera eficiente los aglomerados auto-gravitantes formados por un número mayor de partículas que las abordadas por los esfuerzos anteriores, nuestro algoritmo de cálculo incorpora elementos de todos ellos, incluida la sustitución de una función de ajuste liso por el valor exacto del potencial gravitatorio, un método de agrupación jerárquica para acelerar el cálculo de autogravedad de los nodos de cuadrícula y una cuadrícula regular y estática para dividir el espacio.
 
 \chapter{Desafio planteado}
 
