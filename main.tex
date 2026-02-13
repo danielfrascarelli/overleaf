@@ -477,90 +477,57 @@ V(\mathbf{x}) = \frac{\sum_{i\in\mathcal{N}(\mathbf{x})} \frac{V_i}{d(\mathbf{x}
 \]
 El parámetro $p$ controla el grado de influencia de los nodos cercanos: valores mayores de $p$ incrementan la contribución relativa de puntos próximos a $\mathbf{x}$. En el contexto de este trabajo se evaluaron distintas configuraciones de $p$ con el objetivo de identificar un compromiso adecuado entre suavidad del campo interpolado y fidelidad local del potencial.
 
+\section{Integración con ESyS-Particle}
+\label{sec:esys_particle}
 
-\section{ESyS-Particle}
-% \subsubsection{Motivación}
-Cuando la cantidad de datos que se obtienen como resultado de un algoritmo numérico es tan grande que analizar los datos de forma individual resulta inmanejable, se necesitan herramientas que permitan visualizar los resultados de forma gráfica. De esta forma una vez que se obtienen los datos crudos, se genera una representación gráfica o simulación mediante la cual resulta más intuitivo realizar conclusiones acerca de la solución alcanzada y potenciales mejoras. Además, cuando se maneja gran cantidad de datos, las herramientas de simulación a utilizar deben aprovechar la capacidad de procesamiento paralelo que los nuevos hardwares ofrecen.\newline
+Cuando la magnitud de los datos generados por una simulación numérica es considerable, el análisis individual de resultados resulta impracticable. En este contexto, las herramientas de simulación y visualización permiten representar el comportamiento del sistema de manera estructurada y facilitar la interpretación física de los resultados.
 
-Para cubrir esta falencia, se utiliza la herramienta o paquete de simulación numérica denominado ESyS-Particle. Teniendo presente el análisis realizado en el proyecto de grado “Paralelismo aplicado al estudio de medios granulares”, se asume como propia la conclusión a la que allí se arriba, en la cual se define ésta como la herramienta que mejores prestaciones brinda (considerando el contexto en el que se trabaja).
+En este trabajo se utiliza el paquete de simulación numérica \textit{ESyS-Particle}, una herramienta basada en el Método de Elementos Discretos (DEM) diseñada para la simulación de sistemas granulares a gran escala. La elección de esta herramienta se fundamenta en su capacidad de ejecución paralela y en su arquitectura extensible, adecuada para integrar el cálculo de auto-gravedad desarrollado en esta tesis.
 
-% \subsubsection{Introducción}
-ESyS-Particle es un paquete de software para modelados numéricos basados en partículas. El software implementa el DEM, una técnica ampliamente utilizada para el modelado de procesos que involucran grandes deformaciones, flujos granulares y /o fragmentación.
-Las características relevantes de la herramienta son:
+\subsection*{Descripción general}
+
+ESyS-Particle es un software para modelado numérico basado en partículas, implementado en C++ con una interfaz de control en Python. El motor de simulación se basa en el DEM y permite modelar interacciones partícula-partícula y partícula-pared bajo distintos modelos de contacto.
+
+Entre las características relevantes para este trabajo se destacan:
+
 \begin{itemize}
-	\item Motor de simulación paralelo basado en MPI
-	\item API en Python para la preparación y ejecución de simulaciones.
-	\item Preparación mediante scripts de modelos geométricos
-	\item Partículas esféricas rotacionales y no rotacionales
-	\item Mallas triangulares para especificación de condiciones de borde y pared.
-	\item Visualización de partículas utilizando POV-Ray y VTK.
-	\item Variedad de interacciones partícula-partícula y partícula-pared:
-	\subitem Repulsión elástica lineal entre partículas no enlazadas en contacto.
-	\subitem Repulsión elástica lineal entre pares de partículas enlazadas
-	\subitem Interacciones friccionales tanto rotacionales como no rotacionales entre partículas no enlazadas.
-	\subitem Enlaces rotacionales implementando torsión y coeficientes de rigidez.
+    \item Motor de simulación paralelo basado en MPI.
+    \item Descomposición espacial del dominio para distribución de carga.
+    \item API en Python para definición de modelos, parámetros y ejecución.
+    \item Soporte para partículas esféricas con interacciones elásticas y friccionales.
+    \item Mecanismos de salida compatibles con herramientas de visualización como VTK.
 \end{itemize}
 
-% \subsubsection{Origen y actualidad}
-ESyS-Particle ha sido desarrollado dentro del Earth Systems Science Computational Centre (ESSCC) en la Universidad de Queensland, Brisbane, Australia desde 1994. El software fue denominado en sus comienzos como Lattice Solid Model, y más tarde se llamó LSMEarth antes de que Australian Computational Earth Systems Simulator (ACcESS) comenzara el financiamiento del desarrollo del software en el año 2002. Desde 2002 al 2007 y gracias al financiamiento económico el desarrollo ha avanzado gratuitamente hasta convertirse en un software DEM de uso comercial, distribuido gratuitamente bajo la licencia de software libre versión 3. Al día de hoy el desarrollo de ESyS-Particule continúa siendo financiado por el gobierno australiano, contando con la colaboración de desarrolladores de la universidad de RWTH en Aachen, Alemania, y de varios miembros de la comunidad de usuarios (incluyendo recientes incorporaciones por grupos de la Facultad de Ingeniería – Universidad de la República).\newline
+\subsection*{Arquitectura paralela}
 
-ESyS-Particle ha sido utilizado para simular terremotos, flujo de granos en silos, fragmentación de rocas, apertura de fallas, etc. 
+ESyS-Particle implementa paralelismo mediante descomposición espacial del dominio. El dominio de simulación se subdivide en $N_w$ subdominios organizados tridimensionalmente. Cada subdominio es asignado a un proceso MPI independiente.
 
-% \subsubsection{Diseño}
-ESyS-Particle está diseñado para ejecutar sobre supercomputadoras paralelas, clusters o computadores con varios núcleos corriendo Linux como sistema operativo base. El motor de simulación en C++ implementa una descomposición espacial del dominio mediante el uso de Message Passing Interface (MPI). Una API en Python provee flexibilidad en el diseño de modelos numéricos, en la especificación de parámetros del modelo e interacciones de contacto entre las partículas; así como interfaces con diferentes plataformas de visualización de los resultados de las simulaciones.\newline
+Para garantizar la correcta evaluación de interacciones entre partículas cercanas a las fronteras de los subdominios, cada proceso mantiene un \textit{buffer} que incluye partículas vecinas pertenecientes a subdominios adyacentes. Durante cada paso de simulación, los procesos intercambian información correspondiente a partículas de frontera.
 
-ESyS-Particle es una implementación paralela del DEM, que se caracteriza por ser OpenSource, está disponible gratuitamente, y puede ser modificada y extendida libremente. Se basa en una arquitectura de memoria distribuida utilizando MPI. Mientras que el tamaño del problema sea escalado adecuadamente con la cantidad de procesadores, el beneficio de agregar procesadores es casi lineal. Soporta varios millones de partículas en las simulaciones; en pruebas realizadas por los propios desarrolladores de la herramienta, llegaron a utilizar más de 10 millones de partículas.\newline
+Este esquema permite escalar el tamaño del problema distribuyendo el trabajo entre múltiples nodos de cómputo, siempre que el volumen del subdominio sea suficientemente grande respecto al tamaño del buffer, reduciendo así el impacto de la comunicación.
 
-Este paquete está diseñado para trabajar con otros programas individuales, que se encargan del pre-procesamiento de los datos que son la entrada de la simulación y post-procesamiento de los resultados de la misma. Esto posibilita que sea más fácil el desarrollo y mantenimiento de las distintas herramientas, en lugar de un paquete que incluya todo. Las funcionalidades de ESyS-Particle se manejan mediante scripts en Python y no posee un GUI interactiva. El uso de Python como lenguaje de scripting proporciona una programación orientada a objetos, fácil de utilizar, que posee una extensa librería estándar, y que además ya existe una implementación de la interfaz entre Python y el motor en C++ de ESyS-Particle (mediante la librería Boost-Python).\newline
+\subsection*{Ciclo de simulación}
 
-ESyS-Particle está compilado como una librería compartida y es utilizada como un módulo de Python, los scripts importan las librerías como mecanismo para hacer accesibles las funciones exportadas por ESyS-Particle. Las funciones de los scripts llaman a las funciones de C++ para inicializar el modelo, preparar las interacciones, mover los objetos, salvar datos, etc.\newline
+El proceso de simulación en ESyS-Particle se organiza en pasos discretos que incluyen:
 
-El proceso de simulación por pasos se describe gráficamente en la figura ~\ref{fig:esysparticle_iteracion}.
-\begin{figure}[!h]
-%	\setlength{\abovecaptionskip}{3pt}
-   	\centering
-	\includegraphics[scale=0.6]{images/esysparticle_iteracion.png}
-	\caption{Proceso de simulación por pasos del ESyS-Particle.}
-	\label{fig:esysparticle_iteracion}
-\end{figure}
+\begin{enumerate}
+    \item Inicialización del modelo.
+    \item Actualización de listas de partículas vecinas.
+    \item Cálculo de fuerzas de interacción.
+    \item Actualización de posiciones y velocidades.
+    \item Escritura de datos de salida.
+\end{enumerate}
 
-Lo pasos de la simulación se dividen entonces en:
-\begin{itemize}
-	\item inicialización de la simulación
-	\item actualización de la tabla de partículas vecinas
-	\item cálculo de fuerzas
-	\item actualización de posición y velocidad de las partículas
-	\item escritura de datos en flujo de salida
-	\item si existen pasos de simulación volver al punto 2, en caso contrario se termina la simulación
-\end{itemize}
+En el DEM clásico, las interacciones entre partículas son de corto alcance. ESyS-Particle optimiza este cálculo mediante listas de vecinos que se actualizan únicamente cuando el desplazamiento de partículas supera una distancia umbral (distancia de Verlet).
 
-Una particularidad de los DEM aplicado a la interacción de partículas por contacto, es que las fuerzas son de corto alcance, es decir que una partícula sólo interactúa con las partículas más cercanas. ESyS-Particle toma en cuenta esta peculiaridad logrando reducir los costos computacionales de simulación. En su implementación interna utiliza para cada partícula, una lista de potenciales partículas vecinas a las cuales afecta (ver figura ~\ref{fig:esys_particle_proximas}). Dicha lista no necesita ser re-calculada en cada paso de simulación sino cuando alguna partícula se mueve más que un valor Dv (verlet distance) que dependerá de cada simulación.
+\subsection*{Integración del cálculo de auto-gravedad}
 
-\begin{figure}[!h]
-%	\setlength{\abovecaptionskip}{3pt}
-   	\centering
-	\includegraphics[scale=0.6]{images/esys_particle_proximas.png}
-	\caption{Búsqueda de partículas vecinas por ESys-Particle.}
-	\label{fig:esys_particle_proximas}
-\end{figure}
+El desarrollo realizado en esta tesis extiende el esquema estándar del DEM incorporando el cálculo de fuerzas gravitatorias de largo alcance. Dado que la arquitectura de ESyS-Particle se basa en descomposición espacial y comunicación mediante MPI, el algoritmo de auto-gravedad desarrollado se adapta a dicho esquema de paralelización.
 
-%\includegraphics[scale=1.5]{images/esys_particle_proximas.PNG}
-%%\includegraphics[width=\textwidth]{images/esys_particle_proximas.PNG}
+La integración permite que el cálculo gravitatorio se ejecute en conjunto con el motor DEM, manteniendo compatibilidad con la estructura de dominio distribuido y el modelo de ejecución paralela del paquete. De esta manera, se posibilita la simulación de aglomerados autogravitantes dentro de una infraestructura DEM paralela, combinando interacciones de corto y largo alcance en un mismo entorno de simulación.
 
-ESyS\-Particle puede hacer uso de más de un recurso de cómputo en la computación de la simulación. A continuación se explica el procedimiento de asignación: dado un dominio de simulación con partículas como el de la imagen a) de la figura ~\ref{fig:esys_particle_pelotitas_dominios}, ESyS\-Particle implementa una descomposición de dominio espacial para dividir el área de trabajo entre los recursos de cómputo disponibles.
-El dominio inicial es subdividido en $N_w$ sub-dominios ordenados en forma de matriz $(x, y, z)$ como se muestra en la imagen b) de la misma figura. Dado que las partículas muy cercanas a los límites tendrán efectos en las partículas del subdominio contiguo, cada recurso de cómputo recibe su subdominio y un buffer alrededor que incluye dichas partículas bordes tal como se muestra en la imagen c) en la misma figura. 
+Esta integración constituye un componente central del trabajo, ya que permite validar experimentalmente el algoritmo desarrollado dentro de un marco de simulación física consistente.
 
-De esta forma cada recurso de cómputo actualiza la posición y velocidad de las partículas de su subdominio estricto utilizando las partículas del subdominio con el buffer agregado. Para obtener una escalabilidad decente se requiere que los subdominios estrictos sean grandes en comparación con los subdominios con el buffer . Al final de cada paso de simulación las partículas de los bordes son comunicados de un recurso a otro.
-\begin{figure}[!h]
-	\setlength{\abovecaptionskip}{3pt}
-  	\centering
-	\includegraphics[scale=0.3]{images/esys_particle_pelotitas_dominios_a.png}
-	\includegraphics[scale=0.3]{images/esys_particle_pelotitas_dominios_b.png}
-	\includegraphics[scale=0.3]{images/esys_particle_pelotitas_dominios_c.png}
-	\caption{Descomposición por dominio de ESyS-Particle.}
-	\label{fig:esys_particle_pelotitas_dominios}
-\end{figure} %\includegraphics[scale=0.65]{images/esys_particle_pelotitas_dominios.PNG}
-%Esta es la forma en como ESyS-Particle distribuye el trabajo entre los diferentes recursos de cómputo.
 
 \chapter{Antecedentes}
 
