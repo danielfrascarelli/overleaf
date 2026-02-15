@@ -677,6 +677,42 @@ El modelo está específicamente orientado a aglomerados densos auto-gravitantes
 El algoritmo desarrollado en esta tesis implementa este modelo dentro de un esquema paralelo en memoria compartida, permitiendo su integración posterior con un motor DEM.
 
 \section{Desafíos computacionales identificados}
+\label{sec:desafios_computacionales}
+
+El problema abordado en esta tesis presenta desafíos computacionales específicos derivados de (i) la escala del sistema a simular, (ii) la naturaleza de largo alcance de la interacción gravitatoria y (iii) la necesidad de integrar el cálculo de auto-gravedad en un esquema de simulación numérica orientado a medios granulares densos. A continuación se sintetizan los principales desafíos identificados.
+
+\subsection*{Costo del cálculo exacto y escala del sistema}
+
+El cálculo directo del potencial (o de la contribución gravitatoria) sobre todas las partículas requiere evaluar la interacción de cada partícula con el resto del sistema. Esto conduce a un costo cuadrático $O(N^2)$ por actualización del campo gravitatorio, lo cual resulta impracticable cuando $N$ es del orden de millones de partículas. La magnitud del problema no es únicamente el tamaño de $N$, sino la repetición del cálculo a lo largo de múltiples actualizaciones durante la simulación.
+
+\subsection*{Interacciones de largo alcance en medios granulares densos}
+
+En simulaciones de medios granulares basadas en DEM, las interacciones mecánicas son de corto alcance (principalmente con vecinos cercanos), lo que habilita estrategias eficientes para reducir cómputo en colisiones y contactos. En contraste, la auto-gravedad es una interacción de largo alcance: todas las partículas contribuyen al potencial en cada punto del dominio. En estados densos (por ejemplo, \textit{rubble piles}), la distribución espacial tiende a ser relativamente homogénea, y esto condiciona el diseño de estructuras de datos y estrategias de aproximación más adecuadas que las utilizadas en configuraciones altamente dispersas.
+
+\subsection*{Frecuencia de actualización e integración con la simulación}
+
+Para estudios dinámicos, el cálculo del campo gravitatorio debe integrarse con la evolución temporal del sistema. Esto introduce un compromiso entre precisión y costo: actualizar el campo gravitatorio con demasiada frecuencia puede dominar el tiempo total de ejecución; hacerlo con muy poca frecuencia puede degradar la fidelidad del modelo. En el enfoque adoptado en la bibliografía utilizada, se plantea además la conveniencia de representar el potencial mediante una función suave de la posición y/o aplicar interpolación espacial, de modo de reutilizar el campo durante varios pasos de integración y amortiguar el costo del recálculo.
+
+\subsection*{Compromiso precisión--eficiencia en aproximaciones jerárquicas}
+
+La incorporación de aproximaciones jerárquicas (como MADA) introduce un desafío central: controlar el error numérico sin perder el beneficio computacional. El agrupamiento de partículas distantes como una masa equivalente en el centro de masa permite reducir el número de contribuciones evaluadas, pero puede producir errores relevantes cuando la geometría local vuelve inadecuada la aproximación (por ejemplo, cuando el punto de evaluación está próximo a regiones con alta variación del potencial). En consecuencia, el modelo requiere reglas explícitas para decidir cuándo aproximar y cuándo calcular de forma exacta, y mecanismos generales para refinar el tratamiento en regiones cercanas.
+
+\subsection*{Discretización espacial mediante grilla: resolución, datos e interpolación}
+
+El uso de una grilla tridimensional regular como estructura base aporta escalabilidad y es particularmente natural para sistemas densos, pero introduce parámetros críticos de discretización. Una grilla demasiado gruesa puede no capturar adecuadamente variaciones espaciales relevantes; una grilla demasiado fina incrementa el número de celdas, el volumen de datos calculados y el costo de sincronización y recorrido. Además, la grilla condiciona el costo de la interpolación y la representación final del campo gravitatorio, que puede requerir almacenar valores por celda y/o por vértice, con impacto directo en memoria y en E/S.
+
+\subsection*{Paralelismo en memoria compartida: balance de carga y sincronización}
+
+Dado el costo dominante del cálculo de auto-gravedad y de la interpolación, la paralelización es un requisito para alcanzar tiempos de ejecución razonables. Sin embargo, en un esquema de memoria compartida aparecen desafíos específicos:
+(i) balancear carga entre hilos cuando el costo por celda puede variar;
+(ii) minimizar contención por acceso concurrente a estructuras compartidas;
+(iii) reducir el overhead de sincronización asociado a la asignación de trabajo y a las barreras entre etapas.
+Estos aspectos obligan a definir estrategias de descomposición de dominio y políticas de asignación dinámica que eviten desbalances y colisiones (dos hilos intentando procesar la misma celda), sin introducir un costo de coordinación que anule el beneficio del paralelismo.
+
+\subsection*{Gestión de memoria y estructuras compartidas}
+
+Para instancias grandes, los datos del sistema (partículas, grilla, información de celdas y estructuras auxiliares) pueden ser lo suficientemente voluminosos como para que la gestión de memoria se vuelva un factor limitante. Esto obliga a cuidar el diseño de las estructuras de datos, evitar duplicaciones (por ejemplo, reutilizando vértices compartidos cuando se almacenan coordenadas) y definir con precisión qué información se comparte para lectura/escritura entre hilos y cómo se controla su acceso. La eficiencia final depende tanto del número de operaciones aritméticas como del patrón de acceso a memoria y de la reducción de estructuras redundantes.
+
 
 \section{Objetivos del desarrollo}
 
