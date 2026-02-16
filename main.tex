@@ -5,6 +5,8 @@
 \usepackage[pdftex,hypertexnames=false,pdfborder={0 0 0}]{hyperref}
 \usepackage[activeacute,spanish]{babel}
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
 %\def\spanishoptions{es-tabla}
 \usepackage{amsmath}
 \usepackage{amsfonts}
@@ -25,6 +27,7 @@
 %\usepackage[hyperref,x11names]{xcolor}
 %\usepackage[colorlinks=false,urlcolor=SteelBlue4,linkcolor=Firebrick4]{hyperref}
 \usepackage{url}
+\usepackage{xurl}
 %\usepackage{biblatex}
 \usepackage{fancyhdr}
 \usepackage{comment}
@@ -59,7 +62,7 @@
 
 \pagestyle{fancy}
 \renewcommand{\chaptermark}[1]{\markboth{\chaptername\ \thechapter.\ #1}{}}
-\renewcommand{\sectionmark}[1]{\markright{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{#1}}
 \lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
 \rhead[\fancyplain{}{\bfseries\leftmark}]{\fancyplain{}{\bfseries\thepage}}
 \cfoot{}
@@ -298,7 +301,7 @@ El cálculo directo del potencial, tanto sobre partículas como sobre nodos de u
 Esta limitación constituye el núcleo del problema abordado en esta tesis y motiva el desarrollo de una implementación paralela eficiente para el cálculo de la auto-gravedad en aglomerados de partículas.
 
 
-\\section{Optimización de configuraciones iniciales mediante algoritmos evolutivos}
+\section{Optimización de configuraciones iniciales mediante algoritmos evolutivos}
 \label{sec:alg_evolutivo}
 
 En el marco de este trabajo se emplea un algoritmo evolutivo como técnica de optimización para generar configuraciones iniciales compactas de aglomerados tridimensionales de partículas. Estas configuraciones constituyen el estado inicial de los sistemas utilizados posteriormente en los experimentos de auto-gravedad (Capítulo~\ref{chap:desafio_planteado}, Sección~\ref{sec:compactacion_aglomerados}).
@@ -577,6 +580,7 @@ Para tratar de manera eficiente los aglomerados auto-gravitantes formados por un
 
 
 \chapter{Formulación del problema y objetivos del desarrollo}
+\label{chap:desafio_planteado}
 
 \section{Definición del problema físico-computacional}
 
@@ -756,13 +760,16 @@ Finalmente, se destaca que el problema de generación de condiciones iniciales s
 
 
 
-\section{Problema relacionado: generación de condiciones iniciales}
-
 \chapter{Diseño y arquitectura}
 
 En este capítulo se presenta el diseño y arquitectura de la solución.
 
+\section{Problema relacionado: generación de condiciones iniciales}
+\label{sec:condiciones_iniciales}
+
+
 \section{Compactación de aglomerados}
+\label{sec:compactacion_aglomerados}
 En esta sección se presentan las características del algoritmo evolutivo desarrollado para resolver el problema de compactación de aglomerados.
 
 \subsection{Representación}
@@ -1276,7 +1283,7 @@ Se analizó el comportamiento de los métodos de interpolación Kriging e IDW. L
     \begin{subfigure}[t]{0.42\textwidth}
         \centering
         \includegraphics[width=\linewidth]{images/interpolacion_kriging.png} 
-        \caption{Error relativo del algoritmo Kriging} \label{fig:interpol_riging}
+        \caption{Error relativo del algoritmo Kriging} \label{fig:interpol_kriging}
     \end{subfigure}
     \begin{subfigure}[t]{0.42\textwidth}
         \centering
