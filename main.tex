@@ -95,8 +95,7 @@ En 2012 se obtuvo una beca de Iniciación a la Investigación subvencionada por 
 
 Asimismo, se integró el código desarrollado con un paquete de simulación numérica a efectos de facilitar la visualización de los resultados. La visualización de simulaciones numéricas resulta relevante para el análisis e interpretación del comportamiento dinámico de aglomerados, complementando el cómputo numérico con una representación gráfica del fenómeno modelado.
 
-\newpage
-
+% Capitulo 1
 \chapter{Introducción}
 
 \section{Contexto}
@@ -139,7 +138,7 @@ Adicionalmente, el código fue integrado a un paquete de simulación numérica, 
 
 El resto del documento se organiza de la siguiente manera. En el Capítulo 2 se presenta el marco teórico necesario, incluyendo fundamentos de computación de alto rendimiento, DEM y técnicas de interpolación utilizadas. En el Capítulo 3 se describe el diseño y la arquitectura del algoritmo propuesto. En el Capítulo 4 se detalla la implementación y las estrategias de paralelización. En el Capítulo 5 se presenta el análisis experimental y la evaluación de desempeño. Finalmente, el Capítulo 6 expone las conclusiones y posibles líneas de trabajo futuro.
 
-
+% Capitulo 2
 \chapter{Marco teórico}
 
 \section{Método de Elementos Discretos}
@@ -531,6 +530,7 @@ La integración permite que el cálculo gravitatorio se ejecute en conjunto con 
 
 Esta integración constituye un componente central del trabajo, ya que permite validar experimentalmente el algoritmo desarrollado dentro de un marco de simulación física consistente.
 
+% Capitulo 3
 \chapter{Antecedentes}
 
 En este capítulo se presentan los antecedentes del proyecto.
@@ -549,36 +549,7 @@ Sánchez y Scheeres \cite{12} utilizaron un enfoque ligeramente diferente: mient
 Para tratar de manera eficiente los aglomerados auto-gravitantes formados por un número mayor de partículas que las abordadas por los esfuerzos anteriores, el algoritmo de cálculo desarrollado en este trabajo incorpora elementos de los enfoques descritos: (i) la sustitución mediante una función de ajuste suave del potencial, (ii) un método de agrupación jerárquica para acelerar el cálculo de auto-gravedad en nodos de la cuadrícula, y (iii) una cuadrícula regular y estática para dividir el espacio:contentReference[oaicite:7]{index=7}.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+% Capitulo 4
 \chapter{Formulación del problema y objetivos del desarrollo}
 \label{chap:desafio_planteado}
 
@@ -770,6 +741,7 @@ Dado que la calidad de las condiciones iniciales influye en la representatividad
 
 Finalmente, al considerar instancias con un número muy grande de partículas (del orden de un millón) en un dominio tridimensional, donde las partículas se disponen en contacto entre sí y con los bordes del contenedor, el espacio de configuraciones factibles crece de forma explosiva y el problema se encuadra dentro de la clase NP, lo que refuerza la conveniencia de enfoques heurísticos/constructivos para obtener soluciones de buena calidad en tiempos razonables.
 
+% Capitulo 5
 \chapter{Diseño y arquitectura}
 
 En este capítulo se presenta el diseño y arquitectura de la solución.
@@ -1262,6 +1234,7 @@ Estos cambios son debido a que al integrar el cálculo de autogravedad en el paq
 Analizando la dinamica de ejecucion del paquete ESySParticle surge la necesidad de modificar cómo se calcula la interpolación, por lo que el código de interpolación ya no forma parte del algoritmo paralelo de autogravedad, sino que se agregó por dentro del código de ESyS-Particle. Si bien esto implica que el desarrollo de la interpolación en paralelo quedará obsoleta, el análisis experimental sobre cuál técnica se aplica mejor en nuestro caso sigue siendo válida.\newline
 Estos cambios se ven con mayor profundidad en la siguiente sección.
 
+% Capitulo 6
 \chapter{Análisis experimental} \label{ch:ch5}
 
 \section{Algoritmo evolutivo}
@@ -1457,6 +1430,7 @@ Las siguientes figuras muestran la ejecución para cada escenario cuando se var�
 
 Al utilizar 16 hilos se logra para el escenario más grande un speedup de factor 13.4, lo cual se corresponde con una eficiencia computacional de 0.85. El comportamiento del speedup para el algoritmo paralelo propuesto es casi linear. Además, el mejor speedup/eficiencia se obtuvo para la simulación que manipula la mayor cantidad de partículas, demostrando un buen comportamiento de escalabilidad. Simulaciones de más de un millón de partículas, que demanda 1920s (más de media hora) pueden realizarse en dos minutos y medio utilizando 16 hilos.
 
+% Capitulo 7
 \chapter{Conclusiones, mejoras y trabajos a futuro}
 
 \section{Conclusiones}
