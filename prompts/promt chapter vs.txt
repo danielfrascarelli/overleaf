@@ -1,0 +1,15 @@
+Quiero que analises el capitulo 4 completo. 
+
+Informe original: Computación de alto desempeño para el estudio de medios granulares.pdf
+Estado actual main.tex adjunto en este mensaje.
+
+Quiero que:
+- analises y valides textos y parrafos que se eliminaron, que texto se agregaron, etc. La diferencia que busco identificar es conceptual, no literal/textual. No me interesan diferencias en la forma de escribir, sino conceptos, teorias, valores numéricos. 
+- quiero validar que no estas agregando, inventando información no existente originalmente. Quiero verificar con rigor todo. 
+- verificar que en el estado actual del informe no hay redundancias entre los capitulos
+- quiero validar que el contenido de cada capitulo/section es coherente y consistente.
+
+En caso de que consideres necesarias aclaraciones, hazme cualquier pregunta antes de generar contenido no final. No quiero un contenido borrador que luego haya que mejorar al responder las preguntas. 
+Quiero que te tomes el tiempo necesario para realizar un excelente trabajo. Optimiza tu proceso para generar una respuesta perfecta y no para velocidad de respuesta. 
+Quiero que analises cuidadosamente los archivos adjuntos e instrucciones para realizar un excelente trabajo. 
+No quiero que inventes nada, ni hagas suposiciones de nada. 
