@@ -105,3 +105,4 @@ El PDF adjunto de nombre "Algoritmos evolutivos para el diseño de redes de sane
 Adjunto el PDF "High Performance Computing of Self-gravity for SSSB.pdf" que es fiel fuente de información para la tesis. Se puede usar el contenido de este paper, pero está prohibido citarlo.
 Adjunto el PDF "Computación de alto desempeño para el estudio de medios granulares.pdf" que es el informe original de la tesis. Este es el contenido que quiero mejorar.
 
+El informe está escrito en latex, y el archivo se llama main.tex. Cada vez que necesites la ultima versión pedime que la adjunte para actaulizarla. Nunca utilices un main.tex que puede estar desactualizado.
