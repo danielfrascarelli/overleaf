@@ -544,18 +544,18 @@ Esta integración constituye un componente central del trabajo, ya que permite v
 
 En este capítulo se presentan los antecedentes del proyecto.
 
-El cálculo exacto del potencial gravitatorio generado por $n$ partículas implica $O(n^2)$ operaciones, lo cual resulta computacionalmente costoso cuando $n$ es del orden de millones. En consecuencia, se han desarrollado diversas estrategias para reducir el número de operaciones requeridas:contentReference[oaicite:2]{index=2}.
+El cálculo exacto del potencial gravitatorio generado por $n$ partículas implica $O(n^2)$ operaciones, lo cual resulta computacionalmente costoso cuando $n$ es del orden de millones. En consecuencia, se han desarrollado diversas estrategias para reducir el número de operaciones requeridas:.
 
-Una primera estrategia consiste en sustituir el valor exacto del potencial gravitatorio por una función suave de la posición. Se han utilizado armónicos esféricos y bi-esféricos como funciones de ajuste \cite{6}. Cada partícula se propaga en este campo de fondo durante un breve periodo de tiempo antes de que se vuelva a calcular el ajuste. Este método requiere operaciones del orden de $O(n\log(n))$, pero su desventaja es la pérdida de precisión:contentReference[oaicite:3]{index=3}.
+Una primera estrategia consiste en sustituir el valor exacto del potencial gravitatorio por una función suave de la posición. Se han utilizado armónicos esféricos y bi-esféricos como funciones de ajuste \cite{6}. Cada partícula se propaga en este campo de fondo durante un breve periodo de tiempo antes de que se vuelva a calcular el ajuste. Este método requiere operaciones del orden de $O(n\log(n))$, pero su desventaja es la pérdida de precisión.
 
-Otro enfoque propone el uso de un método de agrupación jerárquica. Appel \cite{7} utilizó una estructura de árbol para representar los sistemas de $n$-cuerpo, almacenando las partículas en las hojas y agrupando partículas cercanas como hojas de ramas cercanas. Una implementación eficiente de un enfoque de árbol jerárquico completo fue presentada por Barnes y Hut \cite{8}, y posteriormente incorporada en un algoritmo de integración por Richardson \cite{9} para simular la evolución dinámica de planetesimales y la evolución rotacional y colisional de asteroides. Este enfoque también requiere del orden de $O(n\log(n))$ operaciones:contentReference[oaicite:4]{index=4}.
+Otro enfoque propone el uso de un método de agrupación jerárquica. Appel \cite{7} utilizó una estructura de árbol para representar los sistemas de $n$-cuerpo, almacenando las partículas en las hojas y agrupando partículas cercanas como hojas de ramas cercanas. Una implementación eficiente de un enfoque de árbol jerárquico completo fue presentada por Barnes y Hut \cite{8}, y posteriormente incorporada en un algoritmo de integración por Richardson \cite{9} para simular la evolución dinámica de planetesimales y la evolución rotacional y colisional de asteroides. Este enfoque también requiere del orden de $O(n\log(n))$ operaciones.
 
 Usando estructuras paralelas, se logró simular hasta millones de partículas que interactúan \cite{10}; sin embargo, el paso de tiempo utilizado (5\,s) era demasiado grande para simular adecuadamente las interacciones mecánicas de partículas blandas, dado que las simulaciones DEM por lo general requieren pasos de tiempo del orden de $10^{-4}$\,s \cite{11}. Por lo tanto, si el paso de tiempo se reduce al valor requerido por las simulaciones DEM, el cálculo de la auto-gravedad continúa siendo costoso.
 
 
-Sánchez y Scheeres \cite{12} utilizaron un enfoque ligeramente diferente: mientras que en un código de árbol la subdivisión del espacio es dinámica y depende de la distribución espacial de las partículas, ellos utilizaron una cuadrícula regular y estática para dividir el espacio. Este enfoque parece ser más adecuado para agregados granulares auto-gravitantes en una fase densa, como un asteroide de escombros. Sin embargo, el código no fue paralelizado y las simulaciones se limitaron a unos pocos miles de partículas:contentReference[oaicite:6]{index=6}.
+Sánchez y Scheeres \cite{12} utilizaron un enfoque ligeramente diferente: mientras que en un código de árbol la subdivisión del espacio es dinámica y depende de la distribución espacial de las partículas, ellos utilizaron una cuadrícula regular y estática para dividir el espacio. Este enfoque parece ser más adecuado para agregados granulares auto-gravitantes en una fase densa, como un asteroide de escombros. Sin embargo, el código no fue paralelizado y las simulaciones se limitaron a unos pocos miles de partículas.
 
-Para tratar de manera eficiente los aglomerados auto-gravitantes formados por un número mayor de partículas que las abordadas por los esfuerzos anteriores, el algoritmo de cálculo desarrollado en este trabajo incorpora elementos de los enfoques descritos: (i) la sustitución mediante una función de ajuste suave del potencial, (ii) un método de agrupación jerárquica para acelerar el cálculo de auto-gravedad en nodos de la cuadrícula, y (iii) una cuadrícula regular y estática para dividir el espacio:contentReference[oaicite:7]{index=7}.
+Para tratar de manera eficiente los aglomerados auto-gravitantes formados por un número mayor de partículas que las abordadas por los esfuerzos anteriores, el algoritmo de cálculo desarrollado en este trabajo incorpora elementos de los enfoques descritos: (i) la sustitución mediante una función de ajuste suave del potencial, (ii) un método de agrupación jerárquica para acelerar el cálculo de auto-gravedad en nodos de la cuadrícula, y (iii) una cuadrícula regular y estática para dividir el espacio.
 
 
 % Capitulo 4
@@ -639,12 +639,7 @@ Este esquema permite equilibrar precisión y eficiencia computacional, evitando 
 
 \subsection*{Complejidad y comportamiento computacional}
 
-El modelo completo —grilla regular más agrupamiento jerárquico mediante MADA— permite reducir el costo del cálculo respecto al método directo $O(N^2)$. Tal como se reporta en el trabajo IEEE, el algoritmo presenta:
-
-\begin{itemize}
-    \item Escalamiento aproximadamente lineal con el número de partículas.
-    \item Escalamiento respecto al número de hilos que sigue una ley de potencia inversa con exponente cercano a $0.87$.
-\end{itemize}
+El modelo completo —grilla regular más agrupamiento jerárquico mediante MADA— permite reducir el costo del cálculo respecto al método directo $O(N^2)$.
 
 Este comportamiento lo hace adecuado para simulaciones de sistemas con millones de partículas bajo un esquema DEM con actualización periódica del campo gravitatorio.
 
@@ -669,7 +664,7 @@ En simulaciones de medios granulares basadas en DEM, las interacciones mecánica
 
 \subsection*{Frecuencia de actualización e integración con la simulación}
 
-Para estudios dinámicos, el cálculo del campo gravitatorio debe integrarse con la evolución temporal del sistema. Esto introduce un compromiso entre precisión y costo: actualizar el campo gravitatorio con demasiada frecuencia puede dominar el tiempo total de ejecución; hacerlo con muy poca frecuencia puede degradar la fidelidad del modelo. En el enfoque adoptado en la bibliografía utilizada, se plantea además la conveniencia de representar el potencial mediante una función suave de la posición y/o aplicar interpolación espacial, de modo de reutilizar el campo durante varios pasos de integración y amortiguar el costo del recálculo.
+Para estudios dinámicos, el cálculo del campo gravitatorio debe integrarse con la evolución temporal del sistema. Esto introduce un compromiso entre precisión y costo: actualizar el campo gravitatorio con demasiada frecuencia puede dominar el tiempo total de ejecución; hacerlo con muy poca frecuencia puede degradar la fidelidad del modelo. En el enfoque adoptado, se plantea además la conveniencia de representar el potencial mediante una función suave de la posición y/o aplicar interpolación espacial, de modo de reutilizar el campo durante varios pasos de integración y amortiguar el costo del recálculo.
 
 \subsection*{Compromiso precisión--eficiencia en aproximaciones jerárquicas}
 
@@ -820,9 +815,11 @@ Para una cantidad de veces $i$:
 \begin{enumerate}
 	\item Elegir una partícula $p_i$ de la caja
 	\item Identificar si la partícula $p_i$ está contenida en una esfera de radio mayor al radio de la partícula, de forma tal de que si la partícula tuviera dicho radio, no colisionaría con otra partícula de la caja.
-	\item Si $p_i$ está contenida en un radio mayor
-	\subitem Mover la partícula $p_i$ de forma de que quede lo más próxima posible a la primera partícula con la que eventualmente colisionaría.
-	\subitem Al mover la partícula $p_i$ quedó un espacio libre, intentar posicionar una de las partículas que se tienen en el stock de partículas.
+    \item Si $p_i$ está contenida en un radio mayor:
+    \begin{itemize}
+    	\item Mover la partícula $p_i$ de forma de que quede lo más próxima posible a la primera partícula con la que eventualmente colisionaría.
+    	\item Al mover la partícula $p_i$ quedó un espacio libre, intentar posicionar una de las partículas que se tienen en el stock de partículas.
+    \end{itemize}
 	\item Si $p_i$ no está contenida en un radio mayor se continua con la siguiente partícula.
 \end{enumerate}
 
