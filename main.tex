@@ -112,21 +112,30 @@ Los medios granulares pueden modelarse mediante el Método de Elementos Discreto
 
 Sin embargo, una limitación habitual en implementaciones DEM es la ausencia de un tratamiento eficiente de fuerzas de largo alcance, como la gravedad entre partículas. El cálculo directo de la auto-gravedad en un sistema de $N$ partículas requiere evaluar todas las interacciones par a par, lo que implica una complejidad computacional $O(N^2)$. Para sistemas realistas compuestos por millones de partículas, este costo resulta prohibitivo y restringe el análisis dinámico a escalas reducidas.
 
-\section{Enfoque propuesto}
+\section{Enfoque adoptado}
 
-Para superar esta limitación se adopta el algoritmo jerárquico de Barnes--Hut, el cual reduce la complejidad del cálculo gravitatorio a $O(N \log N)$ mediante la construcción de una estructura espacial tipo árbol (octree en tres dimensiones). Este método aproxima la contribución de grupos distantes de partículas utilizando criterios geométricos controlados por un parámetro de apertura.
+El problema consiste en calcular eficientemente la auto-gravedad en sistemas formados por $N$ partículas que representan aglomerados granulares en fase densa. El cálculo exacto del potencial gravitacional requiere $O(N^2)$ operaciones, lo que resulta inviable para sistemas con millones de partículas y pasos de integración del orden de $10^{-4}$ s, como en simulaciones DEM.
 
-Sobre esta base, se desarrolla una implementación paralela orientada a arquitecturas de memoria compartida, utilizando técnicas de programación concurrente para distribuir el trabajo de cómputo entre múltiples núcleos. El diseño considera la construcción eficiente de la estructura jerárquica, el balance de carga entre hilos y la sincronización del acceso a estructuras de datos compartidas.
+Para reducir el costo computacional se adopta un enfoque basado en:
+
+\begin{itemize}
+    \item División del espacio mediante una grilla tridimensional regular y estática.
+    \item Agrupamiento jerárquico de masas.
+    \item Aplicación del Mass Approximation Distance Algorithm (MADA) para aproximar la contribución de regiones lejanas.
+\end{itemize}
+
+La grilla define celdas como unidad mínima de procesamiento. Las interacciones cercanas se calculan de forma exacta, mientras que las regiones distantes se aproximan mediante la concentración de masa en su centro de masa.
+
+El algoritmo se implementa utilizando descomposición de dominio y paralelización en memoria compartida, permitiendo escalar respecto al número de partículas y al número de recursos de cómputo.
+
 
 \section{Objetivo}
 
-El objetivo principal de este trabajo es diseñar, implementar y evaluar un algoritmo paralelo basado en Barnes--Hut para el cálculo eficiente de la auto-gravedad en aglomerados de partículas modelados mediante DEM, permitiendo abordar sistemas del orden de millones de partículas en tiempos de ejecución viables.
+El objetivo principal de este trabajo es diseñar, implementar y evaluar un algoritmo paralelo para el cálculo eficiente de la auto-gravedad en aglomerados de partículas modelados mediante DEM, reduciendo el costo respecto al cálculo directo $O(N^2)$ mediante discretización en grilla regular y aproximación jerárquica por centros de masa (MADA), habilitando el estudio de sistemas del orden de millones de partículas en tiempos de ejecución viables.
 
 \section{Resultados principales}
 
-El análisis experimental demuestra que la implementación paralela presenta un comportamiento de escalamiento cercano a lineal respecto al número de recursos de cómputo utilizados dentro del rango evaluado, alcanzando una eficiencia paralela aproximada de 0.85 en configuraciones de gran escala. 
-
-En términos de complejidad respecto al número de partículas, el comportamiento observado es consistente con la complejidad teórica $O(N \log N)$ del método de Barnes--Hut, lo que permite ampliar significativamente el tamaño de los sistemas abordables en comparación con implementaciones basadas en cálculo directo.
+El análisis experimental muestra mejoras significativas en tiempo de ejecución al paralelizar el cálculo de auto-gravedad, con buen aprovechamiento de múltiples hilos dentro del rango evaluado. Asimismo, el enfoque basado en grilla y aproximación jerárquica permite abordar tamaños de sistema superiores a los viables con el cálculo directo.
 
 \section{Contribuciones}
 
@@ -587,15 +596,9 @@ La generación de condiciones iniciales compactas para los aglomerados constituy
 \section{Modelo adoptado para la auto-gravedad}
 \label{sec:modelo_autogravedad}
 
-El modelo adoptado para el cálculo de la auto-gravedad en este trabajo se basa en una aproximación jerárquica orientada a sistemas densos de partículas, como los denominados \textit{rubble piles} (aglomerados granulares mantenidos por auto-gravedad). La formulación se inspira en métodos jerárquicos existentes para el problema de N-cuerpos, pero adaptada a un esquema basado en grilla regular y paralelismo en memoria compartida, tal como fue presentado en el artículo \textit{High Performance Computing of Self-gravity for Small Solar System Bodies}.
+El modelo adoptado para el cálculo de la auto-gravedad se basa en una aproximación jerárquica orientada a sistemas densos de partículas (aglomerados granulares auto-gravitantes en fase densa). La formulación combina una grilla regular tridimensional con aproximación por centros de masa para reducir el costo computacional, manteniendo cálculo exacto en la región local relevante.
 
-El cálculo exacto del potencial gravitatorio sobre una partícula $j$ está dado por:
-
-\[
-V_j = \sum_{i \ne j} \frac{G M_i}{\|\mathbf{r}_j - \mathbf{r}_i\|}
-\]
-
-donde $G$ es la constante de gravitación universal, $M_i$ la masa de la partícula $i$ y $\mathbf{r}_i$ su posición. Este cálculo directo requiere $O(N^2)$ operaciones por paso temporal, lo cual resulta prohibitivo para sistemas con $N$ del orden de millones de partículas.
+El cálculo directo del potencial (definido en el marco teórico) requiere evaluar la contribución del conjunto de partículas y conduce a un costo $O(N^2)$ por actualización, lo que resulta prohibitivo para tamaños del orden de millones.
 
 Con el objetivo de reducir la complejidad computacional manteniendo un nivel de precisión adecuado para simulaciones DEM con pasos temporales del orden de $10^{-4}$ s, se adopta un esquema basado en los siguientes principios:
 
@@ -607,7 +610,7 @@ Esta estructura es particularmente adecuada para estados densos, donde la distri
 
 \subsection*{Aproximación jerárquica mediante MADA}
 
-Para acelerar el cálculo del potencial gravitatorio, se utiliza el método denominado \textbf{Mass Approximation Distance Algorithm (MADA)}, introducido en el trabajo mencionado.
+Para acelerar el cálculo del potencial gravitatorio, se utiliza el método Mass Approximation Distance Algorithm (MADA).
 
 El principio fundamental de MADA consiste en reemplazar un conjunto de partículas suficientemente alejadas del punto donde se evalúa el potencial por una masa equivalente concentrada en el centro de masa del conjunto. Desde el punto de vista gravitatorio, la contribución de partículas distantes puede aproximarse adecuadamente por esta masa agregada sin introducir errores significativos.
 
@@ -662,7 +665,7 @@ El cálculo directo del potencial (o de la contribución gravitatoria) sobre tod
 
 \subsection*{Interacciones de largo alcance en medios granulares densos}
 
-En simulaciones de medios granulares basadas en DEM, las interacciones mecánicas son de corto alcance (principalmente con vecinos cercanos), lo que habilita estrategias eficientes para reducir cómputo en colisiones y contactos. En contraste, la auto-gravedad es una interacción de largo alcance: todas las partículas contribuyen al potencial en cada punto del dominio. En estados densos (por ejemplo, \textit{rubble piles}), la distribución espacial tiende a ser relativamente homogénea, y esto condiciona el diseño de estructuras de datos y estrategias de aproximación más adecuadas que las utilizadas en configuraciones altamente dispersas.
+En simulaciones de medios granulares basadas en DEM, las interacciones mecánicas son de corto alcance (principalmente con vecinos cercanos), lo que habilita estrategias eficientes para reducir cómputo en colisiones y contactos. En contraste, la auto-gravedad es una interacción de largo alcance: todas las partículas contribuyen al potencial en cada punto del dominio. En estados densos (por ejemplo, aglomerados granulares auto-gravitantes en fase densa), la distribución espacial tiende a ser relativamente homogénea, y esto condiciona el diseño de estructuras de datos y estrategias de aproximación más adecuadas que las utilizadas en configuraciones altamente dispersas.
 
 \subsection*{Frecuencia de actualización e integración con la simulación}
 
@@ -721,8 +724,8 @@ Desarrollar e implementar un algoritmo de cálculo de auto-gravedad para aglomer
 
     \item Evaluar el comportamiento del desarrollo en dos dimensiones complementarias:
     \begin{itemize}
-        \item \textbf{precisión numérica:} cuantificar el error relativo del potencial gravitatorio computado respecto a un caso con referencia analítica o propiedades de simetría conocidas;
-        \item \textbf{eficiencia computacional:} caracterizar el tiempo de ejecución y las métricas de paralelismo (aceleración y eficiencia) al variar el tamaño del problema y la cantidad de hilos utilizados.
+        \item precisión numérica: cuantificar el error relativo del potencial gravitatorio computado respecto a un caso con referencia analítica o propiedades de simetría conocidas;
+        \item eficiencia computacional: caracterizar el tiempo de ejecución y las métricas de paralelismo (aceleración y eficiencia) al variar el tamaño del problema y la cantidad de hilos utilizados.
     \end{itemize}
 \end{enumerate}
 
@@ -731,15 +734,15 @@ Finalmente, se destaca que el problema de generación de condiciones iniciales s
 \section{Problema relacionado: generación de condiciones iniciales}
 \label{sec:condiciones_iniciales}
 
-Si bien el foco central del desarrollo es el cálculo eficiente de la auto-gravedad para aglomerados granulares, las simulaciones numéricas de este tipo de sistemas requieren, como punto de partida, una configuración espacial inicial físicamente plausible. En particular, para estudiar aglomerados en estado denso (p.\ ej., \textit{rubble piles}), es relevante contar con conjuntos de partículas que presenten simultáneamente (i) alto grado de compactación y (ii) un nivel razonable de aleatoriedad en la distribución, evitando patrones artificiales que distorsionen el comportamiento observado. En este sentido, la construcción de dichas configuraciones iniciales se consideró un problema complementario, necesario para el contexto de simulación, pero no constitutivo del problema principal abordado en la tesis.
+Si bien el foco central del desarrollo es el cálculo eficiente de la auto-gravedad para aglomerados granulares, las simulaciones numéricas de este tipo de sistemas requieren, como punto de partida, una configuración espacial inicial físicamente plausible. En particular, para estudiar aglomerados en estado denso (por ejemplo, aglomerados granulares auto-gravitantes en fase densa), es relevante contar con conjuntos de partículas que presenten simultáneamente (i) alto grado de compactación y (ii) un nivel razonable de aleatoriedad en la distribución, evitando patrones artificiales que distorsionen el comportamiento observado. En este sentido, la construcción de dichas configuraciones iniciales se consideró un problema complementario, necesario para el contexto de simulación, pero no constitutivo del problema principal abordado en la tesis.
 
 El problema puede formularse como la generación de un aglomerado tridimensional de partículas esféricas, con una distribución de tamaños dada, de modo que las partículas queden ubicadas dentro de un contenedor sin solapamientos y minimizando el volumen libre no ocupado. Cuando se consideran partículas perfectamente esféricas y de igual tamaño, existen estrategias relativamente directas para obtener configuraciones densas; sin embargo, al incorporar radios heterogéneos la dificultad aumenta significativamente, dado que la elección de posiciones factibles para nuevas partículas queda fuertemente restringida por la geometría ya construida. Bajo esta perspectiva, el problema puede interpretarse como uno de optimización: maximizar la fracción volumétrica ocupada (equivalentemente, minimizar el espacio libre) sujeto a restricciones geométricas de no intersección.
 
-En prácticas habituales para preparar medios granulares iniciales, se generan radios de partículas según una distribución de probabilidad predefinida, se ordenan en forma descendente y luego se realiza un llenado aleatorio del contenedor comenzando por las partículas mayores y continuando con las menores, verificando en cada inserción que no exista superposición con partículas ya colocadas. Esta estrategia produce configuraciones razonables desde el punto de vista operativo, pero presenta una limitación importante: la compactación alcanzable resulta acotada, con valores típicos que no superan una fracción volumétrica del orden de $0.45$, considerada inferior a lo deseable para representar estados densos.
+En prácticas habituales para preparar medios granulares iniciales, se generan radios de partículas según una distribución de probabilidad predefinida, se ordenan en forma descendente y luego se realiza un llenado aleatorio del contenedor comenzando por las partículas mayores y continuando con las menores, verificando en cada inserción que no exista superposición con partículas ya colocadas. Esta estrategia produce configuraciones razonables desde el punto de vista operativo, pero la compactación alcanzable resulta acotada, por lo que se requiere un mecanismo específico para obtener configuraciones iniciales más densas respetando las restricciones geométricas.
 
 Dado que la calidad de las condiciones iniciales influye en la representatividad de los experimentos numéricos, se plantea la necesidad de un mecanismo específico para generar aglomerados con mayor compactación respetando la distribución de tamaños establecida. No obstante, debe subrayarse que este componente se aborda como un problema relacionado: su propósito es habilitar configuraciones iniciales de mejor calidad para el escenario de simulación, mientras que el aporte central del trabajo se concentra en el modelo y la computación de la auto-gravedad.
 
-Finalmente, al considerar instancias con un número muy grande de partículas (del orden de un millón) en un dominio tridimensional, donde las partículas se disponen en contacto entre sí y con los bordes del contenedor, el espacio de configuraciones factibles crece de forma explosiva y el problema se encuadra dentro de la clase NP, lo que refuerza la conveniencia de enfoques heurísticos/constructivos para obtener soluciones de buena calidad en tiempos razonables.
+Finalmente, al considerar instancias con un número muy grande de partículas, el espacio de configuraciones factibles crece rápidamente, lo que refuerza la conveniencia de enfoques heurísticos/constructivos para obtener soluciones de buena calidad en tiempos razonables.
 
 % Capitulo 5
 \chapter{Diseño y arquitectura}
