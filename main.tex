@@ -1190,7 +1190,7 @@ Existen cuatro tipos de interacciones en ESyS-Particle que difieren en la forma 
 
 El tipo de interacción que se debe agregar coincide con el cuarto tipo de interacción antes comentado. En el proyecto de grado Paralelismo aplicado al estudio de medios granulares (L. Heredia y P. Richeri) se integra una interacción de tipo Hertzian Visco Elastic Friction, que si bien difiere en algunos aspectos resulta similar el esfuerzo necesario. \textcolor{red}{agregar referencia al proyecto de grado. como se agrega la referencia ? @Nestor  tenes algun ejemplo?}
 
-Esta interacción calcula el potencial gravitatorio $V_j$ en cada partícula $j$ de un aglomerado de $N$ partículas de masa $M_i$ y posición $r_i$ evaluando la ecuación~(\ref{eq:potencial}) en la posición de cada partícula y omitiendo la contribución de la propia partícula.
+Esta interacción calcula el potencial gravitatorio $V_j$ en cada partícula $j$ de un aglomerado de $N$ partículas de masa $M_i$ y posición $r_i$ evaluando la ecuación~(\ref{eq:potencial_gravitatorio}) en la posición de cada partícula y omitiendo la contribución de la propia partícula.
 
 En cada paso de simulación se calcula para cada partícula el potencial gravitatorio generado por el resto de las partículas y se aplica la fuerza resultante. Esta forma de integrar el calculo de auto-gravedad en ESyS-Particle esta bien soportado y resulta simple considerando la arquitectura interna del paquete. Por otro lado, una desventaja clara es la limitación impuesta en la escalabilidad resultante puesto que solo se puede utilizar un recurso de cómputo.
 
