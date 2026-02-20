@@ -106,10 +106,11 @@ Desde el punto de vista del modelado numérico, los medios granulares se represe
 
 La incorporación explícita de la interacción gravitatoria entre todas las partículas introduce un costo computacional significativo. Sea un sistema discreto compuesto por $N$ partículas con masas $m_i$ y posiciones $\mathbf{r}_i$. El cálculo directo de la fuerza gravitatoria sobre la partícula $i$ se expresa como
 
-\[
+\begin{equation}
 \mathbf{F}_i = G m_i \sum_{\substack{j=1 \\ j \neq i}}^{N} 
-m_j \frac{\mathbf{r}_j - \mathbf{r}_i}{\|\mathbf{r}_j - \mathbf{r}_i\|^3},
-\]
+m_j \frac{\mathbf{r}_j - \mathbf{r}_i}{\|\mathbf{r}_j - \mathbf{r}_i\|^3}
+\label{eq:fuerza_gravitatoria_directa}
+\end{equation}
 
 donde $G$ es la constante de gravitación universal. Este esquema requiere evaluar $N(N-1)$ interacciones, lo que implica complejidad computacional $O(N^2)$ por paso temporal. En simulaciones DEM orientadas a sistemas densos con $N \geq 10^5$ partículas y pasos temporales del orden de $10^{-4}$ s, el costo gravitatorio se convierte en el componente dominante del tiempo de ejecución.
 
@@ -148,15 +149,17 @@ Las partículas se consideran rígidas y pueden experimentar traslación y, even
 
 La dinámica de cada partícula está gobernada por la segunda ley de Newton:
 
-\[
+\begin{equation}
 m_i \mathbf{a}_i = \mathbf{F}_i
-\]
+\label{eq:segunda_ley_newton}
+\end{equation}
 
 donde $\mathbf{F}_i$ representa la suma de todas las fuerzas que actúan sobre la partícula $i$:
 
-\[
+\begin{equation}
 \mathbf{F}_i = \sum_{j \in \mathcal{C}_i} \mathbf{F}_{ij}^{\text{contacto}} + \mathbf{F}_i^{\text{externas}}
-\]
+\label{eq:fuerza_total_dem}
+\end{equation}
 
 Aquí, $\mathcal{C}_i$ denota el conjunto de partículas en contacto con la partícula $i$. En implementaciones clásicas del DEM, las fuerzas externas incluyen gravedad impuesta externamente y otras perturbaciones, pero no consideran interacciones gravitatorias entre partículas del sistema.
 
@@ -164,15 +167,17 @@ Aquí, $\mathcal{C}_i$ denota el conjunto de partículas en contacto con la part
 
 Cuando dos partículas $i$ y $j$ se superponen geométricamente, es decir, cuando
 
-\[
-\|\mathbf{x}_i - \mathbf{x}_j\| < r_i + r_j,
-\]
+\begin{equation}
+\|\mathbf{x}_i - \mathbf{x}_j\| < r_i + r_j
+\label{eq:condicion_contacto}
+\end{equation}
 
 se genera una fuerza de contacto que usualmente se descompone en una componente normal y una tangencial. En modelos simplificados se adopta una fuerza normal elástica lineal proporcional a la superposición:
 
-\[
+\begin{equation}
 \mathbf{F}_{ij}^{\text{normal}} = k_n \delta_{ij} \mathbf{n}_{ij}
-\]
+\label{eq:fuerza_normal_elastica}
+\end{equation}
 
 donde:
 
@@ -208,9 +213,10 @@ Sin embargo, cuando se desea incorporar fuerzas de largo alcance, como la intera
 
 La interacción gravitatoria es una fuerza de largo alcance que actúa entre todas las masas del sistema. En el contexto clásico newtoniano, la fuerza gravitatoria ejercida por una partícula $j$ sobre una partícula $i$ se expresa como:
 
-\[
+\begin{equation}
 \mathbf{F}_{ij} = - G \frac{m_i m_j}{\|\mathbf{x}_i - \mathbf{x}_j\|^3} (\mathbf{x}_i - \mathbf{x}_j)
-\]
+\label{eq:fuerza_gravitatoria_par}
+\end{equation}
 
 donde:
 
@@ -222,9 +228,10 @@ donde:
 
 En un sistema compuesto por $N$ partículas, la fuerza total sobre la partícula $i$ es:
 
-\[
+\begin{equation}
 \mathbf{F}_i = \sum_{\substack{j=1 \\ j \neq i}}^{N} \mathbf{F}_{ij}
-\]
+\label{eq:fuerza_total_gravitatoria}
+\end{equation}
 
 El cálculo directo de estas interacciones requiere evaluar $N(N-1)$ términos, lo que conduce a una complejidad computacional cuadrática $O(N^2)$.
 
@@ -232,15 +239,17 @@ El cálculo directo de estas interacciones requiere evaluar $N(N-1)$ términos, 
 
 Una formulación alternativa consiste en calcular el potencial gravitatorio escalar $V(\mathbf{r})$ generado por el conjunto de partículas en un punto arbitrario del espacio $\mathbf{r}$. Dicho potencial se define como:
 
-\[
+\begin{equation}
 V(\mathbf{r}) = - \sum_{i=1}^{N} \frac{G m_i}{\|\mathbf{r} - \mathbf{x}_i\|}
-\]
+\label{eq:potencial_gravitatorio}
+\end{equation}
 
 El potencial es una magnitud escalar que permite obtener la fuerza gravitatoria como el gradiente negativo:
 
-\[
+\begin{equation}
 \mathbf{F}(\mathbf{r}) = - \nabla V(\mathbf{r})
-\]
+\label{eq:fuerza_gradiente_potencial}
+\end{equation}
 
 En el contexto de este trabajo, el potencial se evalúa sobre una malla tridimensional regular que discretiza el volumen de interés.
 
@@ -256,9 +265,10 @@ donde $l = 1, \dots, L_x$, $m = 1, \dots, L_y$ y $n = 1, \dots, L_z$.
 
 El potencial en cada nodo de la grilla se calcula como:
 
-\[
+\begin{equation}
 V_{lmn} = - \sum_{i=1}^{N} \frac{G m_i}{\|\mathbf{r}_{lmn} - \mathbf{x}_i\|}
-\]
+\label{eq:potencial_grilla}
+\end{equation}
 
 Este procedimiento debe repetirse para todos los nodos de la malla, lo que implica un costo total proporcional a:
 
@@ -272,9 +282,10 @@ donde $N_{\text{nodos}} = L_x L_y L_z$.
 
 Una vez evaluado el potencial en la malla, la fuerza gravitatoria sobre cada partícula puede obtenerse interpolando el campo de potencial en su posición y calculando el gradiente correspondiente. Formalmente:
 
-\[
+\begin{equation}
 \mathbf{F}_i = - m_i \nabla V(\mathbf{x}_i)
-\]
+\label{eq:fuerza_interpolada}
+\end{equation}
 
 Dado que las posiciones de las partículas no coinciden en general con los nodos de la malla, se requiere una técnica de interpolación espacial para estimar el valor del potencial y sus derivadas en posiciones arbitrarias dentro del dominio.
 
@@ -380,16 +391,18 @@ Sea $T(N)$ el tiempo de ejecución al utilizar $N$ recursos de cómputo (por eje
 
 \paragraph{Speedup}
 El speedup se define como la razón entre el tiempo en un recurso y el tiempo en $N$ recursos:
-\[
+\begin{equation}
 S(N) = \frac{T(1)}{T(N)}.
-\]
+\label{eq:speedup}
+\end{equation}
 Valores de $S(N)$ cercanos a $N$ indican un aprovechamiento eficiente de los recursos adicionales, mientras que desviaciones importantes reflejan sobrecostos de coordinación, desbalance o fracciones no paralelizables.
 
 \paragraph{Eficiencia paralela}
 La eficiencia paralela normaliza el speedup respecto a la cantidad de recursos utilizados:
-\[
+\begin{equation}
 E(N) = \frac{S(N)}{N} = \frac{T(1)}{N \cdot T(N)}.
-\]
+\label{eq:eficiencia}
+\end{equation}
 El valor de $E(N)$ pertenece al intervalo $(0,1]$, donde valores cercanos a 1 corresponden a un comportamiento próximo al ideal.
 
 \paragraph{Escalabilidad}
@@ -1361,7 +1374,14 @@ Además también analizamos la dependencia de los tiempos de ejecución con el n
     \includegraphics[scale=0.3]{images/algoritmo_paralelo_executiontime_vs_nrpparticulas.PNG}
 	\label{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}
 \end{figure}
-Las curvas se pueden ajustar a una función polinomial, que corresponde a un valor casi constante del tiempo de ejecución normalizado con respecto al número de partículas, como se observa en la figura siguiente para un número dado de hilos y más de $2 \times 10^5$ partículas. Teniendo en cuenta que la dependencia con el número de hilos (n) se puede ajustar a una función de ley potencial inversa y el número de partículas (p) con una funciona polinomial lineal, se puede ajustar el tiempo de ejecución con $t = a + b.p.n^-c$ usado coeficientes $a = 13.65, b=1.049 x 10^-3 y c = 0.8682$.
+Las curvas se pueden ajustar a una función polinomial, que corresponde a un valor casi constante del tiempo de ejecución normalizado con respecto al número de partículas, como se observa en la figura siguiente para un número dado de hilos y más de $2 \times 10^5$ partículas. Teniendo en cuenta que la dependencia con el número de hilos (n) se puede ajustar a una función de ley potencial inversa y el número de partículas (p) con una funciona polinomial lineal, se puede ajustar el tiempo de ejecución con 
+
+\begin{equation}
+t = a + b.p.n^{-c}
+\label{eq:modelo_tiempo}
+\end{equation}
+
+usado coeficientes $a = 13.65, b=1.049 x 10^-3 y c = 0.8682$.
 
 \begin{figure}
 	\centering
