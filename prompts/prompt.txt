@@ -1,8 +1,6 @@
-Continuemos con "XXX":
+Continuemos con el capitulo 5 - Diseño y arquitectura.
 
 Informe original: Computación de alto desempeño para el estudio de medios granulares.pdf y High Performance Computing of Self-gravity for SSSB.pdf. Quiero que los analises y los tomes en cuenta, estas son las unicas fuente de verdad en cuanto a contenido.
-
-En caso de que consideres necesarias aclaraciones, hazme cualquier pregunta antes de generar contenido no final. 
 
 En caso de que consideres necesarias aclaraciones, hazme cualquier pregunta antes de generar contenido no final. No quiero un contenido borrador que luego haya que mejorar al responder las preguntas. 
 
@@ -11,9 +9,12 @@ Quiero que te tomes el tiempo necesario para realizar un excelente trabajo. Opti
 Quiero que analises cuidadosamente los archivos adjuntos e instrucciones para realizar un excelente trabajo. Quiero que valides que tenes acceso a todos los PDFs necesarios.
 
 No quiero que inventes nada, ni hagas suposiciones de nada. 
-
+Endurecer el tono hacia un estilo más cercano al observado en los artículos de Sergio (formal, estricto, sin ambiguedades o verborragia, orientado a formulación formal del problema).
+No quiero usar terminos vagos (como: "algunas personas indican", "ciertas evidencias dicen", etc) sin referencia bibliografica. 
 
 Informes de otros desarrollos posteriores el informe actual (no podemos utilizar informacion de estos papers): 
 - Nesmachnow2016_Chapter_AParallelMultithreadingAlgorit.pdf 
 - performance-improvements-parallel.pdf
 
+Está a cotinuación de este mensaje el main.tex. 
+Primero quiero que pensemos la estructura del capitulo 5.
