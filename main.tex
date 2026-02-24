@@ -80,11 +80,10 @@ La evaluación experimental se realizó sobre sistemas de hasta $1.0\times10^{6}
 
 El desarrollo fue integrado al paquete de simulación numérica ESyS-Particle y sirvió como base para trabajos posteriores de investigación y publicaciones científicas.
 
-\vfill
+% \vfill
 
 % Indice
 \tableofcontents
-\newpage
 
 \chapter*{Prefacio}
 \addcontentsline{toc}{chapter}{Prefacio}
@@ -162,32 +161,6 @@ donde $\mathbf{F}_i$ representa la suma de todas las fuerzas que actúan sobre l
 \end{equation}
 
 Aquí, $\mathcal{C}_i$ denota el conjunto de partículas en contacto con la partícula $i$. En implementaciones clásicas del DEM, las fuerzas externas incluyen gravedad impuesta externamente y otras perturbaciones, pero no consideran interacciones gravitatorias entre partículas del sistema.
-
-\subsection*{Modelo de contacto}
-
-Cuando dos partículas $i$ y $j$ se superponen geométricamente, es decir, cuando
-
-\begin{equation}
-\|\mathbf{x}_i - \mathbf{x}_j\| < r_i + r_j
-\label{eq:condicion_contacto}
-\end{equation}
-
-se genera una fuerza de contacto que usualmente se descompone en una componente normal y una tangencial. En modelos simplificados se adopta una fuerza normal elástica lineal proporcional a la superposición:
-
-\begin{equation}
-\mathbf{F}_{ij}^{\text{normal}} = k_n \delta_{ij} \mathbf{n}_{ij}
-\label{eq:fuerza_normal_elastica}
-\end{equation}
-
-donde:
-
-\begin{itemize}
-    \item $k_n$ es la constante de rigidez normal,
-    \item $\delta_{ij}$ es la superposición entre partículas,
-    \item $\mathbf{n}_{ij}$ es el versor normal unitario.
-\end{itemize}
-
-Dependiendo del nivel de fidelidad requerido, pueden incorporarse términos disipativos y fuerzas tangenciales friccionales.
 
 \subsection*{Integración temporal}
 
