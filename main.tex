@@ -48,6 +48,10 @@
 \providecommand{\alert}[1]{\textbf{#1}}
 
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\newcommand{\red}[1]{\textcolor{red}{#1}} 
+\usepackage{todonotes}
+
 \title{Computación de alto desempeño para el estudio de medios granulares}
 \author{Daniel Frascarelli}
 \date{}
@@ -88,8 +92,9 @@ El desarrollo fue integrado al paquete de simulación numérica ESyS-Particle y 
 
 \chapter*{Prefacio}
 \addcontentsline{toc}{chapter}{Prefacio}
+\red{Una tesis o informe no lleva prefacio. Las aclaraciones sobre las actividades y publicaciones las puedes incluir al final de la sección de introducción, antes de presentar la estructura del documento}
 
-Este trabajo se desarrolló en el marco de actividades de investigación y desarrollo vinculadas al estudio numérico de aglomerados auto-gravitantes en cuerpos menores del Sistema Solar (Small Solar System Bodies, SSSB). Durante su ejecución se obtuvieron hitos académicos y de difusión asociados al proyecto.
+Este trabajo se desarrolló en el marco de actividades de investigación y desarrollo vinculadas al estudio numérico de aglomerados auto-gravitantes en cuerpos menores del Sistema Solar (Small Solar System Bodies, SSSB) \red{sacar sigla, no se usa más que una vez}. Durante su ejecución se obtuvieron hitos académicos y de difusión asociados al proyecto.
 
 En 2012 se obtuvo una beca de Iniciación a la Investigación subvencionada por la ANII. En la edición 2013 de \textit{Ingeniería Demuestra}, el proyecto recibió el primer premio en la categoría \textit{Baja Interpretación Intuitiva} \cite{1}. En agosto de 2014 se participó en el congreso SBD2014 con la presentación \textit{Computing of Self-gravity for Small Solar System Bodies} \cite{2}. Posteriormente, en setiembre de 2014 se publicó el artículo \textit{High-Performance Computing of Self-Gravity for Small Solar System Bodies} \cite{3}, y en abril de 2016 se publicó \textit{A parallel multithreading algorithm for self-gravity calculation on agglomerates} \cite{4}.
 
@@ -111,11 +116,14 @@ La incorporación explícita de la interacción gravitatoria entre todas las par
 m_j \frac{\mathbf{r}_j - \mathbf{r}_i}{\|\mathbf{r}_j - \mathbf{r}_i\|^3},
 \]
 
+\red{Tienes incorrectamente incluidas las ecuaciones en toda la tesis. Las ecuaciones son objetos independientes de las frases, no pueden aparecer sueltas en medio de frases cortadas, deben tener su número que las identifica y deben referirse en el texto (por su número identificador)}
+
+\red{las frases no pueden estar cortadas} 
 donde $G$ es la constante de gravitación universal. Este esquema requiere evaluar $N(N-1)$ interacciones, lo que implica complejidad computacional $O(N^2)$ por paso temporal. En simulaciones DEM orientadas a sistemas densos con $N \geq 10^5$ partículas y pasos temporales del orden de $10^{-4}$ s, el costo gravitatorio se convierte en el componente dominante del tiempo de ejecución.
 
 El problema abordado en este trabajo se formula de la siguiente manera: dado un sistema discreto de $N$ partículas que modela un aglomerado granular denso, calcular el campo gravitatorio interno reduciendo el costo computacional respecto al esquema cuadrático directo, preservando la precisión local necesaria para garantizar estabilidad numérica en la integración temporal.
 
-Para ello se adopta una estrategia basada en discretización espacial mediante una grilla tridimensional regular y estática superpuesta al dominio ocupado por las partículas. Cada celda de la grilla actúa como unidad de agregación de masa. Sobre esta estructura se aplica un esquema de aproximación jerárquica utilizando el Mass Approximation Distance Algorithm (MADA), que permite reemplazar conjuntos de partículas suficientemente alejadas por una masa equivalente concentrada en su centro de masa. Las interacciones locales se calculan de forma exacta, mientras que las contribuciones lejanas se aproximan mediante agregación.
+Para \red{es incorrecto usaar sujeto omitido entre párrafos} ello se adopta \red{tiempo verbal: pasado (sse presenta algo que ya se hizo), corregir en los siguientes párrafos} una estrategia basada en discretización espacial mediante una grilla tridimensional regular y estática superpuesta al dominio ocupado por las partículas. Cada celda de la grilla actúa como unidad de agregación de masa. Sobre esta estructura se aplica un esquema de aproximación jerárquica utilizando el Mass Approximation Distance Algorithm (MADA), que permite reemplazar conjuntos de partículas suficientemente alejadas por una masa equivalente concentrada en su centro de masa. Las interacciones locales se calculan de forma exacta, mientras que las contribuciones lejanas se aproximan mediante agregación.
 
 El algoritmo resultante se implementa mediante paralelización en memoria compartida, utilizando descomposición espacial del dominio para distribuir el cómputo entre múltiples hilos de ejecución. La formulación se orienta específicamente a sistemas densos, donde la discretización regular permite estructurar el cálculo de forma determinista.
 
@@ -126,14 +134,17 @@ El documento se organiza de la siguiente manera. En el Capítulo 2 se presenta e
 % Capitulo 2
 \chapter{Marco teórico}
 
+\red{incluir acápite}
+
 \section{Método de Elementos Discretos}
 
-El Método de Elementos Discretos (Discrete Element Method, DEM) es una técnica numérica utilizada para modelar sistemas compuestos por un conjunto finito de partículas que interactúan entre sí mediante fuerzas de contacto. A diferencia de los métodos continuos, el DEM representa explícitamente cada partícula como una entidad individual, permitiendo capturar comportamientos emergentes a partir de interacciones microscópicas.
+El Método de Elementos Discretos (Discrete Element Method, DEM) \red{la sigla ya fue definida, corregir} es una técnica numérica utilizada para modelar sistemas compuestos por un conjunto finito de partículas que interactúan entre sí mediante fuerzas de contacto. A diferencia de los métodos continuos, \red{el}\todo{un} DEM representa explícitamente cada partícula como una entidad individual, permitiendo capturar comportamientos emergentes a partir de interacciones microscópicas.
 
+\red{las subsecciones deben estar numeradas}
 \subsection*{Representación del sistema}
 
 Sea un sistema compuesto por $N$ partículas discretas. Cada partícula $i$ se caracteriza por:
-
+\red{no corresponde una lista de items, redactar en la frase}
 \begin{itemize}
     \item Masa $m_i$
     \item Radio $r_i$
@@ -147,7 +158,7 @@ Las partículas se consideran rígidas y pueden experimentar traslación y, even
 \subsection*{Ecuaciones de movimiento}
 
 La dinámica de cada partícula está gobernada por la segunda ley de Newton:
-
+\red{corregir la fórmula, no puede estar separada de la frase}
 \[
 m_i \mathbf{a}_i = \mathbf{F}_i
 \]
@@ -158,17 +169,18 @@ donde $\mathbf{F}_i$ representa la suma de todas las fuerzas que actúan sobre l
 \mathbf{F}_i = \sum_{j \in \mathcal{C}_i} \mathbf{F}_{ij}^{\text{contacto}} + \mathbf{F}_i^{\text{externas}}
 \]
 
-Aquí, $\mathcal{C}_i$ denota el conjunto de partículas en contacto con la partícula $i$. En implementaciones clásicas del DEM, las fuerzas externas incluyen gravedad impuesta externamente y otras perturbaciones, pero no consideran interacciones gravitatorias entre partículas del sistema.
+\red{Aquí}\todo{incorrecto, se debe referir a la ecuación}, $\mathcal{C}_i$ denota el conjunto de partículas en contacto con la partícula $i$. En implementaciones clásicas \red{del}\todo{no te refieres bien a DEM, revisa en todo el capítulo, aquí corresponde de DEM} DEM, las fuerzas externas incluyen gravedad impuesta externamente y otras perturbaciones, pero no consideran interacciones gravitatorias entre partículas del sistema.
 
 \subsection*{Modelo de contacto}
 
 Cuando dos partículas $i$ y $j$ se superponen geométricamente, es decir, cuando
-
+\red{ídem previo}
 \[
 \|\mathbf{x}_i - \mathbf{x}_j\| < r_i + r_j,
 \]
 
 se genera una fuerza de contacto que usualmente se descompone en una componente normal y una tangencial. En modelos simplificados se adopta una fuerza normal elástica lineal proporcional a la superposición:
+\red{ídem previo}
 
 \[
 \mathbf{F}_{ij}^{\text{normal}} = k_n \delta_{ij} \mathbf{n}_{ij}
@@ -196,7 +208,7 @@ El proceso de simulación consiste en la integración explícita de las ecuacion
     \item Actualización de velocidades y posiciones.
 \end{enumerate}
 
-El costo computacional dominante en DEM clásico proviene de la detección de contactos. Para reducirlo, se emplean estructuras auxiliares como listas de vecinos (Verlet lists), que restringen el cálculo a partículas próximas.
+El costo computacional dominante en DEM clásico proviene de la detección de contactos. Para reducirlo, se emplean estructuras auxiliares como listas de vecinos (\todo{sacar mayúscula}Verlet lists), que restringen el cálculo a partículas próximas.
 
 \subsection*{Limitaciones del DEM clásico}
 
