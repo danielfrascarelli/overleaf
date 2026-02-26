@@ -78,9 +78,9 @@
 
 Este documento presenta el proyecto de grado ``Computación de alto desempeño para el estudio de medios granulares'', desarrollado en el Centro de Cálculo del Instituto de Computación, Facultad de Ingeniería, Universidad de la República.
 
-El trabajo aborda el problema del cálculo del potencial gravitatorio generado por un sistema discreto de partículas sobre una grilla tridimensional, operación que presenta alta complejidad computacional debido al número de interacciones involucradas. Se propone una implementación paralela del algoritmo de cálculo, utilizando técnicas de programación paralela orientadas a reducir el tiempo de ejecución manteniendo la precisión numérica del modelo físico.
+El trabajo aborda el problema del cálculo del potencial gravitatorio generado por un sistema discreto de partículas sobre una grilla tridimensional, operación cuya complejidad computacional es cuadrática respecto al número de partículas, debido al número de interacciones involucradas. Se propone una implementación paralela del algoritmo de cálculo, utilizando técnicas de programación paralela orientadas a reducir el tiempo de ejecución manteniendo el error relativo dentro de los límites experimentales reportados en el Capítulo 6.
 
-La evaluación experimental se realizó sobre sistemas de hasta $1.0\times10^{6}$ partículas, analizando métricas de speedup y eficiencia paralela bajo distintas configuraciones de ejecución. Los resultados obtenidos muestran un comportamiento cercano al escalamiento lineal en el rango experimental considerado, evidenciando la efectividad de la estrategia de paralelización implementada.
+La evaluación experimental se realizó sobre sistemas de hasta $1.0\times10^{6}$ partículas, analizando métricas de speedup y eficiencia paralela bajo distintas configuraciones de ejecución. Los resultados obtenidos muestran un speedup proporcional al número de hilos en el rango experimental considerado, lo cual confirma la escalabilidad del esquema implementado.
 
 El desarrollo fue integrado al paquete de simulación numérica ESyS-Particle y sirvió como base para trabajos posteriores de investigación y publicaciones científicas.
 
@@ -88,16 +88,6 @@ El desarrollo fue integrado al paquete de simulación numérica ESyS-Particle y 
 
 % Indice
 \tableofcontents
-
-\chapter*{Prefacio}
-\addcontentsline{toc}{chapter}{Prefacio}
-\red{Una tesis o informe no lleva prefacio. Las aclaraciones sobre las actividades y publicaciones las puedes incluir al final de la sección de introducción, antes de presentar la estructura del documento}
-
-Este trabajo se desarrolló en el marco de actividades de investigación y desarrollo vinculadas al estudio numérico de aglomerados auto-gravitantes en cuerpos menores del Sistema Solar (Small Solar System Bodies, SSSB) \red{sacar sigla, no se usa más que una vez}. Durante su ejecución se obtuvieron hitos académicos y de difusión asociados al proyecto.
-
-En 2012 se obtuvo una beca de Iniciación a la Investigación subvencionada por la ANII. En la edición 2013 de \textit{Ingeniería Demuestra}, el proyecto recibió el primer premio en la categoría \textit{Baja Interpretación Intuitiva} \cite{1}. En agosto de 2014 se participó en el congreso SBD2014 con la presentación \textit{Computing of Self-gravity for Small Solar System Bodies} \cite{2}. Posteriormente, en setiembre de 2014 se publicó el artículo \textit{High-Performance Computing of Self-Gravity for Small Solar System Bodies} \cite{3}, y en abril de 2016 se publicó \textit{A parallel multithreading algorithm for self-gravity calculation on agglomerates} \cite{4}.
-
-Asimismo, el código desarrollado fue integrado al paquete de simulación numérica ESyS-Particle, basado en el Método de Elementos Discretos (DEM), con el objetivo de incorporar el cálculo de auto-gravedad dentro de un entorno de simulación física consolidado. Esta integración permitió ejecutar simulaciones dinámicas completas y generar salidas compatibles con herramientas de visualización científica. La representación gráfica de los resultados constituye un complemento al análisis numérico, facilitando la interpretación del comportamiento dinámico de los aglomerados y la validación cualitativa de los fenómenos modelados.
 
 % Capitulo 1
 \chapter{Introducción}
@@ -108,7 +98,7 @@ La caracterización de numerosos asteroides como aglomerados granulares auto-gra
 
 Desde el punto de vista del modelado numérico, los medios granulares se representan mediante el Método de Elementos Discretos (Discrete Element Method, DEM). En este enfoque, el sistema se modela como un conjunto de $N$ partículas que interactúan a través de fuerzas de contacto, y la evolución temporal se obtiene mediante la integración explícita de las ecuaciones de movimiento. La dinámica macroscópica emerge de la acumulación de interacciones microscópicas locales.
 
-La incorporación explícita de la interacción gravitatoria entre todas las partículas introduce un costo computacional significativo. Sea un sistema discreto compuesto por $N$ partículas con masas $m_i$ y posiciones $\mathbf{r}_i$. El cálculo directo de la fuerza gravitatoria sobre la partícula $i$ se expresa como
+La incorporación explícita de la interacción gravitatoria entre todas las partículas introduce un costo computacional cuadrático en el número de partículas. Sea un sistema discreto compuesto por $N$ partículas con masas $m_i$ y posiciones $\mathbf{r}_i$. El cálculo directo de la fuerza gravitatoria sobre la partícula $i$ se expresa como
 
 \begin{equation}
 \mathbf{F}_i = G m_i \sum_{\substack{j=1 \\ j \neq i}}^{N} 
@@ -123,11 +113,17 @@ donde $G$ es la constante de gravitación universal. Este esquema requiere evalu
 
 El problema abordado en este trabajo se formula de la siguiente manera: dado un sistema discreto de $N$ partículas que modela un aglomerado granular denso, calcular el campo gravitatorio interno reduciendo el costo computacional respecto al esquema cuadrático directo, preservando la precisión local necesaria para garantizar estabilidad numérica en la integración temporal.
 
-Para \red{es incorrecto usaar sujeto omitido entre párrafos} ello se adopta \red{tiempo verbal: pasado (sse presenta algo que ya se hizo), corregir en los siguientes párrafos} una estrategia basada en discretización espacial mediante una grilla tridimensional regular y estática superpuesta al dominio ocupado por las partículas. Cada celda de la grilla actúa como unidad de agregación de masa. Sobre esta estructura se aplica un esquema de aproximación jerárquica utilizando el Mass Approximation Distance Algorithm (MADA), que permite reemplazar conjuntos de partículas suficientemente alejadas por una masa equivalente concentrada en su centro de masa. Las interacciones locales se calculan de forma exacta, mientras que las contribuciones lejanas se aproximan mediante agregación.
+Para \red{es incorrecto usaar sujeto omitido entre párrafos} ello se adopta \red{tiempo verbal: pasado (sse presenta algo que ya se hizo), corregir en los siguientes párrafos} una estrategia basada en discretización espacial mediante una grilla tridimensional regular y estática superpuesta al dominio ocupado por las partículas. Cada celda de la grilla actúa como unidad de agregación de masa. Sobre esta estructura se aplica un esquema de aproximación jerárquica utilizando el Mass Approximation Distance Algorithm (MADA), que permite reemplazar conjuntos de partículas alejadas (según el criterio geométrico definido en la Sección\~\ref\{sec:modelo\_autogravedad\}) por una masa equivalente concentrada en su centro de masa. Las interacciones locales se calculan de forma exacta, mientras que las contribuciones lejanas se aproximan mediante agregación.
 
 El algoritmo resultante se implementa mediante paralelización en memoria compartida, utilizando descomposición espacial del dominio para distribuir el cómputo entre múltiples hilos de ejecución. La formulación se orienta específicamente a sistemas densos, donde la discretización regular permite estructurar el cálculo de forma determinista.
 
 El objetivo general del trabajo consiste en diseñar, implementar y evaluar un algoritmo paralelo para el cálculo eficiente de la auto-gravedad en aglomerados de partículas modelados mediante DEM, reduciendo el costo computacional respecto al esquema directo $O(N^2)$ mediante discretización regular y aproximación jerárquica por centros de masa.
+
+Este trabajo se desarrolló en el marco de actividades de investigación y desarrollo vinculadas al estudio numérico de aglomerados auto-gravitantes en cuerpos menores del Sistema Solar. Durante su ejecución se obtuvieron hitos académicos y de difusión asociados al proyecto.
+
+En 2012 se obtuvo una beca de Iniciación a la Investigación subvencionada por la ANII. En la edición 2013 de \textit{Ingeniería Demuestra}, el proyecto recibió el primer premio en la categoría \textit{Baja Interpretación Intuitiva} \cite{1}. En agosto de 2014 se participó en el congreso SBD2014 con la presentación \textit{Computing of Self-gravity for Small Solar System Bodies} \cite{2}. Posteriormente, en setiembre de 2014 se publicó el artículo \textit{High-Performance Computing of Self-Gravity for Small Solar System Bodies} \cite{3}, y en abril de 2016 se publicó \textit{A parallel multithreading algorithm for self-gravity calculation on agglomerates} \cite{4}.
+
+Asimismo, el código desarrollado fue integrado al paquete de simulación numérica ESyS-Particle, basado en DEM, con el objetivo de incorporar el cálculo de auto-gravedad dentro de un entorno de simulación física consolidado. Esta integración permitió ejecutar simulaciones dinámicas completas y generar salidas compatibles con herramientas de visualización científica. La representación gráfica de los resultados constituye un complemento al análisis numérico, facilitando la interpretación del comportamiento dinámico de los aglomerados y la validación cualitativa de los fenómenos modelados.
 
 El documento se organiza de la siguiente manera. En el Capítulo 2 se presenta el marco teórico. En el Capítulo 3 se describen los antecedentes relevantes. En el Capítulo 4 se formaliza el problema físico-computacional y se delimitan los objetivos específicos. El Capítulo 5 detalla el diseño y la arquitectura de la solución propuesta. En el Capítulo 6 se reporta el análisis experimental. Finalmente, el Capítulo 7 expone las conclusiones y líneas de trabajo futuro.
 
@@ -138,7 +134,7 @@ El documento se organiza de la siguiente manera. En el Capítulo 2 se presenta e
 
 \section{Método de Elementos Discretos}
 
-El Método de Elementos Discretos (Discrete Element Method, DEM) \red{la sigla ya fue definida, corregir} es una técnica numérica utilizada para modelar sistemas compuestos por un conjunto finito de partículas que interactúan entre sí mediante fuerzas de contacto. A diferencia de los métodos continuos, \red{el}\todo{un} DEM representa explícitamente cada partícula como una entidad individual, permitiendo capturar comportamientos emergentes a partir de interacciones microscópicas.
+Un DEM es una técnica numérica utilizada para modelar sistemas compuestos por un conjunto finito de partículas que interactúan entre sí mediante fuerzas de contacto. A diferencia de los métodos continuos, un DEM representa explícitamente cada partícula como una entidad individual, permitiendo capturar comportamientos emergentes a partir de interacciones microscópicas.
 
 \red{las subsecciones deben estar numeradas}
 \subsection*{Representación del sistema}
@@ -173,7 +169,7 @@ donde $\mathbf{F}_i$ representa la suma de todas las fuerzas que actúan sobre l
 \label{eq:fuerza_total_dem}
 \end{equation}
 
-\red{Aquí}\todo{incorrecto, se debe referir a la ecuación}, $\mathcal{C}_i$ denota el conjunto de partículas en contacto con la partícula $i$. En implementaciones clásicas \red{del}\todo{no te refieres bien a DEM, revisa en todo el capítulo, aquí corresponde de DEM} DEM, las fuerzas externas incluyen gravedad impuesta externamente y otras perturbaciones, pero no consideran interacciones gravitatorias entre partículas del sistema.
+\red{Aquí}\todo{incorrecto, se debe referir a la ecuación}, $\mathcal{C}_i$ denota el conjunto de partículas en contacto con la partícula $i$. En implementaciones clásicas de DEM, las fuerzas externas incluyen gravedad impuesta externamente y otras perturbaciones, pero no consideran interacciones gravitatorias entre partículas del sistema.
 
 \subsection*{Integración temporal}
 
@@ -187,11 +183,11 @@ El proceso de simulación consiste en la integración explícita de las ecuacion
     \item Actualización de velocidades y posiciones.
 \end{enumerate}
 
-El costo computacional dominante en DEM clásico proviene de la detección de contactos. Para reducirlo, se emplean estructuras auxiliares como listas de vecinos (\todo{sacar mayúscula}Verlet lists), que restringen el cálculo a partículas próximas.
+El costo computacional dominante en DEM clásico proviene de la detección de contactos. Para reducirlo, se emplean estructuras auxiliares como listas de vecinos (verlet lists), que restringen el cálculo a partículas próximas.
 
-\subsection*{Limitaciones del DEM clásico}
+\subsection*{Limitaciones de DEM clásico}
 
-Una característica fundamental del DEM es que las fuerzas de contacto son de corto alcance. Por lo tanto, el costo computacional puede mantenerse aproximadamente lineal respecto al número de partículas cuando se utilizan estructuras de vecindad eficientes.
+Una característica fundamental de DEM es que las fuerzas de contacto son de corto alcance. Por lo tanto, el costo computacional puede mantenerse aproximadamente lineal respecto al número de partículas cuando se utilizan estructuras de vecindad eficientes.
 
 Sin embargo, cuando se desea incorporar fuerzas de largo alcance, como la interacción gravitatoria entre todas las partículas del sistema, el costo computacional se incrementa significativamente. El cálculo directo de interacciones gravitatorias requiere evaluar todas las parejas de partículas, lo que implica una complejidad $O(N^2)$. Esta limitación motiva la incorporación de técnicas de aproximación y paralelización que permitan abordar sistemas de gran escala, tal como se desarrolla en las secciones siguientes.
 
@@ -413,13 +409,13 @@ donde los pesos $\alpha_i(\mathbf{x})$ dependen de la ubicación de $\mathbf{x}$
 
 \subsection*{Métodos locales y globales}
 
-Los métodos de interpolación pueden clasificarse, en términos generales, en:
+Los métodos de interpolación pueden clasificarse en:
 \begin{itemize}
     \item \emph{Métodos globales:} utilizan todos los puntos de referencia en cada estimación.
     \item \emph{Métodos locales:} utilizan únicamente un subconjunto de puntos cercanos a $\mathbf{x}$.
 \end{itemize}
 
-En la práctica, los métodos locales resultan atractivos por su menor costo computacional, especialmente en tres dimensiones, siempre que se disponga de un mecanismo eficiente para identificar el conjunto de vecinos relevantes.
+En la práctica, los métodos locales presentan menor costo computacional, especialmente en tres dimensiones, siempre que se disponga de un mecanismo eficiente para identificar el conjunto de vecinos relevantes.
 
 \subsection*{Técnicas consideradas}
 
@@ -449,7 +445,7 @@ V(\mathbf{x}) = \frac{\sum_{i\in\mathcal{N}(\mathbf{x})} w_i(\mathbf{x})\, V_i}{
 donde $\mathcal{N}(\mathbf{x})$ es el conjunto de nodos considerados (por ejemplo, los más cercanos) y $w_i(\mathbf{x})$ es una función de ponderación que depende de la distancia entre $\mathbf{x}$ y $\mathbf{p}_i$. Este esquema general permite definir múltiples variantes a partir de la elección de $w_i(\mathbf{x})$.
 
 \paragraph{Kriging}
-Kriging es una técnica geoestadística de estimación que determina pesos a partir de un modelo de variograma, bajo la premisa de que existe correlación espacial entre las muestras. En contraste con métodos deterministas basados únicamente en distancia, Kriging incorpora un modelo explícito de variabilidad espacial y puede producir estimaciones con propiedades estadísticas deseables. La precisión del estimador depende, entre otros factores, de la distribución espacial de las muestras y del ajuste del variograma.
+Kriging es una técnica geoestadística de estimación que determina pesos a partir de un modelo de variograma, bajo la premisa de que existe correlación espacial entre las muestras. En contraste con métodos deterministas basados únicamente en distancia, Kriging incorpora un modelo explícito de variabilidad espacial y produce estimadores insesgados bajo supuestos de estacionariedad y modelo de variograma adecuado. La precisión del estimador depende, entre otros factores, de la distribución espacial de las muestras y del ajuste del variograma.
 
 \paragraph{Ponderación de distancia inversa (IDW)}
 IDW es un método determinista que asigna pesos inversamente proporcionales a la distancia entre $\mathbf{x}$ y los puntos de referencia. Utilizando el esquema de promedio ponderado, los pesos se definen como:
@@ -468,11 +464,11 @@ El parámetro $p$ controla el grado de influencia de los nodos cercanos: valores
 
 Cuando la magnitud de los datos generados por una simulación numérica es considerable, el análisis individual de resultados resulta impracticable. En este contexto, las herramientas de simulación y visualización permiten representar el comportamiento del sistema de manera estructurada y facilitar la interpretación física de los resultados.
 
-En este trabajo se utiliza el paquete de simulación numérica \textit{ESyS-Particle}, una herramienta basada en el Método de Elementos Discretos (DEM) diseñada para la simulación de sistemas granulares a gran escala. La elección de esta herramienta se fundamenta en su capacidad de ejecución paralela y en su arquitectura extensible, adecuada para integrar el cálculo de auto-gravedad desarrollado en esta tesis.
+En este trabajo se utiliza el paquete de simulación numérica \textit{ESyS-Particle}, una herramienta basada en DEM diseñada para la simulación de sistemas granulares a gran escala. La elección de esta herramienta se fundamenta en su capacidad de ejecución paralela y en su arquitectura extensible, adecuada para integrar el cálculo de auto-gravedad desarrollado en esta tesis.
 
 \subsection*{Descripción general}
 
-ESyS-Particle es un software para modelado numérico basado en partículas, implementado en C++ con una interfaz de control en Python. El motor de simulación se basa en el DEM y permite modelar interacciones partícula-partícula y partícula-pared bajo distintos modelos de contacto.
+ESyS-Particle es un software para modelado numérico basado en partículas, implementado en C++ con una interfaz de control en Python. El motor de simulación se basa en DEM y permite modelar interacciones partícula-partícula y partícula-pared bajo distintos modelos de contacto.
 
 Entre las características relevantes para este trabajo se destacan:
 
@@ -504,11 +500,11 @@ El proceso de simulación en ESyS-Particle se organiza en pasos discretos que in
     \item Escritura de datos de salida.
 \end{enumerate}
 
-En el DEM clásico, las interacciones entre partículas son de corto alcance. ESyS-Particle optimiza este cálculo mediante listas de vecinos que se actualizan únicamente cuando el desplazamiento de partículas supera una distancia umbral (distancia de Verlet).
+En DEM clásico, las interacciones entre partículas son de corto alcance. ESyS-Particle optimiza este cálculo mediante listas de vecinos que se actualizan únicamente cuando el desplazamiento de partículas supera una distancia umbral (distancia de Verlet).
 
 \subsection*{Integración del cálculo de auto-gravedad}
 
-El desarrollo realizado en esta tesis extiende el esquema estándar del DEM incorporando el cálculo de fuerzas gravitatorias de largo alcance. Dado que la arquitectura de ESyS-Particle se basa en descomposición espacial y comunicación mediante MPI, el algoritmo de auto-gravedad desarrollado se adapta a dicho esquema de paralelización.
+El desarrollo realizado en esta tesis extiende el esquema estándar de DEM incorporando el cálculo de fuerzas gravitatorias de largo alcance. Dado que la arquitectura de ESyS-Particle se basa en descomposición espacial y comunicación mediante MPI, el algoritmo de auto-gravedad desarrollado se adapta a dicho esquema de paralelización.
 
 La integración permite que el cálculo gravitatorio se ejecute en conjunto con el motor DEM, manteniendo compatibilidad con la estructura de dominio distribuido y el modelo de ejecución paralela del paquete. De esta manera, se posibilita la simulación de aglomerados autogravitantes dentro de una infraestructura DEM paralela, combinando interacciones de corto y largo alcance en un mismo entorno de simulación.
 
@@ -553,7 +549,7 @@ donde $G$ es la constante de gravitación universal.
 
 El cálculo directo de esta expresión implica evaluar todas las interacciones par a par entre partículas, lo que conduce a una complejidad computacional $O(N^2)$. Cuando el número de partículas es del orden de $10^5$ o superior —como en los escenarios considerados en este trabajo— el costo computacional del cálculo directo resulta prohibitivo.
 
-En simulaciones basadas en el Método de Elementos Discretos (DEM), este cálculo debe realizarse de manera repetida a lo largo del tiempo de simulación, utilizando pasos temporales del orden de $10^{-4}$ s. En consecuencia, el costo total de la simulación se incrementa significativamente si no se adoptan estrategias que reduzcan el tiempo de cómputo por paso.
+En simulaciones basadas en DEM, este cálculo debe realizarse de manera repetida a lo largo del tiempo de simulación, utilizando pasos temporales del orden de $10^{-4}$ s. En consecuencia, el costo total de la simulación se incrementa significativamente si no se adoptan estrategias que reduzcan el tiempo de cómputo por paso.
 
 Desde el punto de vista computacional, el problema puede formularse como:
 
@@ -708,7 +704,7 @@ Si bien el foco central del desarrollo es el cálculo eficiente de la auto-grave
 
 El problema puede formularse como la generación de un aglomerado tridimensional de partículas esféricas, con una distribución de tamaños dada, de modo que las partículas queden ubicadas dentro de un contenedor sin solapamientos y minimizando el volumen libre no ocupado. Cuando se consideran partículas perfectamente esféricas y de igual tamaño, existen estrategias relativamente directas para obtener configuraciones densas; sin embargo, al incorporar radios heterogéneos la dificultad aumenta significativamente, dado que la elección de posiciones factibles para nuevas partículas queda fuertemente restringida por la geometría ya construida. Bajo esta perspectiva, el problema puede interpretarse como uno de optimización: maximizar la fracción volumétrica ocupada (equivalentemente, minimizar el espacio libre) sujeto a restricciones geométricas de no intersección.
 
-En prácticas habituales para preparar medios granulares iniciales, se generan radios de partículas según una distribución de probabilidad predefinida, se ordenan en forma descendente y luego se realiza un llenado aleatorio del contenedor comenzando por las partículas mayores y continuando con las menores, verificando en cada inserción que no exista superposición con partículas ya colocadas. Esta estrategia produce configuraciones razonables desde el punto de vista operativo, pero la compactación alcanzable resulta acotada, por lo que se requiere un mecanismo específico para obtener configuraciones iniciales más densas respetando las restricciones geométricas.
+En prácticas habituales para preparar medios granulares iniciales, se generan radios de partículas según una distribución de probabilidad predefinida, se ordenan en forma descendente y luego se realiza un llenado aleatorio del contenedor comenzando por las partículas mayores y continuando con las menores, verificando en cada inserción que no exista superposición con partículas ya colocadas. Esta estrategia produce configuraciones geométricamente factibles desde el punto de vista operativo, pero la compactación alcanzable resulta acotada, por lo que se requiere un mecanismo específico para obtener configuraciones iniciales más densas respetando las restricciones geométricas.
 
 Dado que la calidad de las condiciones iniciales influye en la representatividad de los experimentos numéricos, se plantea la necesidad de un mecanismo específico para generar aglomerados con mayor compactación respetando la distribución de tamaños establecida. No obstante, debe subrayarse que este componente se aborda como un problema relacionado: su propósito es habilitar configuraciones iniciales de mejor calidad para el escenario de simulación, mientras que el aporte central del trabajo se concentra en el modelo y la computación de la auto-gravedad.
 
@@ -1038,7 +1034,7 @@ Siguiendo ese razonamiento para todas las partículas dentro de la grilla, se pu
 
 
 \paragraph{Celdas virtuales}
-La aplicación de MADA incurre en errores significativos en aquellos escenarios en los que el punto origen $O$ se encuentra próximo al centro de masa.
+La aplicación de MADA incurre en errores (relativos superiores al umbral experimental definido en el Capítulo 6) en aquellos escenarios en los que el punto origen $O$ se encuentra próximo al centro de masa.
 Una mejora de esta estrategia surge al subdividir las celdas de la grilla de forma dinámica dependiendo de la distancia al punto origen $O$.
 Para explicar este concepto resulta útil definir el siguiente vocabulario: se denomina celda de primer nivel a las celdas tal como se presentaron hasta ahora (en la figura ~\ref{fig:mada_subdivision} tales celdas estan representadas con borde negro), se denomina celdas de segundo nivel a las celdas con una división interna con lo que definen 4 nuevas sub-celdas (en la figura ~\ref{fig:mada_subdivision} dichas celdas estan representadas con borde azul) finalmente se denomina  celdas de tercer nivel a las celdas con dos divisiones con lo que definen 16 nuevas sub-celdas (en la figura ~\ref{fig:mada_subdivision} son las celdas de borde rojo). 
 
