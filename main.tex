@@ -405,7 +405,7 @@ La interpolación es un proceso mediante el cual se estima el valor de una magni
 
 \subsection*{Formulación general}
 
-Sea un conjunto de puntos de referencia $\{(\mathbf{p}_i, V_i)\}_{i=1}^{M}$, donde $\mathbf{p}_i=(x_i,y_i,z_i)\in\mathbb{R}^3$ es la posición del $i$-ésimo nodo y $V_i$ es el valor conocido del potencial en dicho nodo. Dado un punto $\mathbf{x}\in\mathbb{R}^3$ (no necesariamente coincidente con un nodo), se desea estimar el potencial $V(\mathbf{x})$.
+Sea un conjunto de puntos de referencia $\{(\mathbf{p}_i, V_i)\}_{i=1}^{M}$, donde $\mathbf{p}_i\in\mathbb{R}^3$ es la posición del $i$-ésimo nodo (con coordenadas $x_i$, $y_i$, $z_i$) y $V_i$ es el valor conocido del potencial en dicho nodo. Dado un punto $\mathbf{x}\in\mathbb{R}^3$ (no necesariamente coincidente con un nodo), se desea estimar el potencial $V(\mathbf{x})$.
 
 Una formulación estándar para variables continuas consiste en un promedio ponderado, definido en la ecuación~(\ref{eq:interpolacion_promedio_ponderado_general}).
 \begin{equation}
