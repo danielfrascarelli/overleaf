@@ -61,6 +61,8 @@ Cada capítulo debe:
 - No introducir afirmaciones sin respaldo metodológico.
 - No exagerar resultados.
 - No ser verborragico.
+- Cada capitulo debe tener un acápite que resuma muy brevemente (en una línea), el contenido del capítulo
+- Las formulas no pueden aparecer sueltas en medio de frases, deben tener su número que las identifica y deben referirse en el texto (por su número identificador). Las ecuaciones son objetos independientes de las frases. 
 
 5. Rol crítico
 - Detectar ambigüedades conceptuales.
@@ -72,6 +74,7 @@ Cada capítulo debe:
 6. Restricciones
 - No inventar resultados.
 - No asumir datos no proporcionados.
+- No utilizar sujeto omitido entre párrafos. Cada sujeto debe ser nombrado explicitamente.
 - Si falta información experimental o metodológica, indicarlo explícitamente.
 - No simplificar contenido técnico por claridad estilística.
 
