@@ -92,6 +92,8 @@ El desarrollo fue integrado al paquete de simulación numérica ESyS-Particle y 
 % Capitulo 1
 \chapter{Introducción}
 
+Este capítulo contextualiza el problema, define la motivación del trabajo y establece la organización general del informe.
+
 Los cuerpos que orbitan el Sol se clasifican en planetas, planetas enanos y cuerpos menores del Sistema Solar (Small Solar System Bodies, SSSB) \cite{13}. Los planetas y planetas enanos poseen masa suficiente para que la autogravedad supere la resistencia estructural del material y alcancen equilibrio hidrostático. En contraste, los SSSB no satisfacen esta condición y presentan configuraciones internas heterogéneas \cite{14}. Estas configuraciones incluyen estructuras monolíticas, cuerpos fracturados y aglomerados granulares cohesionados gravitacionalmente.
 
 La caracterización de numerosos asteroides como aglomerados granulares auto-gravitantes se sustenta en resultados observacionales y misiones espaciales específicas. Se han reportado períodos de rotación próximos al límite de estabilidad rotacional \cite{16}, procesos de fragmentación asociados a efectos de marea al atravesar el límite de Roche \cite{17,18} y valores de densidad aparente compatibles con estructuras porosas \cite{14}. Las observaciones directas del asteroide 25143 Itokawa realizadas por la misión Hayabusa \cite{15} confirman una morfología consistente con una estructura de tipo ``rubble pile''.
@@ -130,7 +132,7 @@ El documento se organiza de la siguiente manera. En el Capítulo 2 se presenta e
 % Capitulo 2
 \chapter{Marco teórico}
 
-\red{incluir acápite}
+Este capítulo presenta los fundamentos teóricos y computacionales utilizados en el desarrollo.
 
 \section{Método de Elementos Discretos}
 
@@ -524,6 +526,8 @@ Esta integración constituye un componente central del trabajo, ya que permite v
 % Capitulo 3
 \chapter{Antecedentes}
 
+Este capítulo revisa antecedentes relevantes y delimita su relación con la propuesta desarrollada.
+
 En este capítulo se presentan los antecedentes del proyecto.
 
 El cálculo exacto del potencial gravitatorio generado por $n$ partículas implica $O(n^2)$ operaciones, lo cual resulta computacionalmente costoso cuando $n$ es del orden de millones. En consecuencia, se han desarrollado diversas estrategias para reducir el número de operaciones requeridas:.
@@ -543,6 +547,8 @@ Para tratar de manera eficiente los aglomerados auto-gravitantes formados por un
 % Capitulo 4
 \chapter{Formulación del problema y objetivos del desarrollo}
 \label{chap:desafio_planteado}
+
+Este capítulo formaliza el problema, define el modelo adoptado y establece los objetivos del desarrollo.
 
 \section{Definición del problema físico-computacional}
 
@@ -724,6 +730,8 @@ Finalmente, al considerar instancias con un número muy grande de partículas, e
 
 % Capitulo 5
 \chapter{Diseño y arquitectura}
+
+Este capítulo describe el diseño de la solución y la arquitectura de implementación adoptada.
 
 En este capítulo se presenta el diseño y arquitectura de la solución.
 
@@ -1219,6 +1227,8 @@ Estos cambios se ven con mayor profundidad en la siguiente sección.
 % Capitulo 6
 \chapter{Análisis experimental} \label{ch:ch5}
 
+Este capítulo presenta la metodología experimental y los resultados de desempeño y precisión del desarrollo.
+
 \section{Algoritmo evolutivo}
 Una vez diseñado e implementado el algoritmo evolutivo, se realizó el análisis experimental para determinar los nivel de compactación.
 
@@ -1412,6 +1422,8 @@ Al utilizar 16 hilos se logra para el escenario más grande un speedup de factor
 
 % Capitulo 7
 \chapter{Conclusiones, mejoras y trabajos a futuro}
+
+Este capítulo sintetiza conclusiones, documenta mejoras incorporadas y plantea trabajos futuros.
 
 \section{Conclusiones}
 En el contexto de este proyecto se diseñó e implementó un algoritmo de memoria compartida totalmente paralelo para calcular de forma eficiente el potencial gravitacional de un aglomerado de granos. El método propuesto es adecuado para los cálculos de autogravedad en los sistemas de partículas densamente empaquetados.
