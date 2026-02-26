@@ -139,7 +139,7 @@ Este capítulo presenta los fundamentos teóricos y computacionales utilizados e
 Un DEM es una técnica numérica utilizada para modelar sistemas compuestos por un conjunto finito de partículas que interactúan entre sí mediante fuerzas de contacto. A diferencia de los métodos continuos, un DEM representa explícitamente cada partícula como una entidad individual, permitiendo capturar comportamientos emergentes a partir de interacciones microscópicas.
 
 \red{las subsecciones deben estar numeradas}
-\subsection*{Representación del sistema}
+\subsection{Representación del sistema}
 
 Sea un sistema compuesto por $N$ partículas discretas. Cada partícula $i$ se caracteriza por:
 \red{no corresponde una lista de items, redactar en la frase}
@@ -153,7 +153,7 @@ Sea un sistema compuesto por $N$ partículas discretas. Cada partícula $i$ se c
 
 Las partículas se consideran rígidas y pueden experimentar traslación y, eventualmente, rotación dependiendo del modelo adoptado. En el contexto de este trabajo se consideran partículas esféricas, lo que simplifica la detección de contactos y el cálculo de fuerzas normales.
 
-\subsection*{Ecuaciones de movimiento}
+\subsection{Ecuaciones de movimiento}
 
 La dinámica de cada partícula está gobernada por la segunda ley de Newton, expresada en la ecuación~(\ref{eq:segunda_ley_newton}).
 
@@ -173,7 +173,7 @@ En la ecuación~(\ref{eq:segunda_ley_newton}), $\mathbf{F}_i$ representa la suma
 
 En la ecuación~(\ref{eq:fuerza_total_dem}) $\mathcal{C}_i$ denota el conjunto de partículas en contacto con la partícula $i$. En implementaciones clásicas de DEM, las fuerzas externas incluyen gravedad impuesta externamente y otras perturbaciones, pero no consideran interacciones gravitatorias entre partículas del sistema.
 
-\subsection*{Integración temporal}
+\subsection{Integración temporal}
 
 El proceso de simulación consiste en la integración explícita de las ecuaciones de movimiento en pasos discretos de tiempo $\Delta t$. En cada paso se realizan las siguientes operaciones:
 
@@ -187,7 +187,7 @@ El proceso de simulación consiste en la integración explícita de las ecuacion
 
 El costo computacional dominante en DEM clásico proviene de la detección de contactos. Para reducirlo, se emplean estructuras auxiliares como listas de vecinos (verlet lists), que restringen el cálculo a partículas próximas.
 
-\subsection*{Limitaciones de DEM clásico}
+\subsection{Limitaciones de DEM clásico}
 
 Una característica fundamental de DEM es que las fuerzas de contacto son de corto alcance. Por lo tanto, el costo computacional puede mantenerse aproximadamente lineal respecto al número de partículas cuando se utilizan estructuras de vecindad eficientes.
 
@@ -219,7 +219,7 @@ En un sistema compuesto por $N$ partículas, la fuerza total sobre la partícula
 
 El cálculo directo de estas interacciones requiere evaluar $N(N-1)$ términos, lo que conduce a una complejidad computacional cuadrática $O(N^2)$.
 
-\subsection*{Potencial gravitatorio}
+\subsection{Potencial gravitatorio}
 
 Una formulación alternativa consiste en calcular el potencial gravitatorio escalar $V(\mathbf{r})$ generado por el conjunto de partículas en un punto arbitrario del espacio $\mathbf{r}$. Dicho potencial se define como se indica en la ecuación~(\ref{eq:potencial_gravitatorio}).
 
@@ -237,7 +237,7 @@ El potencial es una magnitud escalar que permite obtener la fuerza gravitatoria 
 
 En el contexto de este trabajo, el potencial se evalúa sobre una malla tridimensional regular que discretiza el volumen de interés.
 
-\subsection*{Cálculo del potencial en una malla tridimensional}
+\subsection{Cálculo del potencial en una malla tridimensional}
 
 Sea un volumen cúbico discretizado mediante una grilla regular de dimensiones $L_x \times L_y \times L_z$, cuyos nodos se denotan por la ecuación~(\ref{eq:nodos_grilla}).
 
@@ -264,7 +264,7 @@ Este procedimiento debe repetirse para todos los nodos de la malla, lo que impli
 
 donde $N_{\text{nodos}} = L_x L_y L_z$.
 
-\subsection*{Obtención de fuerzas sobre partículas}
+\subsection{Obtención de fuerzas sobre partículas}
 
 Una vez evaluado el potencial en la malla, la fuerza gravitatoria sobre cada partícula puede obtenerse interpolando el campo de potencial en su posición y calculando el gradiente correspondiente. Formalmente, la fuerza gravitatoria sobre la partícula $i$ se obtiene según la ecuación~(\ref{eq:fuerza_interpolada}).
 
@@ -275,7 +275,7 @@ Una vez evaluado el potencial en la malla, la fuerza gravitatoria sobre cada par
 
 Dado que las posiciones de las partículas no coinciden en general con los nodos de la malla, se requiere una técnica de interpolación espacial para estimar el valor del potencial y sus derivadas en posiciones arbitrarias dentro del dominio.
 
-\subsection*{Limitaciones computacionales}
+\subsection{Limitaciones computacionales}
 
 El cálculo directo del potencial, tanto sobre partículas como sobre nodos de una malla, presenta una complejidad elevada cuando el número de partículas es grande. Para sistemas del orden de millones de partículas, el costo computacional resulta prohibitivo si no se emplean técnicas de aproximación o paralelización.
 
@@ -290,7 +290,7 @@ En el marco de este trabajo se emplea un algoritmo evolutivo como técnica de op
 
 Los algoritmos evolutivos son métodos de optimización poblacional que operan sobre un conjunto de soluciones candidatas, denominadas individuos, las cuales evolucionan a lo largo de generaciones mediante mecanismos de selección guiados por una función de evaluación (fitness). Este enfoque resulta adecuado para problemas geométricos de alta dimensionalidad con restricciones no lineales, como es el caso de la compactación de partículas esféricas en tres dimensiones.
 
-\subsection*{Representación del individuo}
+\subsection{Representación del individuo}
 
 Sea un aglomerado compuesto por $N$ partículas esféricas. Cada partícula $i$ se caracteriza por su posición en el espacio tridimensional $\mathbf{x}_i = (x_i, y_i, z_i)$ y su radio $r_i$. La distribución de radios se genera previamente de acuerdo con una distribución especificada y permanece fija durante el proceso de optimización.
 
@@ -303,7 +303,7 @@ Un individuo del algoritmo evolutivo representa una configuración completa del 
 
 donde las posiciones $\{\mathbf{x}_i\}$ determinan la disposición espacial de todas las partículas dentro del dominio de trabajo.
 
-\subsection*{Función objetivo}
+\subsection{Función objetivo}
 
 El objetivo del proceso de compactación es maximizar la densidad volumétrica del aglomerado, reduciendo al mínimo el volumen vacío entre partículas. Formalmente, el problema puede expresarse como se indica en la ecuación~(\ref{eq:ae_objetivo_compactacion}).
 
@@ -314,7 +314,7 @@ El objetivo del proceso de compactación es maximizar la densidad volumétrica d
 
 donde $\rho(\mathcal{S})$ representa la fracción del volumen ocupado por las partículas respecto al volumen total del dominio considerado.
 
-\subsection*{Restricciones geométricas}
+\subsection{Restricciones geométricas}
 
 El problema de optimización está sujeto a la restricción de no solapamiento entre partículas. Para toda pareja de partículas $i \neq j$, debe cumplirse según la ecuación~(\ref{eq:ae_restriccion_no_solapamiento}).
 
@@ -327,7 +327,7 @@ donde $\|\cdot\|$ denota la norma euclídea en $\mathbb{R}^3$.
 
 Esta restricción garantiza que las partículas no se interpenetran geométricamente. Asimismo, la distribución de radios $\{r_i\}$ permanece constante durante el proceso evolutivo, preservando las características físicas del sistema.
 
-\subsection*{Esquema general del proceso evolutivo}
+\subsection{Esquema general del proceso evolutivo}
 
 El algoritmo evolutivo opera iterativamente sobre una población de configuraciones candidatas, evaluando la densidad asociada a cada individuo y seleccionando aquellas configuraciones que presentan mayor compactación. El proceso continúa hasta alcanzar un criterio de terminación predefinido, produciendo como resultado una configuración tridimensional densa y geométricamente consistente.
 
@@ -340,7 +340,7 @@ La computación paralela es un paradigma de cómputo en el cual múltiples opera
 
 En el contexto de este trabajo se utiliza una infraestructura de cómputo basada en un clúster, combinando paralelismo en memoria compartida (multihilo) y paralelismo en memoria distribuida (MPI), con el fin de aprovechar recursos de cómputo disponibles y facilitar la integración con ESyS-Particle.
 
-\subsection*{Modelos de paralelismo}
+\subsection{Modelos de paralelismo}
 
 Existen dos estrategias habituales para dividir un problema y explotar paralelismo:
 
@@ -352,27 +352,27 @@ Consiste en identificar etapas o funciones diferentes del algoritmo y ejecutarla
 
 En ambos casos, el rendimiento final depende de la proporción del trabajo efectivamente paralelizable, del costo de coordinación entre tareas (comunicación/sincronización) y del grado de balanceo del trabajo asignado.
 
-\subsection*{Memoria compartida y multihilo}
+\subsection{Memoria compartida y multihilo}
 
 En arquitecturas de memoria compartida, múltiples hilos de ejecución acceden al mismo espacio de direcciones, compartiendo estructuras de datos. Este modelo permite comunicación implícita mediante memoria, pero requiere mecanismos explícitos de sincronización para proteger regiones críticas y evitar condiciones de carrera.
 
 En este trabajo se utiliza paralelismo multihilo para explotar los múltiples núcleos disponibles dentro de un nodo de cómputo, distribuyendo el trabajo entre hilos y coordinando el acceso a datos compartidos cuando corresponde.
 
-\subsection*{Memoria distribuida y MPI}
+\subsection{Memoria distribuida y MPI}
 
 En arquitecturas de memoria distribuida, los recursos de cómputo se componen típicamente de múltiples nodos conectados por red, donde cada nodo posee su propia memoria principal. En este modelo, el intercambio de datos se realiza mediante pasaje de mensajes. Una interfaz estándar ampliamente utilizada para este propósito es Message Passing Interface (MPI).
 
 En el contexto de esta tesis, MPI se utiliza para adaptar el cálculo a la arquitectura de ejecución del paquete ESyS-Particle, el cual se basa en descomposición de dominio y comunicación entre procesos.
 
-\subsection*{Modelo híbrido}
+\subsection{Modelo híbrido}
 
 En infraestructuras actuales es frecuente disponer de nodos con múltiples núcleos (memoria compartida intra-nodo) conectados en un clúster (memoria distribuida inter-nodo). El modelo híbrido combina ambos niveles: paralelismo multihilo dentro de cada nodo y pasaje de mensajes entre nodos. Esta estrategia permite aprovechar la jerarquía del hardware, reduciendo comunicación a nivel de red y explotando paralelismo local cuando el patrón de acceso a datos lo permite.
 
-\subsection*{Infraestructura de ejecución}
+\subsection{Infraestructura de ejecución}
 
 Los experimentos del trabajo se ejecutan sobre el Cluster FING, una infraestructura de cómputo de alto desempeño de la Facultad de Ingeniería. Este tipo de infraestructura permite abordar problemas con altos requerimientos de cómputo mediante la agregación de recursos (nodos) conectados por red, habilitando ejecución paralela a través de modelos de memoria compartida y distribuida.
 
-\subsection*{Métricas de desempeño}
+\subsection{Métricas de desempeño}
 
 Luego de aplicar técnicas de programación paralela, resulta necesario cuantificar el desempeño obtenido y caracterizar la escalabilidad al incrementar los recursos de cómputo. En este trabajo se utilizan las siguientes métricas estándar:
 
@@ -405,7 +405,7 @@ Las métricas anteriores se emplean en el análisis experimental reportado en ca
 
 La interpolación es un proceso mediante el cual se estima el valor de una magnitud en un punto del espacio a partir de valores conocidos en un conjunto finito de puntos de referencia. En este trabajo se utiliza interpolación para refinar espacialmente el potencial gravitatorio calculado sobre una malla tridimensional: resulta computacionalmente más eficiente evaluar el potencial sobre una malla gruesa y, posteriormente, estimar sus valores sobre una malla más fina mediante un método de interpolación apropiado, que realizar el cálculo directo sobre una malla fina desde el inicio.
 
-\subsection*{Formulación general}
+\subsection{Formulación general}
 
 Sea un conjunto de puntos de referencia $\{(\mathbf{p}_i, V_i)\}_{i=1}^{M}$, donde $\mathbf{p}_i\in\mathbb{R}^3$ es la posición del $i$-ésimo nodo (con coordenadas $x_i$, $y_i$, $z_i$) y $V_i$ es el valor conocido del potencial en dicho nodo. Dado un punto $\mathbf{x}\in\mathbb{R}^3$ (no necesariamente coincidente con un nodo), se desea estimar el potencial $V(\mathbf{x})$.
 
@@ -416,7 +416,7 @@ Una formulación estándar para variables continuas consiste en un promedio pond
 \end{equation}
 En la ecuación~(\ref{eq:interpolacion_promedio_ponderado_general}), los pesos $\alpha_i(\mathbf{x})$ dependen de la ubicación de $\mathbf{x}$ respecto a los puntos de referencia. En general se busca que los puntos más cercanos tengan mayor influencia en el valor interpolado, asignando pesos decrecientes con la distancia.
 
-\subsection*{Métodos locales y globales}
+\subsection{Métodos locales y globales}
 
 Los métodos de interpolación pueden clasificarse en:
 \begin{itemize}
@@ -426,7 +426,7 @@ Los métodos de interpolación pueden clasificarse en:
 
 En la práctica, los métodos locales presentan menor costo computacional, especialmente en tres dimensiones, siempre que se disponga de un mecanismo eficiente para identificar el conjunto de vecinos relevantes.
 
-\subsection*{Técnicas consideradas}
+\subsection{Técnicas consideradas}
 
 Dado que inicialmente no se conocía el comportamiento relativo de distintas estrategias de interpolación en el contexto del potencial gravitatorio, se estudiaron y aplicaron las siguientes técnicas:
 
@@ -479,7 +479,7 @@ Cuando la magnitud de los datos generados por una simulación numérica es consi
 
 En este trabajo se utiliza el paquete de simulación numérica \textit{ESyS-Particle}, una herramienta basada en DEM diseñada para la simulación de sistemas granulares a gran escala. La elección de esta herramienta se fundamenta en su capacidad de ejecución paralela y en su arquitectura extensible, adecuada para integrar el cálculo de auto-gravedad desarrollado en esta tesis.
 
-\subsection*{Descripción general}
+\subsection{Descripción general}
 
 ESyS-Particle es un software para modelado numérico basado en partículas, implementado en C++ con una interfaz de control en Python. El motor de simulación se basa en DEM y permite modelar interacciones partícula-partícula y partícula-pared bajo distintos modelos de contacto.
 
@@ -493,7 +493,7 @@ Entre las características relevantes para este trabajo se destacan:
 	\item Mecanismos de salida compatibles con herramientas de visualización como VTK.
 \end{itemize}
 
-\subsection*{Arquitectura paralela}
+\subsection{Arquitectura paralela}
 
 ESyS-Particle implementa paralelismo mediante descomposición espacial del dominio. El dominio de simulación se subdivide en $N_w$ subdominios organizados tridimensionalmente. Cada subdominio es asignado a un proceso MPI independiente.
 
@@ -501,7 +501,7 @@ Para garantizar la correcta evaluación de interacciones entre partículas cerca
 
 Este esquema permite escalar el tamaño del problema distribuyendo el trabajo entre múltiples nodos de cómputo, siempre que el volumen del subdominio sea suficientemente grande respecto al tamaño del buffer, reduciendo así el impacto de la comunicación.
 
-\subsection*{Ciclo de simulación}
+\subsection{Ciclo de simulación}
 
 El proceso de simulación en ESyS-Particle se organiza en pasos discretos que incluyen:
 
@@ -515,7 +515,7 @@ El proceso de simulación en ESyS-Particle se organiza en pasos discretos que in
 
 En DEM clásico, las interacciones entre partículas son de corto alcance. ESyS-Particle optimiza este cálculo mediante listas de vecinos que se actualizan únicamente cuando el desplazamiento de partículas supera una distancia umbral (distancia de Verlet).
 
-\subsection*{Integración del cálculo de auto-gravedad}
+\subsection{Integración del cálculo de auto-gravedad}
 
 El desarrollo realizado en esta tesis extiende el esquema estándar de DEM incorporando el cálculo de fuerzas gravitatorias de largo alcance. Dado que la arquitectura de ESyS-Particle se basa en descomposición espacial y comunicación mediante MPI, el algoritmo de auto-gravedad desarrollado se adapta a dicho esquema de paralelización.
 
@@ -591,13 +591,13 @@ El cálculo directo del potencial (definido en el marco teórico) requiere evalu
 
 Con el objetivo de reducir la complejidad computacional manteniendo un nivel de precisión adecuado para simulaciones DEM con pasos temporales del orden de $10^{-4}$ s, se adopta un esquema basado en los siguientes principios:
 
-\subsection*{Grilla regular superpuesta}
+\subsection{Grilla regular superpuesta}
 
 Se construye una grilla tridimensional regular que se superpone al dominio ocupado por las partículas. La grilla define celdas cúbicas que actúan como unidades mínimas de procesamiento. El tamaño de la grilla puede configurarse dinámicamente en función de las características del sistema y de los recursos computacionales disponibles.
 
 Esta estructura es particularmente adecuada para estados densos, donde la distribución espacial de partículas es relativamente homogénea, a diferencia de los métodos basados en árboles dinámicos.
 
-\subsection*{Aproximación jerárquica mediante MADA}
+\subsection{Aproximación jerárquica mediante MADA}
 
 Para acelerar el cálculo del potencial gravitatorio, se utiliza el método Mass Approximation Distance Algorithm (MADA).
 
@@ -612,7 +612,7 @@ En términos operativos:
 
 La decisión de aplicar la aproximación o el cálculo exacto no se basa en un criterio adaptativo continuo, sino en una condición fija asociada a la estructura de la grilla y a la distancia relativa respecto al punto de evaluación.
 
-\subsection*{Subdivisión jerárquica multinivel}
+\subsection{Subdivisión jerárquica multinivel}
 
 Con el fin de mejorar la precisión en regiones próximas al punto de evaluación, el modelo incluye un esquema general de subdivisión multinivel de celdas. Las celdas cercanas pueden subdividirse en subceldas, permitiendo aplicar la aproximación en niveles más finos cuando la distancia lo requiere.
 
@@ -626,13 +626,13 @@ En la práctica:
 
 Este esquema permite equilibrar precisión y eficiencia computacional, evitando errores significativos en regiones donde el potencial varía rápidamente, y reduciendo drásticamente el número de interacciones evaluadas en regiones distantes.
 
-\subsection*{Complejidad y comportamiento computacional}
+\subsection{Complejidad y comportamiento computacional}
 
 El modelo completo —grilla regular más agrupamiento jerárquico mediante MADA— permite reducir el costo del cálculo respecto al método directo $O(N^2)$.
 
 Este comportamiento lo hace adecuado para simulaciones de sistemas con millones de partículas bajo un esquema DEM con actualización periódica del campo gravitatorio.
 
-\subsection*{Ámbito de aplicación}
+\subsection{Ámbito de aplicación}
 
 El modelo está específicamente orientado a aglomerados densos auto-gravitantes, como los pequeños cuerpos del Sistema Solar. No se plantea como un método general para configuraciones altamente dispersas, sino como una solución optimizada para sistemas donde la densidad espacial de partículas es elevada y relativamente uniforme.
 
@@ -643,27 +643,27 @@ El algoritmo desarrollado en esta tesis implementa este modelo dentro de un esqu
 
 El problema abordado en esta tesis presenta desafíos computacionales específicos derivados de (i) la escala del sistema a simular, (ii) la naturaleza de largo alcance de la interacción gravitatoria y (iii) la necesidad de integrar el cálculo de auto-gravedad en un esquema de simulación numérica orientado a medios granulares densos. A continuación se sintetizan los principales desafíos identificados.
 
-\subsection*{Costo del cálculo exacto y escala del sistema}
+\subsection{Costo del cálculo exacto y escala del sistema}
 
 El cálculo directo del potencial (o de la contribución gravitatoria) sobre todas las partículas requiere evaluar la interacción de cada partícula con el resto del sistema. Esto conduce a un costo cuadrático $O(N^2)$ por actualización del campo gravitatorio, lo cual resulta impracticable cuando $N$ es del orden de millones de partículas. La magnitud del problema no es únicamente el tamaño de $N$, sino la repetición del cálculo a lo largo de múltiples actualizaciones durante la simulación.
 
-\subsection*{Interacciones de largo alcance en medios granulares densos}
+\subsection{Interacciones de largo alcance en medios granulares densos}
 
 En simulaciones de medios granulares basadas en DEM, las interacciones mecánicas son de corto alcance (principalmente con vecinos cercanos), lo que habilita estrategias eficientes para reducir cómputo en colisiones y contactos. En contraste, la auto-gravedad es una interacción de largo alcance: todas las partículas contribuyen al potencial en cada punto del dominio. En estados densos (por ejemplo, aglomerados granulares auto-gravitantes en fase densa), la distribución espacial tiende a ser relativamente homogénea, y esto condiciona el diseño de estructuras de datos y estrategias de aproximación más adecuadas que las utilizadas en configuraciones altamente dispersas.
 
-\subsection*{Frecuencia de actualización e integración con la simulación}
+\subsection{Frecuencia de actualización e integración con la simulación}
 
 Para estudios dinámicos, el cálculo del campo gravitatorio debe integrarse con la evolución temporal del sistema. Esto introduce un compromiso entre precisión y costo: actualizar el campo gravitatorio con demasiada frecuencia puede dominar el tiempo total de ejecución; hacerlo con muy poca frecuencia puede degradar la fidelidad del modelo. En el enfoque adoptado, se plantea además la conveniencia de representar el potencial mediante una función suave de la posición y/o aplicar interpolación espacial, de modo de reutilizar el campo durante varios pasos de integración y amortiguar el costo del recálculo.
 
-\subsection*{Compromiso precisión--eficiencia en aproximaciones jerárquicas}
+\subsection{Compromiso precisión--eficiencia en aproximaciones jerárquicas}
 
 La incorporación de aproximaciones jerárquicas (como MADA) introduce un desafío central: controlar el error numérico sin perder el beneficio computacional. El agrupamiento de partículas distantes como una masa equivalente en el centro de masa permite reducir el número de contribuciones evaluadas, pero puede producir errores relevantes cuando la geometría local vuelve inadecuada la aproximación (por ejemplo, cuando el punto de evaluación está próximo a regiones con alta variación del potencial). En consecuencia, el modelo requiere reglas explícitas para decidir cuándo aproximar y cuándo calcular de forma exacta, y mecanismos generales para refinar el tratamiento en regiones cercanas.
 
-\subsection*{Discretización espacial mediante grilla: resolución, datos e interpolación}
+\subsection{Discretización espacial mediante grilla: resolución, datos e interpolación}
 
 El uso de una grilla tridimensional regular como estructura base aporta escalabilidad y es particularmente natural para sistemas densos, pero introduce parámetros críticos de discretización. Una grilla demasiado gruesa puede no capturar adecuadamente variaciones espaciales relevantes; una grilla demasiado fina incrementa el número de celdas, el volumen de datos calculados y el costo de sincronización y recorrido. Además, la grilla condiciona el costo de la interpolación y la representación final del campo gravitatorio, que puede requerir almacenar valores por celda y/o por vértice, con impacto directo en memoria y en E/S.
 
-\subsection*{Paralelismo en memoria compartida: balance de carga y sincronización}
+\subsection{Paralelismo en memoria compartida: balance de carga y sincronización}
 
 Dado el costo dominante del cálculo de auto-gravedad y de la interpolación, la paralelización es un requisito para alcanzar tiempos de ejecución razonables. Sin embargo, en un esquema de memoria compartida aparecen desafíos específicos:
 (i) balancear carga entre hilos cuando el costo por celda puede variar;
@@ -671,7 +671,7 @@ Dado el costo dominante del cálculo de auto-gravedad y de la interpolación, la
 (iii) reducir el overhead de sincronización asociado a la asignación de trabajo y a las barreras entre etapas.
 Estos aspectos obligan a definir estrategias de descomposición de dominio y políticas de asignación dinámica que eviten desbalances y colisiones (dos hilos intentando procesar la misma celda), sin introducir un costo de coordinación que anule el beneficio del paralelismo.
 
-\subsection*{Gestión de memoria y estructuras compartidas}
+\subsection{Gestión de memoria y estructuras compartidas}
 
 Para instancias grandes, los datos del sistema (partículas, grilla, información de celdas y estructuras auxiliares) pueden ser lo suficientemente voluminosos como para que la gestión de memoria se vuelva un factor limitante. Esto obliga a cuidar el diseño de las estructuras de datos, evitar duplicaciones (por ejemplo, reutilizando vértices compartidos cuando se almacenan coordenadas) y definir con precisión qué información se comparte para lectura/escritura entre hilos y cómo se controla su acceso. La eficiencia final depende tanto del número de operaciones aritméticas como del patrón de acceso a memoria y de la reducción de estructuras redundantes.
 
@@ -681,11 +681,11 @@ Para instancias grandes, los datos del sistema (partículas, grilla, informació
 
 A partir de la definición del problema físico-computacional y del modelo adoptado para aproximar la auto-gravedad en aglomerados densos, se establecen en esta sección los objetivos que guían el desarrollo del algoritmo y su implementación. El foco se coloca en el diseño de un procedimiento computacional eficiente y escalable, capaz de calcular el potencial gravitatorio para sistemas de gran tamaño, y de integrarse como componente reutilizable dentro de un flujo de simulación numérica.
 
-\subsection*{Objetivo general}
+\subsection{Objetivo general}
 
 Desarrollar e implementar un algoritmo de cálculo de auto-gravedad para aglomerados densos de partículas que reduzca el costo computacional respecto al enfoque directo, mediante una combinación de discretización espacial en grilla regular, aproximación jerárquica por centro de masa (MADA) y paralelismo en memoria compartida, permitiendo su uso en escenarios con un número elevado de partículas.
 
-\subsection*{Objetivos específicos}
+\subsection{Objetivos específicos}
 
 \begin{enumerate}
 	\item Definir una representación discreta del dominio mediante una grilla tridimensional regular superpuesta al conjunto de partículas, de forma que las celdas constituyan la unidad mínima de procesamiento para el cálculo del potencial gravitatorio.
