@@ -736,7 +736,7 @@ El algoritmo evolutivo diseñado considera a cada individuo como una caja de dim
 
 Cada partícula generada ha de contener la información de posición dentro de la caja y su radio correspondiente. Además, cada individuo debe contener la información de todas las partículas y su fitness asociado.
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
 	\includegraphics[scale=0.9]{images/representacion.png}
@@ -773,7 +773,7 @@ Se implementaron dos operadores de selección: selección por torneo y selecció
 \paragraph{Operador de cruzamiento}
 El operador de cruzamiento consiste en dividir la caja horizontalmente e intercambiar las secciones entre diferentes individuos, como se indica en la figura ~\ref{fig:rep_op_de_cruzamiento}.
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
 	\includegraphics[scale=0.9]{images/operador_de_cruzamiento.png}
@@ -783,7 +783,7 @@ El operador de cruzamiento consiste en dividir la caja horizontalmente e interca
 %La cantidad de secciones en la cual se divide la caja se pensó para no perder la variedad en el tamaño de las partículas. 
 Inicialmente se propuso un operador de cruzamiento que divide a cada individuo en cinco secciones, como se representa en la figura ~\ref{fig:rep_op_de_cruzamiento5}. Sin embargo realizar tantas divisiones sobre el individuo para cruzar las parejas de padres degrada el fitness, impidiendo al algoritmo evolutivo de convergir. Para evitar ello, se decidió dividir cada individuo en solo una sección horizontal, obteniendo dos partes (superior e inferior).
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
 	\includegraphics[scale=0.9]{images/operador_de_cruzamiento5.png}
@@ -864,7 +864,7 @@ Una vez que se conocen las posiciones de las partículas que componen el medio g
 %El procedimiento de cálculo es como sigue: para cada celda de la grilla se itera sobre las partículas contenidas en cada celda y se calcula la fuerza de gravedad inducida por cada una de ellas sobre el centro espacial de cada celda.
 Considérese una grilla en 2D resultante de dividir el dominio en 3 divisiones en el eje $X$ y en el eje $Y$, subdividiendo el espacio en 16 celdas tal como se muestra en la figura~\ref{fig:metodologia}. En la figura~\ref{fig:metodologia} las partículas se representan como puntos azules, el centro espacial $O$ de la celda con coordenadas $(x=1,y=2)$ y el centro de masa $CM$ de las partículas $p_1$ y $p_2$ contenidas en la celda $(x=2, y=3)$.
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
 	\includegraphics[scale=0.9]{images/metodologia.PNG}
@@ -887,7 +887,7 @@ Las secciones que requieren mayor poder de cómputo, y por consecuencia donde el
 % Tal como se puede intuir, las secciones que requieren mayor poder de cómputo (y por consecuencia donde el algoritmo gasta la mayor parte del tiempo) son las secciones donde la paralelicidad obtiene la mayor ganancia.\newline
 En el algoritmo paralelo existen dos secciones paralelas, en la primera se calcula la fuerza gravitatoria en cada celda de la grilla y en la segunda se realiza el cálculo de la interpolación. En la figura ~\ref{fig:paralelicidad} se muestran las distintas secciones:
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
 	\includegraphics[scale=0.55]{images/paralelicidad.PNG}
@@ -935,7 +935,7 @@ Los hilos son ordenados lexicográficamente desde $1$ a $n$, y todos los hilos e
 
 La figura ~\ref{fig:estrategia_asignacion_1} muestra la estrategia de interbloqueo lineal, donde cada color es usado para representar las celdas siendo asignadas a diferentes hilos (colores completos representan celdas ya procesadas, colores en degradé representan celdas siendo procesadas y celdas blancas son sin procesar):
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
 	\includegraphics[scale=0.7]{images/estrategia_asignacion_1.PNG}
@@ -954,7 +954,7 @@ Una vez ésta estrategia de recorrida lineal con un mismo comienzo estaba funcio
 En esta estrategia la mitad de los hilos empiezan desde el centro de la grilla, y la otra mitad de los hilos empiezan desde las celdas más alejadas del centro de la grilla. Cuando el algoritmo ejecuta, para cada celda a procesar cada hilo debe calcular el centro de masa de la celda. Este valor solo depende de las particulas contenidas en la celda y no cambia hasta que termina la ejecucion, por lo cual el valor es almacenado en memoria como dato derivado de la celda.
 Lo que se busca con esta estrategia, es reutilizar dichos valores de centro de masa por los distintos hilos en el transcurso de su procesamiento. Los hilos que ejecutan desde el centro hacia afuera calculan y almacenan ciertos valores que seran reutilizados por los hilos que ejecutan en sentido contrario, y viceversa. Las ideas básicas de esta estrategia se muestran en la figura ~\ref{fig:estrategia_asignacion_2}.
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
 	\includegraphics[scale=0.7]{images/estrategia_asignacion_2.PNG}
@@ -975,7 +975,7 @@ La poca complejidad algorítmica involucrada en el calculo del centro de masa en
 \subparagraph{Estrategia aislada lineal básica}
 Esta estrategia surge al considerar que los hilos no comienzan en la misma celda, sino que distribuidos de forma tal de minimizar las colisiones en el acceso a la memoria compartida. Esta estrategia se caracteriza por realizar una recorrida lineal de las cajas, tal como la primera estrategia descrita, pero asignando a cada hilo un comienzo distinto, no consecutivo y distribuido uniformemente. Es decir, si se considera el conjunto de celdas $c_i$ con $i$ desde $0$ a $n-1$ y el conjunto de hilos $h_i$ con $i$ desde $0$ a $h-1$, se divide dicho conjunto $n$ de celdas entre el conjunto $h$ de hilos disponibles, de tal forma que para cada hilo $h_i$, se le asigna como comienzo la celda $h_i*(n/h)$. De esta forma los hilos tienen el mismo porcentaje de dominio libre para procesar antes de toparse con una celda que ya fue calculada por otro hilo. En esta estrategia no se necesita manejar semáforos para cada celda, por lo que podría apreciarse una mejora en la performance. La estrategia se puede visualizar en la figura ~\ref{fig:estrategia_asignacion_3}.
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
 	\includegraphics[scale=0.7]{images/estrategia_asignacion_3.PNG}
@@ -995,7 +995,7 @@ Esta estrategia incorpora a la estrategia anterior la capacidad de ejecutar nuev
 
 La idea fundamental de esta estrategia es presentada en la figura ~\ref{fig:estrategia_asignacion_4}.
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
 	\includegraphics[scale=0.7]{images/estrategia_asignacion_4.PNG}
@@ -1020,7 +1020,7 @@ Considérese un conjunto de partículas con sus coordenadas correspondientes, y 
 
 %\Huge{\textcolor{red}{SEGUIR \newlinePROCESANDO \newlineIMAGENES\newlineA \newlinePARTIR\newlineDE\newlineACA\newline}}
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
 	\includegraphics[width=300px]{images/mada.PNG}
@@ -1050,7 +1050,7 @@ La aplicación de MADA incurre en errores (relativos superiores al umbral experi
 Una mejora de esta estrategia surge al subdividir las celdas de la grilla de forma dinámica dependiendo de la distancia al punto origen $O$.
 Para explicar este concepto resulta útil definir el siguiente vocabulario: se denomina celda de primer nivel a las celdas tal como se presentaron hasta ahora (en la figura ~\ref{fig:mada_subdivision} tales celdas estan representadas con borde negro), se denomina celdas de segundo nivel a las celdas con una división interna con lo que definen 4 nuevas sub-celdas (en la figura ~\ref{fig:mada_subdivision} dichas celdas estan representadas con borde azul) finalmente se denomina  celdas de tercer nivel a las celdas con dos divisiones con lo que definen 16 nuevas sub-celdas (en la figura ~\ref{fig:mada_subdivision} son las celdas de borde rojo).
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
 	% 	\includegraphics[width=300px]{images/mada.PNG}
@@ -1086,7 +1086,7 @@ El algorítmo desarrollado se basa en el modelo de memoria compartida, en el cua
 
 % En el diagrama ~\ref{fig:shared_memory} se representan los datos compartidos:
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
 	% \includegraphics[width=230px]{images/mada_celdas_virtuales.PNG}
