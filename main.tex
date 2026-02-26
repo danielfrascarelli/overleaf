@@ -98,7 +98,7 @@ La caracterización de numerosos asteroides como aglomerados granulares auto-gra
 
 Desde el punto de vista del modelado numérico, los medios granulares se representan mediante el Método de Elementos Discretos (Discrete Element Method, DEM). En este enfoque, el sistema se modela como un conjunto de $N$ partículas que interactúan a través de fuerzas de contacto, y la evolución temporal se obtiene mediante la integración explícita de las ecuaciones de movimiento. La dinámica macroscópica emerge de la acumulación de interacciones microscópicas locales.
 
-La incorporación explícita de la interacción gravitatoria entre todas las partículas introduce un costo computacional cuadrático en el número de partículas. Sea un sistema discreto compuesto por $N$ partículas con masas $m_i$ y posiciones $\mathbf{r}_i$. El cálculo directo de la fuerza gravitatoria sobre la partícula $i$ se expresa como
+La incorporación explícita de la interacción gravitatoria entre todas las partículas introduce un costo computacional cuadrático en el número de partículas. Sea un sistema discreto compuesto por $N$ partículas con masas $m_i$ y posiciones $\mathbf{r}_i$. El cálculo directo de la fuerza gravitatoria sobre la partícula $i$ se expresa como se indica en la ecuación~(\ref{eq:fuerza_gravitatoria_directa}).
 
 \begin{equation}
 \mathbf{F}_i = G m_i \sum_{\substack{j=1 \\ j \neq i}}^{N} 
@@ -153,7 +153,7 @@ Las partículas se consideran rígidas y pueden experimentar traslación y, even
 
 \subsection*{Ecuaciones de movimiento}
 
-La dinámica de cada partícula está gobernada por la segunda ley de Newton:
+La dinámica de cada partícula está gobernada por la segunda ley de Newton, expresada en la ecuación~(\ref{eq:segunda_ley_newton}).
 
 \red{corregir la fórmula, no puede estar separada de la frase}
 
@@ -162,14 +162,14 @@ m_i \mathbf{a}_i = \mathbf{F}_i
 \label{eq:segunda_ley_newton}
 \end{equation}
 
-donde $\mathbf{F}_i$ representa la suma de todas las fuerzas que actúan sobre la partícula $i$:
+En la ecuación~(\ref{eq:segunda_ley_newton}), $\mathbf{F}_i$ representa la suma de todas las fuerzas que actúan sobre la partícula $i$, definida en la ecuación~(\ref{eq:fuerza_total_dem}).
 
 \begin{equation}
 \mathbf{F}_i = \sum_{j \in \mathcal{C}_i} \mathbf{F}_{ij}^{\text{contacto}} + \mathbf{F}_i^{\text{externas}}
 \label{eq:fuerza_total_dem}
 \end{equation}
 
-\red{Aquí}\todo{incorrecto, se debe referir a la ecuación}, $\mathcal{C}_i$ denota el conjunto de partículas en contacto con la partícula $i$. En implementaciones clásicas de DEM, las fuerzas externas incluyen gravedad impuesta externamente y otras perturbaciones, pero no consideran interacciones gravitatorias entre partículas del sistema.
+En la ecuación~(\ref{eq:fuerza_total_dem}) $\mathcal{C}_i$ denota el conjunto de partículas en contacto con la partícula $i$. En implementaciones clásicas de DEM, las fuerzas externas incluyen gravedad impuesta externamente y otras perturbaciones, pero no consideran interacciones gravitatorias entre partículas del sistema.
 
 \subsection*{Integración temporal}
 
@@ -193,7 +193,7 @@ Sin embargo, cuando se desea incorporar fuerzas de largo alcance, como la intera
 
 \section{Auto-gravedad en sistemas discretos}
 
-La interacción gravitatoria es una fuerza de largo alcance que actúa entre todas las masas del sistema. En el contexto clásico newtoniano, la fuerza gravitatoria ejercida por una partícula $j$ sobre una partícula $i$ se expresa como:
+La interacción gravitatoria es una fuerza de largo alcance que actúa entre todas las masas del sistema. En el contexto clásico newtoniano, la fuerza gravitatoria ejercida por una partícula $j$ sobre una partícula $i$ se expresa como se indica en la ecuación~(\ref{eq:fuerza_gravitatoria_par}).
 
 \begin{equation}
 \mathbf{F}_{ij} = - G \frac{m_i m_j}{\|\mathbf{x}_i - \mathbf{x}_j\|^3} (\mathbf{x}_i - \mathbf{x}_j)
@@ -208,7 +208,7 @@ donde:
     \item $\mathbf{x}_i$ y $\mathbf{x}_j$ son sus posiciones.
 \end{itemize}
 
-En un sistema compuesto por $N$ partículas, la fuerza total sobre la partícula $i$ es:
+En un sistema compuesto por $N$ partículas, la fuerza total sobre la partícula $i$ es, según la ecuación~(\ref{eq:fuerza_total_gravitatoria}).
 
 \begin{equation}
 \mathbf{F}_i = \sum_{\substack{j=1 \\ j \neq i}}^{N} \mathbf{F}_{ij}
@@ -219,14 +219,14 @@ El cálculo directo de estas interacciones requiere evaluar $N(N-1)$ términos, 
 
 \subsection*{Potencial gravitatorio}
 
-Una formulación alternativa consiste en calcular el potencial gravitatorio escalar $V(\mathbf{r})$ generado por el conjunto de partículas en un punto arbitrario del espacio $\mathbf{r}$. Dicho potencial se define como:
+Una formulación alternativa consiste en calcular el potencial gravitatorio escalar $V(\mathbf{r})$ generado por el conjunto de partículas en un punto arbitrario del espacio $\mathbf{r}$. Dicho potencial se define como se indica en la ecuación~(\ref{eq:potencial_gravitatorio}).
 
 \begin{equation}
 V(\mathbf{r}) = - \sum_{i=1}^{N} \frac{G m_i}{\|\mathbf{r} - \mathbf{x}_i\|}
 \label{eq:potencial_gravitatorio}
 \end{equation}
 
-El potencial es una magnitud escalar que permite obtener la fuerza gravitatoria como el gradiente negativo:
+El potencial es una magnitud escalar que permite obtener la fuerza gravitatoria como el gradiente negativo, según la ecuación~(\ref{eq:fuerza_gradiente_potencial}).
 
 \begin{equation}
 \mathbf{F}(\mathbf{r}) = - \nabla V(\mathbf{r})
@@ -237,32 +237,34 @@ En el contexto de este trabajo, el potencial se evalúa sobre una malla tridimen
 
 \subsection*{Cálculo del potencial en una malla tridimensional}
 
-Sea un volumen cúbico discretizado mediante una grilla regular de dimensiones $L_x \times L_y \times L_z$, cuyos nodos se denotan por:
+Sea un volumen cúbico discretizado mediante una grilla regular de dimensiones $L_x \times L_y \times L_z$, cuyos nodos se denotan por la ecuación~(\ref{eq:nodos_grilla}).
 
-\[
+\begin{equation}
 \mathbf{r}_{lmn} = (x_l, y_m, z_n)
-\]
+\label{eq:nodos_grilla}
+\end{equation}
 
 donde $l = 1, \dots, L_x$, $m = 1, \dots, L_y$ y $n = 1, \dots, L_z$.
 
-El potencial en cada nodo de la grilla se calcula como:
+El potencial en cada nodo de la grilla se calcula como se indica en la ecuación~(\ref{eq:potencial_grilla}).
 
 \begin{equation}
 V_{lmn} = - \sum_{i=1}^{N} \frac{G m_i}{\|\mathbf{r}_{lmn} - \mathbf{x}_i\|}
 \label{eq:potencial_grilla}
 \end{equation}
 
-Este procedimiento debe repetirse para todos los nodos de la malla, lo que implica un costo total proporcional a:
+Este procedimiento debe repetirse para todos los nodos de la malla, lo que implica un costo total proporcional a la expresión indicada en la ecuación~(\ref{eq:complejidad_potencial_grilla}).
 
-\[
+\begin{equation}
 O(N \cdot N_{\text{nodos}})
-\]
+\label{eq:complejidad_potencial_grilla}
+\end{equation}
 
 donde $N_{\text{nodos}} = L_x L_y L_z$.
 
 \subsection*{Obtención de fuerzas sobre partículas}
 
-Una vez evaluado el potencial en la malla, la fuerza gravitatoria sobre cada partícula puede obtenerse interpolando el campo de potencial en su posición y calculando el gradiente correspondiente. Formalmente:
+Una vez evaluado el potencial en la malla, la fuerza gravitatoria sobre cada partícula puede obtenerse interpolando el campo de potencial en su posición y calculando el gradiente correspondiente. Formalmente, la fuerza gravitatoria sobre la partícula $i$ se obtiene según la ecuación~(\ref{eq:fuerza_interpolada}).
 
 \begin{equation}
 \mathbf{F}_i = - m_i \nabla V(\mathbf{x}_i)
@@ -289,31 +291,34 @@ Los algoritmos evolutivos son métodos de optimización poblacional que operan s
 
 Sea un aglomerado compuesto por $N$ partículas esféricas. Cada partícula $i$ se caracteriza por su posición en el espacio tridimensional $\mathbf{x}_i = (x_i, y_i, z_i)$ y su radio $r_i$. La distribución de radios se genera previamente de acuerdo con una distribución especificada y permanece fija durante el proceso de optimización.
 
-Un individuo del algoritmo evolutivo representa una configuración completa del sistema, es decir, el conjunto:
+Un individuo del algoritmo evolutivo representa una configuración completa del sistema, es decir, el conjunto definido en la ecuación~(\ref{eq:ae_conjunto_configuracion}).
 
-\[
+\begin{equation}
 \mathcal{S} = \{(\mathbf{x}_i, r_i)\}_{i=1}^{N}
-\]
+\label{eq:ae_conjunto_configuracion}
+\end{equation}
 
 donde las posiciones $\{\mathbf{x}_i\}$ determinan la disposición espacial de todas las partículas dentro del dominio de trabajo.
 
 \subsection*{Función objetivo}
 
-El objetivo del proceso de compactación es maximizar la densidad volumétrica del aglomerado, reduciendo al mínimo el volumen vacío entre partículas. Formalmente, el problema puede expresarse como:
+El objetivo del proceso de compactación es maximizar la densidad volumétrica del aglomerado, reduciendo al mínimo el volumen vacío entre partículas. Formalmente, el problema puede expresarse como se indica en la ecuación~(\ref{eq:ae_objetivo_compactacion}).
 
-\[
+\begin{equation}
 \max_{\{\mathbf{x}_i\}} \; \rho(\mathcal{S})
-\]
+\label{eq:ae_objetivo_compactacion}
+\end{equation}
 
 donde $\rho(\mathcal{S})$ representa la fracción del volumen ocupado por las partículas respecto al volumen total del dominio considerado.
 
 \subsection*{Restricciones geométricas}
 
-El problema de optimización está sujeto a la restricción de no solapamiento entre partículas. Para toda pareja de partículas $i \neq j$, debe cumplirse:
+El problema de optimización está sujeto a la restricción de no solapamiento entre partículas. Para toda pareja de partículas $i \neq j$, debe cumplirse según la ecuación~(\ref{eq:ae_restriccion_no_solapamiento}).
 
-\[
+\begin{equation}
 \| \mathbf{x}_i - \mathbf{x}_j \| \ge r_i + r_j
-\]
+\label{eq:ae_restriccion_no_solapamiento}
+\end{equation}
 
 donde $\|\cdot\|$ denota la norma euclídea en $\mathbb{R}^3$.
 
@@ -372,7 +377,7 @@ Luego de aplicar técnicas de programación paralela, resulta necesario cuantifi
 Sea $T(N)$ el tiempo de ejecución al utilizar $N$ recursos de cómputo (por ejemplo, hilos o procesos, según el experimento). Sea $T(1)$ el tiempo utilizando un único recurso bajo las mismas condiciones experimentales.
 
 \paragraph{Speedup}
-El speedup se define como la razón entre el tiempo en un recurso y el tiempo en $N$ recursos:
+El speedup se define como la razón entre el tiempo en un recurso y el tiempo en $N$ recursos, según la ecuación~(\ref{eq:speedup}).
 \begin{equation}
 S(N) = \frac{T(1)}{T(N)}.
 \label{eq:speedup}
@@ -380,7 +385,7 @@ S(N) = \frac{T(1)}{T(N)}.
 Valores de $S(N)$ cercanos a $N$ indican un aprovechamiento eficiente de los recursos adicionales, mientras que desviaciones importantes reflejan sobrecostos de coordinación, desbalance o fracciones no paralelizables.
 
 \paragraph{Eficiencia paralela}
-La eficiencia paralela normaliza el speedup respecto a la cantidad de recursos utilizados:
+La eficiencia paralela normaliza el speedup respecto a la cantidad de recursos utilizados, según la ecuación~(\ref{eq:eficiencia}).
 \begin{equation}
 E(N) = \frac{S(N)}{N} = \frac{T(1)}{N \cdot T(N)}.
 \label{eq:eficiencia}
@@ -401,10 +406,11 @@ La interpolación es un proceso mediante el cual se estima el valor de una magni
 
 Sea un conjunto de puntos de referencia $\{(\mathbf{p}_i, V_i)\}_{i=1}^{M}$, donde $\mathbf{p}_i=(x_i,y_i,z_i)\in\mathbb{R}^3$ es la posición del $i$-ésimo nodo y $V_i$ es el valor conocido del potencial en dicho nodo. Dado un punto $\mathbf{x}\in\mathbb{R}^3$ (no necesariamente coincidente con un nodo), se desea estimar el potencial $V(\mathbf{x})$.
 
-Una formulación estándar para variables continuas consiste en un promedio ponderado:
-\[
-V(\mathbf{x}) = \sum_{i=1}^{M} \alpha_i(\mathbf{x})\, V_i,
-\]
+Una formulación estándar para variables continuas consiste en un promedio ponderado, definido en la ecuación~(\ref{eq:interpolacion_promedio_ponderado_general}).
+\begin{equation}
+V(\mathbf{x}) = \sum_{i=1}^{M} \alpha_i(\mathbf{x})\, V_i
+\label{eq:interpolacion_promedio_ponderado_general}
+\end{equation}
 donde los pesos $\alpha_i(\mathbf{x})$ dependen de la ubicación de $\mathbf{x}$ respecto a los puntos de referencia. En general se busca que los puntos más cercanos tengan mayor influencia en el valor interpolado, asignando pesos decrecientes con la distancia.
 
 \subsection*{Métodos locales y globales}
@@ -431,32 +437,36 @@ Dado que inicialmente no se conocía el comportamiento relativo de distintas est
 A continuación se presenta una descripción general de cada técnica.
 
 \paragraph{Vecino más cercano (Nearest Neighbor)}
-Este método asigna al punto $\mathbf{x}$ el valor del nodo más cercano:
-\[
-V(\mathbf{x}) = V_{i^\star}, \qquad i^\star = \arg\min_{i} \, d(\mathbf{x},\mathbf{p}_i),
-\]
+Este método asigna al punto $\mathbf{x}$ el valor del nodo más cercano, según la ecuación~(\ref{eq:interpolacion_nearest_neighbor}).
+\begin{equation}
+V(\mathbf{x}) = V_{i^\star}, \qquad i^\star = \arg\min_{i} \, d(\mathbf{x},\mathbf{p}_i)
+\label{eq:interpolacion_nearest_neighbor}
+\end{equation}
 donde $d(\cdot,\cdot)$ es una métrica de distancia (en este trabajo, distancia euclídea). El resultado es un interpolante constante por regiones, y su simplicidad permite utilizarlo como referencia base.
 
 \paragraph{Promedio ponderado por distancia}
-En este enfoque se calcula el valor interpolado como un promedio ponderado de un conjunto de nodos de referencia:
-\[
-V(\mathbf{x}) = \frac{\sum_{i\in\mathcal{N}(\mathbf{x})} w_i(\mathbf{x})\, V_i}{\sum_{i\in\mathcal{N}(\mathbf{x})} w_i(\mathbf{x})},
-\]
+En este enfoque se calcula el valor interpolado como un promedio ponderado de un conjunto de nodos de referencia, según la ecuación~(\ref{eq:interpolacion_promedio_ponderado}).
+\begin{equation}
+V(\mathbf{x}) = \frac{\sum_{i\in\mathcal{N}(\mathbf{x})} w_i(\mathbf{x})\, V_i}{\sum_{i\in\mathcal{N}(\mathbf{x})} w_i(\mathbf{x})}
+\label{eq:interpolacion_promedio_ponderado}
+\end{equation}
 donde $\mathcal{N}(\mathbf{x})$ es el conjunto de nodos considerados (por ejemplo, los más cercanos) y $w_i(\mathbf{x})$ es una función de ponderación que depende de la distancia entre $\mathbf{x}$ y $\mathbf{p}_i$. Este esquema general permite definir múltiples variantes a partir de la elección de $w_i(\mathbf{x})$.
 
 \paragraph{Kriging}
 Kriging es una técnica geoestadística de estimación que determina pesos a partir de un modelo de variograma, bajo la premisa de que existe correlación espacial entre las muestras. En contraste con métodos deterministas basados únicamente en distancia, Kriging incorpora un modelo explícito de variabilidad espacial y produce estimadores insesgados bajo supuestos de estacionariedad y modelo de variograma adecuado. La precisión del estimador depende, entre otros factores, de la distribución espacial de las muestras y del ajuste del variograma.
 
 \paragraph{Ponderación de distancia inversa (IDW)}
-IDW es un método determinista que asigna pesos inversamente proporcionales a la distancia entre $\mathbf{x}$ y los puntos de referencia. Utilizando el esquema de promedio ponderado, los pesos se definen como:
-\[
-w_i(\mathbf{x}) = \frac{1}{d(\mathbf{x},\mathbf{p}_i)^p},
-\]
-donde $p>0$ es el parámetro de potencia. Con esta elección, el valor interpolado queda:
-\[
+IDW es un método determinista que asigna pesos inversamente proporcionales a la distancia entre $\mathbf{x}$ y los puntos de referencia. Utilizando el esquema de promedio ponderado, los pesos se definen como, según la ecuación~(\ref{eq:idw_pesos}).
+\begin{equation}
+w_i(\mathbf{x}) = \frac{1}{d(\mathbf{x},\mathbf{p}_i)^p}
+\label{eq:idw_pesos}
+\end{equation}
+En la ecuación ecuación \ref{eq:idw_pesos}, $p$ es el parámetro de potencia. Con esta elección, el valor interpolado queda, según la ecuación~(\ref{eq:idw_interpolacion}).
+\begin{equation}
 V(\mathbf{x}) = \frac{\sum_{i\in\mathcal{N}(\mathbf{x})} \frac{V_i}{d(\mathbf{x},\mathbf{p}_i)^p}}
-{\sum_{i\in\mathcal{N}(\mathbf{x})} \frac{1}{d(\mathbf{x},\mathbf{p}_i)^p}}.
-\]
+{\sum_{i\in\mathcal{N}(\mathbf{x})} \frac{1}{d(\mathbf{x},\mathbf{p}_i)^p}}
+\label{eq:idw_interpolacion}
+\end{equation}
 El parámetro $p$ controla el grado de influencia de los nodos cercanos: valores mayores de $p$ incrementan la contribución relativa de puntos próximos a $\mathbf{x}$. En el contexto de este trabajo se evaluaron distintas configuraciones de $p$ con el objetivo de identificar un compromiso adecuado entre suavidad del campo interpolado y fidelidad local del potencial.
 
 \section{Integración con ESyS-Particle}
@@ -537,13 +547,14 @@ Para tratar de manera eficiente los aglomerados auto-gravitantes formados por un
 
 El problema central abordado en esta tesis consiste en el cálculo eficiente de la auto-gravedad en un sistema discreto de partículas que modela un medio granular auto-gravitante.
 
-Sea un aglomerado compuesto por $N$ partículas, donde cada partícula $i$ posee masa $m_i$ y posición $\mathbf{x}_i \in \mathbb{R}^3$. En el marco de la mecánica newtoniana, la fuerza gravitatoria total ejercida sobre la partícula $i$ está dada por:
+Sea un aglomerado compuesto por $N$ partículas, donde cada partícula $i$ posee masa $m_i$ y posición $\mathbf{x}_i \in \mathbb{R}^3$. En el marco de la mecánica newtoniana, la fuerza gravitatoria total ejercida sobre la partícula $i$ está dada por la ecuación~(\ref{eq:fuerza_total_gravitatoria_cap4}).
 
-\[
+\begin{equation}
 \mathbf{F}_i = - \sum_{\substack{j=1 \\ j \neq i}}^{N}
 G \frac{m_i m_j}{\|\mathbf{x}_i - \mathbf{x}_j\|^3}
-(\mathbf{x}_i - \mathbf{x}_j),
-\]
+(\mathbf{x}_i - \mathbf{x}_j)
+\label{eq:fuerza_total_gravitatoria_cap4}
+\end{equation}
 
 donde $G$ es la constante de gravitación universal.
 
@@ -1356,7 +1367,7 @@ Además también analizamos la dependencia de los tiempos de ejecución con el n
     \includegraphics[scale=0.3]{images/algoritmo_paralelo_executiontime_vs_nrpparticulas.PNG}
 	\label{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}
 \end{figure}
-Las curvas se pueden ajustar a una función polinomial, que corresponde a un valor casi constante del tiempo de ejecución normalizado con respecto al número de partículas, como se observa en la figura siguiente para un número dado de hilos y más de $2 \times 10^5$ partículas. Teniendo en cuenta que la dependencia con el número de hilos (n) se puede ajustar a una función de ley potencial inversa y el número de partículas (p) con una funciona polinomial lineal, se puede ajustar el tiempo de ejecución con 
+Las curvas se pueden ajustar a una función polinomial, que corresponde a un valor casi constante del tiempo de ejecución normalizado con respecto al número de partículas, como se observa en la figura siguiente para un número dado de hilos y más de $2 \times 10^5$ partículas. Teniendo en cuenta que la dependencia con el número de hilos (n) se puede ajustar a una función de ley potencial inversa y el número de partículas (p) con una funciona polinomial lineal, se puede ajustar el tiempo de ejecución con el modelo de la ecuación~(\ref{eq:modelo_tiempo}).
 
 \begin{equation}
 t = a + b.p.n^{-c}
