@@ -412,7 +412,7 @@ Una formulación estándar para variables continuas consiste en un promedio pond
 	V(\mathbf{x}) = \sum_{i=1}^{M} \alpha_i(\mathbf{x})\, V_i
 	\label{eq:interpolacion_promedio_ponderado_general}
 \end{equation}
-donde los pesos $\alpha_i(\mathbf{x})$ dependen de la ubicación de $\mathbf{x}$ respecto a los puntos de referencia. En general se busca que los puntos más cercanos tengan mayor influencia en el valor interpolado, asignando pesos decrecientes con la distancia.
+En la ecuación~(\ref{eq:interpolacion_promedio_ponderado_general}), los pesos $\alpha_i(\mathbf{x})$ dependen de la ubicación de $\mathbf{x}$ respecto a los puntos de referencia. En general se busca que los puntos más cercanos tengan mayor influencia en el valor interpolado, asignando pesos decrecientes con la distancia.
 
 \subsection*{Métodos locales y globales}
 
@@ -443,7 +443,7 @@ Este método asigna al punto $\mathbf{x}$ el valor del nodo más cercano, según
 	V(\mathbf{x}) = V_{i^\star}, \qquad i^\star = \arg\min_{i} \, d(\mathbf{x},\mathbf{p}_i)
 	\label{eq:interpolacion_nearest_neighbor}
 \end{equation}
-donde $d(\cdot,\cdot)$ es una métrica de distancia (en este trabajo, distancia euclídea). El resultado es un interpolante constante por regiones, y su simplicidad permite utilizarlo como referencia base.
+En la ecuación~(\ref{eq:interpolacion_nearest_neighbor}), $d(\cdot,\cdot)$ es una métrica de distancia (en este trabajo, distancia euclídea). El resultado es un interpolante constante por regiones, y su simplicidad permite utilizarlo como referencia base.
 
 \paragraph{Promedio ponderado por distancia}
 En este enfoque se calcula el valor interpolado como un promedio ponderado de un conjunto de nodos de referencia, según la ecuación~(\ref{eq:interpolacion_promedio_ponderado}).
@@ -451,7 +451,7 @@ En este enfoque se calcula el valor interpolado como un promedio ponderado de un
 	V(\mathbf{x}) = \frac{\sum_{i\in\mathcal{N}(\mathbf{x})} w_i(\mathbf{x})\, V_i}{\sum_{i\in\mathcal{N}(\mathbf{x})} w_i(\mathbf{x})}
 	\label{eq:interpolacion_promedio_ponderado}
 \end{equation}
-donde $\mathcal{N}(\mathbf{x})$ es el conjunto de nodos considerados (por ejemplo, los más cercanos) y $w_i(\mathbf{x})$ es una función de ponderación que depende de la distancia entre $\mathbf{x}$ y $\mathbf{p}_i$. Este esquema general permite definir múltiples variantes a partir de la elección de $w_i(\mathbf{x})$.
+En la ecuación~(\ref{eq:interpolacion_promedio_ponderado}), $\mathcal{N}(\mathbf{x})$ es el conjunto de nodos considerados (por ejemplo, los más cercanos) y $w_i(\mathbf{x})$ es una función de ponderación que depende de la distancia entre $\mathbf{x}$ y $\mathbf{p}_i$. Este esquema general permite definir múltiples variantes a partir de la elección de $w_i(\mathbf{x})$.
 
 \paragraph{Kriging}
 Kriging es una técnica geoestadística de estimación que determina pesos a partir de un modelo de variograma, bajo la premisa de que existe correlación espacial entre las muestras. En contraste con métodos deterministas basados únicamente en distancia, Kriging incorpora un modelo explícito de variabilidad espacial y produce estimadores insesgados bajo supuestos de estacionariedad y modelo de variograma adecuado. La precisión del estimador depende, entre otros factores, de la distribución espacial de las muestras y del ajuste del variograma.
