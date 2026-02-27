@@ -115,7 +115,7 @@ donde $G$ es la constante de gravitación universal. Este esquema requiere evalu
 
 El problema abordado en este trabajo se formula de la siguiente manera: dado un sistema discreto de $N$ partículas que modela un aglomerado granular denso, calcular el campo gravitatorio interno reduciendo el costo computacional respecto al esquema cuadrático directo, preservando la precisión local necesaria para garantizar estabilidad numérica en la integración temporal.
 
-Para \red{es incorrecto usaar sujeto omitido entre párrafos} ello se adopta \red{tiempo verbal: pasado (sse presenta algo que ya se hizo), corregir en los siguientes párrafos} una estrategia basada en discretización espacial mediante una grilla tridimensional regular y estática superpuesta al dominio ocupado por las partículas. Cada celda de la grilla actúa como unidad de agregación de masa. Sobre esta estructura se aplica un esquema de aproximación jerárquica utilizando el Mass Approximation Distance Algorithm (MADA), que permite reemplazar conjuntos de partículas alejadas (según el criterio geométrico definido en la Sección~\ref{sec:modelo_autogravedad}) por una masa equivalente concentrada en su centro de masa. Las interacciones locales se calculan de forma exacta, mientras que las contribuciones lejanas se aproximan mediante agregación.
+Para abordar este problema, este trabajo adoptó una estrategia basada en discretización espacial mediante una grilla tridimensional regular y estática superpuesta al dominio ocupado por las partículas. Cada celda de la grilla actúa como unidad de agregación de masa. Sobre esta estructura, el trabajo aplica un esquema de aproximación jerárquica utilizando el Mass Approximation Distance Algorithm (MADA), que permite reemplazar conjuntos de partículas alejadas (según el criterio geométrico definido en la Sección~\ref{sec:modelo_autogravedad}) por una masa equivalente concentrada en su centro de masa. Las interacciones locales se calculan de forma exacta, mientras que las contribuciones lejanas se aproximan mediante agregación.
 
 El algoritmo resultante se implementa mediante paralelización en memoria compartida, utilizando descomposición espacial del dominio para distribuir el cómputo entre múltiples hilos de ejecución. La formulación se orienta específicamente a sistemas densos, donde la discretización regular permite estructurar el cálculo de forma determinista.
 
@@ -123,7 +123,7 @@ El objetivo general del trabajo consiste en diseñar, implementar y evaluar un a
 
 Este trabajo se desarrolló en el marco de actividades de investigación y desarrollo vinculadas al estudio numérico de aglomerados auto-gravitantes en cuerpos menores del Sistema Solar. Durante su ejecución se obtuvieron hitos académicos y de difusión asociados al proyecto.
 
-En 2012 se obtuvo una beca de Iniciación a la Investigación subvencionada por la ANII. En la edición 2013 de \textit{Ingeniería Demuestra}, el proyecto recibió el primer premio en la categoría \textit{Baja Interpretación Intuitiva} \cite{1}. En agosto de 2014 se participó en el congreso SBD2014 con la presentación \textit{Computing of Self-gravity for Small Solar System Bodies} \cite{2}. Posteriormente, en setiembre de 2014 se publicó el artículo \textit{High-Performance Computing of Self-Gravity for Small Solar System Bodies} \cite{3}, y en abril de 2016 se publicó \textit{A parallel multithreading algorithm for self-gravity calculation on agglomerates} \cite{4}.
+En 2012, el proyecto obtuvo una beca de Iniciación a la Investigación subvencionada por la ANII. En la edición 2013 de \textit{Ingeniería Demuestra}, el proyecto recibió el primer premio en la categoría \textit{Baja Interpretación Intuitiva} \cite{1}. En agosto de 2014, integrantes del proyecto participaron en el congreso SBD2014 con la presentación \textit{Computing of Self-gravity for Small Solar System Bodies} \cite{2}. Posteriormente, en setiembre de 2014, el equipo publicó el artículo \textit{High-Performance Computing of Self-Gravity for Small Solar System Bodies} \cite{3}, y en abril de 2016 el equipo publicó \textit{A parallel multithreading algorithm for self-gravity calculation on agglomerates} \cite{4}.
 
 Asimismo, el código desarrollado fue integrado al paquete de simulación numérica ESyS-Particle, basado en DEM, con el objetivo de incorporar el cálculo de auto-gravedad dentro de un entorno de simulación física consolidado. Esta integración permitió ejecutar simulaciones dinámicas completas y generar salidas compatibles con herramientas de visualización científica. La representación gráfica de los resultados constituye un complemento al análisis numérico, facilitando la interpretación del comportamiento dinámico de los aglomerados y la validación cualitativa de los fenómenos modelados.
 
@@ -264,7 +264,7 @@ Una vez evaluado el potencial en la malla, la fuerza gravitatoria sobre cada par
 	\label{eq:fuerza_interpolada}
 \end{equation}
 
-Dado que las posiciones de las partículas no coinciden en general con los nodos de la malla, se requiere una técnica de interpolación espacial para estimar el valor del potencial y sus derivadas en posiciones arbitrarias dentro del dominio.
+Dado que las posiciones de las partículas no coinciden en general con los nodos de la malla, el cálculo requiere una técnica de interpolación espacial para estimar el valor del potencial y sus derivadas en posiciones arbitrarias dentro del dominio.
 
 \subsection{Limitaciones computacionales}
 
@@ -329,7 +329,7 @@ El detalle de la implementación concreta del algoritmo, así como su parametriz
 
 La computación paralela es un paradigma de cómputo en el cual múltiples operaciones se ejecutan de manera concurrente con el objetivo de reducir el tiempo total de ejecución o incrementar el tamaño de los problemas abordables. En términos generales, un problema se descompone en subtareas que pueden ejecutarse simultáneamente, coordinando su ejecución mediante mecanismos de comunicación y sincronización. Este enfoque introduce desafíos adicionales respecto a la programación secuencial, tales como condiciones de carrera, sobrecostos de sincronización y desbalance de carga.
 
-En el contexto de este trabajo se utiliza una infraestructura de cómputo basada en un clúster, combinando paralelismo en memoria compartida (multihilo) y paralelismo en memoria distribuida (MPI), con el fin de aprovechar recursos de cómputo disponibles y facilitar la integración con ESyS-Particle.
+En el contexto de este trabajo, la implementación utiliza una infraestructura de cómputo basada en un clúster, combinando paralelismo en memoria compartida (multihilo) y paralelismo en memoria distribuida (MPI), con el fin de aprovechar recursos de cómputo disponibles y facilitar la integración con ESyS-Particle.
 
 \subsection{Modelos de paralelismo}
 
@@ -347,7 +347,7 @@ En ambos casos, el rendimiento final depende de la proporción del trabajo efect
 
 En arquitecturas de memoria compartida, múltiples hilos de ejecución acceden al mismo espacio de direcciones, compartiendo estructuras de datos. Este modelo permite comunicación implícita mediante memoria, pero requiere mecanismos explícitos de sincronización para proteger regiones críticas y evitar condiciones de carrera.
 
-En este trabajo se utiliza paralelismo multihilo para explotar los múltiples núcleos disponibles dentro de un nodo de cómputo, distribuyendo el trabajo entre hilos y coordinando el acceso a datos compartidos cuando corresponde.
+Este trabajo utiliza paralelismo multihilo para explotar los múltiples núcleos disponibles dentro de un nodo de cómputo, distribuyendo el trabajo entre hilos y coordinando el acceso a datos compartidos cuando corresponde.
 
 \subsection{Memoria distribuida y MPI}
 
@@ -365,7 +365,7 @@ Los experimentos del trabajo se ejecutan sobre el Cluster FING, una infraestruct
 
 \subsection{Métricas de desempeño}
 
-Luego de aplicar técnicas de programación paralela, resulta necesario cuantificar el desempeño obtenido y caracterizar la escalabilidad al incrementar los recursos de cómputo. En este trabajo se utilizan las siguientes métricas estándar:
+Luego de aplicar técnicas de programación paralela, la evaluación del desempeño requiere cuantificar el desempeño obtenido y caracterizar la escalabilidad al incrementar los recursos de cómputo. En este trabajo se utilizan las siguientes métricas estándar:
 
 \paragraph{Tiempo de ejecución}
 Sea $T(N)$ el tiempo de ejecución al utilizar $N$ recursos de cómputo (por ejemplo, hilos o procesos, según el experimento). Sea $T(1)$ el tiempo utilizando un único recurso bajo las mismas condiciones experimentales.
@@ -419,7 +419,7 @@ En la práctica, los métodos locales presentan menor costo computacional, espec
 
 \subsection{Técnicas consideradas}
 
-Dado que inicialmente no se conocía el comportamiento relativo de distintas estrategias de interpolación en el contexto del potencial gravitatorio, se estudiaron y aplicaron las siguientes técnicas:
+Dado que inicialmente no se conocía el comportamiento relativo de distintas estrategias de interpolación en el contexto del potencial gravitatorio, este trabajo estudió y aplicó las siguientes técnicas:
 
 \begin{itemize}
 	\item Vecino más cercano (\textit{Nearest Neighbor})
@@ -468,7 +468,7 @@ El parámetro $p$ controla el grado de influencia de los nodos cercanos: valores
 
 Cuando la magnitud de los datos generados por una simulación numérica es considerable, el análisis individual de resultados resulta impracticable. En este contexto, las herramientas de simulación y visualización permiten representar el comportamiento del sistema de manera estructurada y facilitar la interpretación física de los resultados.
 
-En este trabajo se utiliza el paquete de simulación numérica \textit{ESyS-Particle}, una herramienta basada en DEM diseñada para la simulación de sistemas granulares a gran escala. La elección de esta herramienta se fundamenta en su capacidad de ejecución paralela y en su arquitectura extensible, adecuada para integrar el cálculo de auto-gravedad desarrollado en esta tesis.
+Este trabajo utiliza el paquete de simulación numérica \textit{ESyS-Particle}, una herramienta basada en DEM diseñada para la simulación de sistemas granulares a gran escala. La elección de esta herramienta se fundamenta en su capacidad de ejecución paralela y en su arquitectura extensible, adecuada para integrar el cálculo de auto-gravedad desarrollado en esta tesis.
 
 \subsection{Descripción general}
 
@@ -584,13 +584,13 @@ Con el objetivo de reducir la complejidad computacional manteniendo un nivel de 
 
 \subsection{Grilla regular superpuesta}
 
-Se construye una grilla tridimensional regular que se superpone al dominio ocupado por las partículas. La grilla define celdas cúbicas que actúan como unidades mínimas de procesamiento. El tamaño de la grilla puede configurarse dinámicamente en función de las características del sistema y de los recursos computacionales disponibles.
+El modelo adoptado construye una grilla tridimensional regular que se superpone al dominio ocupado por las partículas. La grilla define celdas cúbicas que actúan como unidades mínimas de procesamiento. El tamaño de la grilla puede configurarse dinámicamente en función de las características del sistema y de los recursos computacionales disponibles.
 
 Esta estructura es particularmente adecuada para estados densos, donde la distribución espacial de partículas es relativamente homogénea, a diferencia de los métodos basados en árboles dinámicos.
 
 \subsection{Aproximación jerárquica mediante MADA}
 
-Para acelerar el cálculo del potencial gravitatorio, se utiliza el método Mass Approximation Distance Algorithm (MADA).
+Para acelerar el cálculo del potencial gravitatorio, el modelo utiliza el método Mass Approximation Distance Algorithm (MADA).
 
 El principio fundamental de MADA consiste en reemplazar un conjunto de partículas suficientemente alejadas del punto donde se evalúa el potencial por una masa equivalente concentrada en el centro de masa del conjunto. Desde el punto de vista gravitatorio, la contribución de partículas distantes puede aproximarse adecuadamente por esta masa agregada sin introducir errores significativos.
 
@@ -704,7 +704,7 @@ Desarrollar e implementar un algoritmo de cálculo de auto-gravedad para aglomer
 	      \end{itemize}
 \end{enumerate}
 
-Finalmente, se destaca que el problema de generación de condiciones iniciales se trata como un problema relacionado y acotado en una sección posterior (Sección~\ref{sec:condiciones_iniciales}), sin constituir el objetivo central del desarrollo.
+Finalmente, este trabajo destaca que el problema de generación de condiciones iniciales se trata como un problema relacionado y acotado en una sección posterior (Sección~\ref{sec:condiciones_iniciales}), sin constituir el objetivo central del desarrollo.
 
 \section{Problema relacionado: generación de condiciones iniciales}
 \label{sec:condiciones_iniciales}
@@ -715,7 +715,7 @@ El problema puede formularse como la generación de un aglomerado tridimensional
 
 En prácticas habituales para preparar medios granulares iniciales, se generan radios de partículas según una distribución de probabilidad predefinida, se ordenan en forma descendente y luego se realiza un llenado aleatorio del contenedor comenzando por las partículas mayores y continuando con las menores, verificando en cada inserción que no exista superposición con partículas ya colocadas. Esta estrategia produce configuraciones geométricamente factibles desde el punto de vista operativo, pero la compactación alcanzable resulta acotada, por lo que se requiere un mecanismo específico para obtener configuraciones iniciales más densas respetando las restricciones geométricas.
 
-Dado que la calidad de las condiciones iniciales influye en la representatividad de los experimentos numéricos, se plantea la necesidad de un mecanismo específico para generar aglomerados con mayor compactación respetando la distribución de tamaños establecida. No obstante, debe subrayarse que este componente se aborda como un problema relacionado: su propósito es habilitar configuraciones iniciales de mejor calidad para el escenario de simulación, mientras que el aporte central del trabajo se concentra en el modelo y la computación de la auto-gravedad.
+Dado que la calidad de las condiciones iniciales influye en la representatividad de los experimentos numéricos, este trabajo plantea la necesidad de un mecanismo específico para generar aglomerados con mayor compactación respetando la distribución de tamaños establecida. No obstante, este trabajo subraya que este componente se aborda como un problema relacionado: su propósito es habilitar configuraciones iniciales de mejor calidad para el escenario de simulación, mientras que el aporte central del trabajo se concentra en el modelo y la computación de la auto-gravedad.
 
 Finalmente, al considerar instancias con un número muy grande de partículas, el espacio de configuraciones factibles crece rápidamente, lo que refuerza la conveniencia de enfoques heurísticos/constructivos para obtener soluciones de buena calidad en tiempos razonables.
 
@@ -750,7 +750,7 @@ La población inicial se construye generando valores de radios de partículas (c
 
 %Debido a que el proceso de generación de individuos iniciales insume un tiempo mayor al que se desea, se desacopló la tarea de generación de condiciones iniciales del proceso evolutivo. Por lo que se tiene una cantidad relativamente grade de individuos generados previamente y el algoritmo toma individuos aleatoriamente de esta población superior. Esto se realizó con la finalidad de que la ejecución del algoritmo en condiciones de testeo sea lo suficientemente veloz como para poder evaluarlo. En un contexto de evaluación real este desacoplamiento puede influir negativamente en la evolución y concepción del mismo.
 
-Para ubicar cada partícula en la caja se generan tres números aleatorios $(r_x,r_y,r_z)$ tal que cada valor corresponde a una coordenada de la caja. Los valores se generan cumpliendo una distribución uniforme de parámetros $[0, M]$, donde $M$ representa la mayor dimensión de la caja para la coordenada a generar.
+Para ubicar cada partícula en la caja, el algoritmo genera tres números aleatorios $(r_x,r_y,r_z)$ tal que cada valor corresponde a una coordenada de la caja. El algoritmo genera los valores cumpliendo una distribución uniforme de parámetros $[0, M]$, donde $M$ representa la mayor dimensión de la caja para la coordenada a generar.
 Para cada individuo generado, se tiene:
 \begin{itemize}
 	\item un conjunto de partículas del individuo
@@ -810,7 +810,7 @@ La mutación elegida identifica espacios vacios, compacta las partículas hacia 
 \paragraph{Operador de reemplazo de la generación}
 El operador de reemplazo corresponde a un modelo poblacional llamado solapado, debido a que los individuos padres y sus descendientes compiten por la descendencia generada. El operador sigue los siguientes pasos: 1. se ordena toda la población de forma decreciente según su valor de fitness y 2. se quitan los peores $n$ primeros individuos, con $n$ igual a la cantidad de hijos producidos.
 
-Siendo que se descartan tantos individuos como nuevos hijos generados, el tamaño de la población se mantiene constante. %La forma de codificación de los individuos tomar en cuenta los operadores involucrados y realiza el mayor esfuerzo para que dichos operadores no sean costosos de aplicar.
+Dado que el algoritmo descarta tantos individuos como nuevos hijos generados, el tamaño de la población se mantiene constante. %La forma de codificación de los individuos tomar en cuenta los operadores involucrados y realiza el mayor esfuerzo para que dichos operadores no sean costosos de aplicar.
 
 %Teniendo en cuenta que una de las partes más frágil del algoritmo resulta en el intercambio de las secciones a cruzar, se propone ordenar todas las partículas según su posición ‘z’, con lo cual seleccionar las partículas que se encuentran por dentro de una sección vertical resulta simple. Esta codificación también toma en cuenta el proceso de ‘pegar’ secciones intercambiadas, puesto que al tenerlas ordenadas se puede lograr un más rápido acoplamiento de secciones que están en contacto. La posibilidad de dividir la población en sub-bloques de datos también se pensó para estar un paso adelantado en caso de que el algoritmo sea trabajado a futuro y se decida implementar utilizando técnicas de computación paralela. Para lo cual las secciones intercambiadas se enviarán a individuos ejecutando en distintos nodos.
 
@@ -947,7 +947,7 @@ La figura ~\ref{fig:estrategia_asignacion_1} muestra la estrategia de interbloqu
 
 Algo evidente es la necesidad de sincronizar el acceso a cada celda, para evitar que una misma celda sea procesada repetidas veces por los diferentes hilos. Para eso se agregó un semáforo que permite sincronizar el acceso al área de memoria compartida en la cual se especifica el estado de las celdas (es decir el conjunto de celdas sin procesar, ya procesadas, etc.). Si bien esto garantiza la correctitud en la solución, la sincronización de una cantidad relativamente alta de hilos en un solo punto crea un cuello de botella que enlentece la ganancia agregada con la paralelización. Para solucionar dicho cuello de botella se sustituyó el único semáforo por un conjunto de semáforos, asignando uno a cada celda, de esta forma se tiene una solución más sencilla, mejor control y más fino de qué hilo se está bloqueando.\newline
 
-Una vez ésta estrategia de recorrida lineal con un mismo comienzo estaba funcionando correctamente, se buscó mejorarla teniendo en cuenta los cálculos, el orden y los valores cacheados en el proceso.
+Una vez que esta estrategia de recorrida lineal con un mismo comienzo estaba funcionando correctamente, el desarrollo buscó mejorarla teniendo en cuenta los cálculos, el orden y los valores cacheados en el proceso.
 
 \subparagraph{Estrategia circular concéntrica}
 En esta estrategia la mitad de los hilos empiezan desde el centro de la grilla, y la otra mitad de los hilos empiezan desde las celdas más alejadas del centro de la grilla. Cuando el algoritmo ejecuta, para cada celda a procesar cada hilo debe calcular el centro de masa de la celda. Este valor solo depende de las particulas contenidas en la celda y no cambia hasta que termina la ejecucion, por lo cual el valor es almacenado en memoria como dato derivado de la celda.
@@ -964,7 +964,7 @@ Lo que se busca con esta estrategia, es reutilizar dichos valores de centro de m
 %\includegraphics[scale=0.8]{images/estrategia_asignacion_2.PNG}
 %\includegraphics[width=\textwidth]{images/estrategia_asignacion_2.PNG}
 
-Dado que la mitad de los hilos arrancan desde la misma celda en el centro de la grilla y la otra mitad de los hilos arranca en una de las celdas más alejadas del centro de la grilla, igualmente necesitamos semáforos para sincronizar la ejecución y asegurar que no se procesa una misma celda múltiples veces. Nótese que la forma en cómo comienzan las dos mitades de los hilos (en el centro de la celda y en la celda más alejada del centro) es similar a la forma en cómo ejecuta la estrategia anterior.
+Dado que la mitad de los hilos arrancan desde la misma celda en el centro de la grilla y la otra mitad de los hilos arranca en una de las celdas más alejadas del centro de la grilla, la implementación requiere semáforos para sincronizar la ejecución y asegurar que no se procesa una misma celda múltiples veces. Nótese que la forma en cómo comienzan las dos mitades de los hilos (en el centro de la celda y en la celda más alejada del centro) es similar a la forma en cómo ejecuta la estrategia anterior.
 
 La poca complejidad algorítmica involucrada en el calculo del centro de masa en comparacion con el calculo de autogravedad, hacen que esta estrategia no tenga una ganancia significativa como veremos en los siguientes capitulos.
 % y por ende la ventaja de reutilizar dichos valores no resulta en una ganancia significativa, mientras que aún tenemos el conjunto de semáforos y el degradado que eso acarrea.\newline
@@ -1130,7 +1130,7 @@ La técnica de Kriging es un algoritmo muy conocido para estimar variables estad
 
 A diferencia del método de Ponderación lineal, la técnica IDW sí se adapta a la magnitud interpolada, puesto que asigna mayor relevancia a puntos cercanos al valor a interpolar. Además, la técnica de Kriging permite indicar cuánta relevancia queremos asignar a los puntos respecto a la distancia al punto a interpolar.
 
-Luego de haber descartado durante esta etapa de análisis teórico la técnica de "Ponderación lineal", se vera en el capitulo ~\ref{ch:ch5} el  análisis experimental de ambas técnicas de Kriging y IDW.
+Luego de descartar durante esta etapa de análisis teórico la técnica de "Ponderación lineal", este informe presenta en el Capítulo~\ref{ch:ch5} el análisis experimental de las técnicas de Kriging e IDW.
 
 % \subsubsection{Paralelicidad de la interpolación\newline}
 
@@ -1152,7 +1152,7 @@ Los calculos de autogravedad e interpolacion son los que demandan mayor recursos
 
 En vez de crear y destruir el conjunto de hilos a usar en cada sección paralela, se utilizan las mismas instancias de los hilos en todo momento. Esto tiene como ventaja que no se necesita hacer un llamado al sistema operativo para crear y/o destruir hilos, logrando reutilizar recursos costosos como son los hilos. Igualmente, la desventaja que esto acarrea es que para diferentes secciones que presentan diferente complejidad y necesidad de cálculo no se podría dedicar diferente cantidad de hilos. Por ejemplo, en el cálculo de auto-gravedad se dedica una cantidad de hilos X que se adapta dependiendo de la dimensión del problema planteado. Sin embargo, por lo general el cálculo de la interpolación (que es la sección que ejecutaría a continuación) no demanda tanto poder de cálculo, pero igualmente no se puede evitar destinar la misma cantidad de hilos a su ejecución. Esto puede generar una pérdida de la performance por un cuello de botella en la sincronización entre más hilos de los necesarios. De todas formas, esta rigidez en la asignación de hilos se podría superar fácilmente agregando más hilos a los ya creados si eso fuera necesario, o utilizar un subconjunto de los disponibles manteniendo el resto no utilizado en un estado en espera.
 
-Una vez seleccionado el algoritmo resta decidir cuáles puntos utilizar como entrada en la interpolación. La técnica IDW no nos limita un máximo ni un mínimo, sin embargo puntos muy lejanos tienen una mínima influencia comparado con puntos vecinos. Luego de algunos análisis experimentales se definió que utilizar los ocho puntos más cercanos nos brinda un buen compromiso entre cantidad de datos y calidad del resultado obtenido.
+Una vez seleccionado el algoritmo, el diseño requiere decidir cuáles puntos utilizar como entrada en la interpolación. La técnica IDW no impone un máximo ni un mínimo; sin embargo, los puntos muy lejanos tienen una influencia mínima en comparación con los puntos vecinos. Luego de algunos análisis experimentales, este trabajo definió que utilizar los ocho puntos más cercanos brinda un buen compromiso entre cantidad de datos y calidad del resultado obtenido.
 
 \subsection{Integración al paquete ESyS-Particle}
 
@@ -1200,7 +1200,7 @@ Cuando el número de partículas crece la fórmula anterior de orden $O(N^2)$ re
 Como se puede ver en la imagen, el paso de calculo de la autogravedad, solo se ejecuta segun cierta condicional. Debido a ello, el cálculo de auto-gravedad obtenido sólo es exacto en el primer paso de simulación, subsecuentes pasos de simulación utilizarán un valor aproximado.
 Si bien la aproximación es muy buena (puede verse una análisis del error en el Análisis experimental), este valor aproximado genera en simulaciones largas un error que se arrastra y modifica notoriamente el comportamiento del aglomerado. Se diseñaron e implementaron diferentes estrategias para corregir el efecto obtenido, dichas estrategias se describen más adelante en las mejoras posteriores realizadas.
 
-Para atacar del orden de millones de partículas sin que los tiempos de simulación se disparen, se diseñó un procedimiento de cálculo que, como ya se comentó, permite que el cálculo de auto-gravedad sea independiente del número de partículas. Para eso es que se define una malla que se solapa con el medio granular, y en los puntos de la malla es donde se calcula la autogravedad. Dicho cálculo de autogravedad se realiza en un recurso de cómputo principal de entre los que corre el ESyS-Particle, y dichos valores y puntos calculados se comunican a los otros recursos de cómputo (posiblemente distribuidos) que realizarán los cálculos de cada paso de simulación.
+Para atacar problemas del orden de millones de partículas sin que los tiempos de simulación se disparen, este desarrollo diseñó un procedimiento de cálculo que, como ya se comentó, permite que el cálculo de auto-gravedad sea independiente del número de partículas. Para ese fin, este desarrollo define una malla que se solapa con el medio granular, y en los puntos de la malla es donde se calcula la autogravedad. El cálculo de autogravedad se realiza en un recurso de cómputo principal de entre los que corre el ESyS-Particle, y esos valores y puntos calculados se comunican a los otros recursos de cómputo (posiblemente distribuidos) que realizarán los cálculos de cada paso de simulación.
 
 Una de las ventajas obvias de esta integración es que permite trabajar con del orden de millones de partículas. Además los distintos parámetros que permiten por ejemplo configurar el uso de recursos usados para calcular la autogravedad, la frecuencia con la que se realiza el cálculo, la resolución de las mallas de cálculo de autogravedad, etc permiten adaptar y hacer un uso adecuado de los recursos de hardware disponibles para cada problema específico. Como desventaja, esta forma de integración no realiza un cálculo exacto de la autogravedad, sino que realiza aproximaciones (necesarias para impedir que el orden de los cálculos sea dependiente del orden de las partículas), las cuales afectan la simulación generada.\newline
 
@@ -1302,7 +1302,7 @@ presenta menor error relativo mínimo. Por tener menor error relativo mínimo pe
 Esta sección presenta el análisis experimental del calculo paralelo de la simulación de medios granulares.
 El análisis experimental fue realizado en un servidor AMD Opteron 6172 (2.1GHz) 24-Core, 24 GB RAM con CentOS Linux, del Cluster Fing. Se analizó el error relativo del algoritmo implementado, la eficiencia computacional y el speedup.
 
-Se definieron seis escenarios para evaluar el algoritmo:
+El análisis experimental definió seis escenarios para evaluar el algoritmo:
 
 \begin{itemize}
 	\item A: 26.344 partículas de radio \textcolor{red}{XXX}m contenidas en una esfera de radio \textcolor{red}{YY}m
@@ -1331,7 +1331,7 @@ La figura~\ref{fig:alg-par-errores-relativos} muestra el error relativo del pote
 	\label{fig:alg-par-errores-relativos}
 \end{figure}
 
-Para estudiar la eficiencia computacional del algoritmo, se analizó el tiempo de ejecución de los distintos escenarios al utilizar 1, 3, 6, 9, 12, 15, 18, 21 y 24 hilos de ejecución. La figura~\ref{fig:alg-par-tiempo-threads} muestra el tiempo de ejecución en función del número de hilos. Una función potencial inversa se puede ajustar a cada curva.
+Para estudiar la eficiencia computacional del algoritmo, el análisis experimental evaluó el tiempo de ejecución de los distintos escenarios al utilizar 1, 3, 6, 9, 12, 15, 18, 21 y 24 hilos de ejecución. La figura~\ref{fig:alg-par-tiempo-threads} muestra el tiempo de ejecución en función del número de hilos. Una función potencial inversa se puede ajustar a cada curva.
 
 \begin{figure}
 	\centering
@@ -1420,7 +1420,7 @@ Este capítulo sintetiza conclusiones, documenta mejoras incorporadas y plantea 
 En el contexto de este proyecto se diseñó e implementó un algoritmo de memoria compartida totalmente paralelo para calcular de forma eficiente el potencial gravitacional de un aglomerado de granos. El método propuesto es adecuado para los cálculos de autogravedad en los sistemas de partículas densamente empaquetados.
 El algoritmo escala de forma lineal con el número de partículas del sistema, y escala con una ley de potencia inversa de exponente 0.87 con el número de hilos utilizados en el cálculo. El comportamiento del speedup está cerca de ser lineal para sistemas de $2 \times 10^5$ partículas.
 
-Se analizaron diferentes estrategias de paralelización para calcular de forma eficiente y escalable, escenarios de simulación realistas en tiempos de ejecución reducidos. Se realizaron evaluaciones experimentales de las diferentes estrategias, surgiendo que la estrategia denominada “Advanced isolated lineal” utilizando diferentes comienzos fue la más eficiente de las estudiadas. Esta técnica aplica un procesamiento en dos etapas, reduciendo la complejidad en la sincronización entre hilos mientras que se reducen demoras debido al desbalance.
+Este trabajo analizó diferentes estrategias de paralelización para calcular, de forma eficiente y escalable, escenarios de simulación realistas en tiempos de ejecución reducidos. Este trabajo realizó evaluaciones experimentales de las diferentes estrategias, y dichas evaluaciones mostraron que la estrategia denominada “Advanced isolated lineal” utilizando diferentes comienzos fue la más eficiente de las estudiadas. Esta técnica aplica un procesamiento en dos etapas, reduciendo la complejidad en la sincronización entre hilos mientras se reducen demoras debidas al desbalance.
 El código implementado se integró satisfactoriamente en el paquete de simulación ESyS-Particle en una fructífera colaboración con los desarrolladores del mismo Steffen Abe y Dion Whesley. Actualmente el código integrado se encuentra en etapa de testing en un repositorio privado, por lo  aún no se encuentra a disposición para ser descargado por la comunidad.
 El objetivo es poder integrar el código en la rama principal del paquete ESyS-Particle en un futuro cercano.
 
@@ -1432,7 +1432,7 @@ Por dentro del trabajo de maestría de Nestor Rochetti se tomó el código desar
 \section{Trabajos a futuro}
 Como trabajo a futuro se propone mejorar el algoritmo evolutivo para así alcanzar los umbrales perseguidos inicialmente. Esto implica invertir tiempo en estudiar mejor el estado del arte de la temática y volcar la experiencia acumulada en una re-estructuración del código desarrollado.
 
-Respecto al método de interpolación utilizado consideramos que los pendientes visualizados fueron atacados en el proyecto de maestría de Nestor R.
+Respecto al método de interpolación utilizado, este trabajo considera que los pendientes visualizados fueron abordados en el proyecto de maestría de Nestor R.
 
 Para integrar efectivamente el código desarrollado en la rama principal del paquete ESyS-Particle, es necesaria una revisión del código desarrollado con la finalidad de cumplir con ciertos estándares de código.
 
