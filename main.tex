@@ -966,7 +966,7 @@ Lo que se busca con esta estrategia, es reutilizar dichos valores de centro de m
 
 Dado que la mitad de los hilos arrancan desde la misma celda en el centro de la grilla y la otra mitad de los hilos arranca en una de las celdas más alejadas del centro de la grilla, la implementación requiere semáforos para sincronizar la ejecución y asegurar que no se procesa una misma celda múltiples veces. Nótese que la forma en cómo comienzan las dos mitades de los hilos (en el centro de la celda y en la celda más alejada del centro) es similar a la forma en cómo ejecuta la estrategia anterior.
 
-La poca complejidad algorítmica involucrada en el calculo del centro de masa en comparacion con el calculo de autogravedad, hacen que esta estrategia no tenga una ganancia significativa como veremos en los siguientes capitulos.
+La poca complejidad algorítmica involucrada en el calculo del centro de masa en comparacion con el calculo de autogravedad hacen que esta estrategia no tenga una ganancia significativa, como se observa en los siguientes capitulos.
 % y por ende la ventaja de reutilizar dichos valores no resulta en una ganancia significativa, mientras que aún tenemos el conjunto de semáforos y el degradado que eso acarrea.\newline
 
 % Si bien la idea de reutilizar cálculos parecía muy acertada, la poca complejidad algorítmica involucrada en dicho cálculo y por ende la ventaja de reutilizar dichos valores no resulta en una ganancia significativa, mientras que aún tenemos el conjunto de semáforos y el degradado que eso acarrea.\newline
@@ -1013,7 +1013,7 @@ Esta estrategia combina las mejores características de ambas estrategias.
 \subsection{Aproximación de masas por distancia}
 \paragraph{Motivación}
 Como ya se mencionó, uno de los aspectos complejos del problema resulta en el alto número de partículas a considerar. Para soportar el cálculo (desde un punto de vista computacional) cuando la cantidad de partículas crece, se necesita reducir el número total de cálculos efectuados. Para eso, hay que recordar que, a una distancia suficientemente grande, desde el punto de vista del efecto gravitatorio, la masa de dos cuerpos puede ser considerada como condensada a su centro de masa (sin generar esto errores significativos). Por tanto, para disminuir el orden de magnitud del cálculo, se puede aplicar un algoritmo con una estructura de datos adecuada que agrupe a las partículas lejanas sustituyendolas por una masa combinada y una distancia media o centro de masa.
-Este concepto nos permite abordar magnitudes del orden de millones de particulas.
+Este concepto permite abordar magnitudes del orden de millones de particulas.
 \paragraph{Metodología}
 Considérese un conjunto de partículas con sus coordenadas correspondientes, y sobre cada grupo de partículas una celda perteneciente a la grilla que las contiene, tal como se muestra en la figura ~\ref{fig:estrategia_asignacion_4}.
 
@@ -1030,7 +1030,7 @@ Considérese un conjunto de partículas con sus coordenadas correspondientes, y 
 
 Desde el punto origen situado en $O$, realizar el cálculo de la auto-gravedad utilizando cada partícula contenida en la celda $A$ o utilizando solamente el centro de masa de las partículas de la celda $A$ (punto $P_j$), se pueden aproximar (cuando la distancia de $O$ a $P_j$ es significativa) sin ser esto una fuente de error considerable.
 
-Siguiendo ese razonamiento para todas las partículas dentro de la grilla, se puede calcular su centro de masa y posición y usar dichos valores para el cálculo del potencial en cualquier punto. En este caso, en vez de iterar sobre todas las partículas para calcular el potencial en un punto $O$, solo se toman en cuenta los centros de masa de cada celda de la grilla definida. Considerando que enfocamos nuestra problematica en aglomerados densos, se tienen menos centros de masa que particulas, por lo que la complejidad algoritmica disminuye. Se le denomina MADA a dicha estrategia por su sigla en ingles (Mass approximation distance algorithm).
+Siguiendo ese razonamiento para todas las partículas dentro de la grilla, se puede calcular su centro de masa y posición y usar dichos valores para el cálculo del potencial en cualquier punto. En este caso, en vez de iterar sobre todas las partículas para calcular el potencial en un punto $O$, solo se toman en cuenta los centros de masa de cada celda de la grilla definida. Considerando que la problematica abordada corresponde a aglomerados densos, se tienen menos centros de masa que particulas, por lo que la complejidad algoritmica disminuye. Se le denomina MADA a dicha estrategia por su sigla en ingles (Mass approximation distance algorithm).
 
 
 % \begin{figure}[!h]
@@ -1062,7 +1062,7 @@ Para explicar este concepto resulta útil definir el siguiente vocabulario: se d
 %\includegraphics[width=200px]{images/mada_celdas_virtuales.PNG}
 
 Lo que esta mejora propone es dividir las celdas en sub-celdas de diferentes niveles (mayor nivel a medida que se acerca al punto origen $O$) y utilizar los centros de masa de las partículas contenidas por dentro de estas sub-celdas en vez del centro de masa de la celda de primer nivel. Nótese que la  celda que contiene el punto origen $O$, no utiliza el centro de masa de la celda, sino que calcula directamente utilizando las partículas.
-Con esta mejora mantenemos la disminución algorítmica lograda con MADA para partículas distantes mientra que se asegura no cometer errores con partículas cercanas.
+Con esta mejora se mantiene la disminución algorítmica lograda con MADA para partículas distantes mientra que se asegura no cometer errores con partículas cercanas.
 
 \paragraph{Configuración de la malla}
 
@@ -1113,7 +1113,7 @@ Para ésta área de memoria compartida, se sincroniza el acceso al espacio de me
 \subsection{Interpolación}
 La motivación detras de aplicar técnicas de interpolación se basa en disminuir el costo computacional. Aplicar el cálculo del potencial gravitatorio sobre una malla gruesa y luego una técnica de interpolación sobre una malla más fina, es menos costoso computacionalmente que aplicar el cálculo del potencial sobre una malla fina.
 
-A continuación enumeramos las técnicas de interpolación y luego se realiza un análisis teórico de cada una de ellas:
+A continuación se enumeran las técnicas de interpolación y luego se realiza un análisis teórico de cada una de ellas:
 
 \begin{itemize}
 	\item Nearest neighbor
@@ -1124,11 +1124,11 @@ A continuación enumeramos las técnicas de interpolación y luego se realiza un
 
 La primer técnica de interpolación simplemente asigna al nuevo valor interpolado el valor más cercano (como distancia euclideana). Está técnica es simple de implementar y brinda una referencia base contra que comparar.
 
-A través del análisis de la ecuación de la segunda técnica de interpolación, se concluye que se está asignado a los puntos mas lejanos al valor origen $O$ a interpolar, mayor importancia en el resultado que los puntos cercanos. Esto se contradice con la magnitud que se está interpolando (potencial gravitatorio), la cual se hace más débil con la distancia. Esta técnica de interpolacion produciría valores incorrectos. Como conclusión de este análisis, concluímos que necesitamos una técnica que proponga lo opuesto, es decir asignar mayor relevancia a puntos cercanos al valor a interpolar, o que permita decidir cuánta relevancia se quiere asignar a los valores conocidos respecto a la distancia al punto origen $O$ a interpolar.
+A través del análisis de la ecuación de la segunda técnica de interpolación, se concluye que se está asignando a los puntos mas lejanos al valor origen $O$ a interpolar mayor importancia en el resultado que a los puntos cercanos. Esto se contradice con la magnitud que se está interpolando (potencial gravitatorio), la cual se hace más débil con la distancia. Esta técnica de interpolacion produciría valores incorrectos. Como conclusión de este análisis, se requiere una técnica que proponga lo opuesto, es decir asignar mayor relevancia a puntos cercanos al valor a interpolar, o que permita decidir cuánta relevancia se desea asignar a los valores conocidos respecto a la distancia al punto origen $O$ a interpolar.
 
 La técnica de Kriging es un algoritmo muy conocido para estimar variables estadísticas. El método puede ser entendido como una predicción lineal o una forma de inferencia bayesiana. Esta técnica parte del principio de que puntos próximos en el espacio tienden a tener valores más parecidos que los puntos más distantes. La técnica de kriging asume que los datos recogidos de una determinada población se encuentran correlacionados en el espacio. A modo de ejemplo, si en un vertedero de residuos tóxicos y peligrosos la concentración de zinc en un punto $p$ es $x$, será muy probable que se encuentren resultados muy próximos a $x$ cuanto más próximos se esté del punto $p$ (principio de geoestadística). Sin embargo, desde una cierta distancia de $p$, ciertamente no se encontrarán valores próximos a $x$ porque la correlación espacial puede dejar de existir.
 
-A diferencia del método de Ponderación lineal, la técnica IDW sí se adapta a la magnitud interpolada, puesto que asigna mayor relevancia a puntos cercanos al valor a interpolar. Además, la técnica de Kriging permite indicar cuánta relevancia queremos asignar a los puntos respecto a la distancia al punto a interpolar.
+A diferencia del método de Ponderación lineal, la técnica IDW sí se adapta a la magnitud interpolada, puesto que asigna mayor relevancia a puntos cercanos al valor a interpolar. Además, la técnica de Kriging permite indicar cuánta relevancia se desea asignar a los puntos respecto a la distancia al punto a interpolar.
 
 Luego de descartar durante esta etapa de análisis teórico la técnica de "Ponderación lineal", este informe presenta en el Capítulo~\ref{ch:ch5} el análisis experimental de las técnicas de Kriging e IDW.
 
@@ -1162,12 +1162,12 @@ En esta sección se describen los cambios realizados en el algoritmo para integr
 
 % \subsubsection{Introducción}
 % En está sección se describe el proceso de integración del código desarrollado en el paquete de simulación númerica ESyS-Particle.
-% Como se comentó anteriormente, cuando la cantidad de datos que se obtienen como resultado de un algoritmo numérico es tan grande que analizar los datos de forma individual resulta inmanejable, se necesitan herramientas que permitan visualizar los resultados de forma gráfica. En nuestro caso lo que se busca es poder integrar en estas simulaciones gráficas el efecto de auto-gravedad generado por el algoritmo implementado. El paquete de simulación en el cual se eligió integrar el código realizado es el ESyS-Particle ya nombrado anteriormente.
+% Como se comentó anteriormente, cuando la cantidad de datos que se obtienen como resultado de un algoritmo numérico es tan grande que analizar los datos de forma individual resulta inmanejable, se necesitan herramientas que permitan visualizar los resultados de forma gráfica. En este caso lo que se busca es poder integrar en estas simulaciones gráficas el efecto de auto-gravedad generado por el algoritmo implementado. El paquete de simulación en el cual se eligió integrar el código realizado es el ESyS-Particle ya nombrado anteriormente.
 
 % A continuación se describe el diseño del paquete antes de la integración, los cambios realizados y el estado actual.
 
 % \subsubsection{Integraciones}
-Se realizaron dos tipos de integraciones al paquete ESyS-Particle, una que denominamos integración FewParticles y otra que en contraposición denominamos integración ManyParticles. La integración FewParticles, hace un cálculo exacto sobre todas las partículas del dominio. Para ellos es necesario de disponer de todas las partículas en el recurso de cómputo, por lo que esta forma de integración limita la escalabilidad de la solución final (recuérdese que ESyS-Particle divide partículas entre recursos de cómputo). La segunda forma de integración ManyParticles no hace un cálculo exacto sino que realiza diferentes aproximaciones (como la ya vista MADA) comunicando los valores de autogravedad calculados entre los distintos recurso de cómputo. A continuación se describe en profundidad cada forma de integración.
+Se realizaron dos tipos de integraciones al paquete ESyS-Particle: integración FewParticles e integración ManyParticles. La integración FewParticles hace un cálculo exacto sobre todas las partículas del dominio. Para ello es necesario disponer de todas las partículas en el recurso de cómputo, por lo que esta forma de integración limita la escalabilidad de la solución final (recuérdese que ESyS-Particle divide partículas entre recursos de cómputo). La segunda forma de integración ManyParticles no hace un cálculo exacto sino que realiza diferentes aproximaciones (como la ya vista MADA) comunicando los valores de autogravedad calculados entre los distintos recurso de cómputo. A continuación se describe en profundidad cada forma de integración.
 
 \paragraph{Integración FewParticles}
 Para poder simular el comportamiento de partículas bajo el efecto de una fuerza de auto-gravedad es necesaria la incorporación de nuevas interacciones al producto ESyS-Particle.
@@ -1187,7 +1187,7 @@ Esta interacción calcula el potencial gravitatorio $V_j$ en cada partícula $j$
 
 En cada paso de simulación se calcula para cada partícula el potencial gravitatorio generado por el resto de las partículas y se aplica la fuerza resultante. Esta forma de integrar el calculo de auto-gravedad en ESyS-Particle esta bien soportado y resulta simple considerando la arquitectura interna del paquete. Por otro lado, una desventaja clara es la limitación impuesta en la escalabilidad resultante puesto que solo se puede utilizar un recurso de cómputo.
 
-% Además de las ya mencionadas ventajas, esta forma de integración tiene una ventaja muy importante: está forma de integrar el cálculo de auto-gravedad está completamente contemplado en ESyS-Particle y encaja correctamente con la arquitectura base interna. Por lo que podemos estar seguros que no estamos modificando aspectos centrales del paquete. 
+% Además de las ya mencionadas ventajas, esta forma de integración tiene una ventaja muy importante: está forma de integrar el cálculo de auto-gravedad está completamente contemplado en ESyS-Particle y encaja correctamente con la arquitectura base interna. Por lo tanto, no se modifican aspectos centrales del paquete. 
 
 \paragraph{Integración ManyParticles}
 Esta integración con el paquete ESyS-Particle está diseñada para simular del orden de millones de partículas. Esto no es viable con la integración FewParticles, en el cual solo se puede utilizar un recurso de cómputo para procesar todas las partículas. Para esta integracción denominada $ManyParticles$ es necesario utilizar más de un recurso de cómputo y habilitar la subdivisión del dominio de trabajo del ESyS-Particle.
@@ -1212,7 +1212,7 @@ Una vez integrado el algoritmo, las secciones anteriormente diseñadas cambian l
 Estos cambios son debido a que al integrar el cálculo de autogravedad en el paquete ESyS-Particle, el cálculo de autogravedad en los nodos de la maya configurable se realiza en el nodo maestro. Una vez obtenidos dichos valores se envían a los procesos esclavos del ESyS-Particle (posiblemente distribuidos) los cuales utilizando estos valores interpolan el valor de la fuerza de auto-gravedad en las posiciones de las partículas del subdominio que le corresponde. Esta distribución de los cálculos impide tener el algoritmo de interpolación por dentro del código de auto-gravedad, sino que se migró a los procesos esclavos.
 
 
-Analizando la dinamica de ejecucion del paquete ESySParticle surge la necesidad de modificar cómo se calcula la interpolación, por lo que el código de interpolación ya no forma parte del algoritmo paralelo de autogravedad, sino que se agregó por dentro del código de ESyS-Particle. Si bien esto implica que el desarrollo de la interpolación en paralelo quedará obsoleta, el análisis experimental sobre cuál técnica se aplica mejor en nuestro caso sigue siendo válida.\newline
+Del análisis de la dinamica de ejecucion del paquete ESySParticle surge la necesidad de modificar cómo se calcula la interpolación, por lo que el código de interpolación ya no forma parte del algoritmo paralelo de autogravedad, sino que se agregó por dentro del código de ESyS-Particle. Si bien esto implica que el desarrollo de la interpolación en paralelo quedará obsoleta, el análisis experimental sobre cuál técnica se aplica mejor en este caso sigue siendo válido.\newline
 Estos cambios se ven con mayor profundidad en la siguiente sección.
 
 % Capitulo 6
@@ -1340,7 +1340,7 @@ Para estudiar la eficiencia computacional del algoritmo, el análisis experiment
 	\label{fig:alg-par-tiempo-threads}
 \end{figure}
 
-El speed-up y los valores de eficiencia son reportados en las siguientes figuras respectivamente. Para el sistema de más de un millón de partículas y usando hasta 24 hilos, el cálculo tomó cerca de 100s mientras que el cálculo secuencial demanda 1100s. Usando 20 hilos obtuvimos un speedup de factor 10 y una eficiencia en el rango de 0.4-0.8, dependiendo del número de partículas usadas. Para dicho conjunto de más de un millón de partículas, obtuvimos un speedup cerca del lineal, pero la eficiencia se redujo para largos conjuntos.
+El speed-up y los valores de eficiencia son reportados en las siguientes figuras respectivamente. Para el sistema de más de un millón de partículas y usando hasta 24 hilos, el cálculo tomó cerca de 100s mientras que el cálculo secuencial demanda 1100s. Usando 20 hilos se obtuvo un speedup de factor 10 y una eficiencia en el rango de 0.4-0.8, dependiendo del número de partículas usadas. Para dicho conjunto de más de un millón de partículas, se obtuvo un speedup cerca del lineal, pero la eficiencia se redujo para largos conjuntos.
 
 \begin{figure}
 	\centering
@@ -1353,7 +1353,7 @@ El speed-up y los valores de eficiencia son reportados en las siguientes figuras
 	\includegraphics[scale=0.3]{images/algoritmo_paralelo_eficiencia_vs_threads.PNG}
 	\label{fig:algoritmo_paralelo_eficiencia_vs_threads}
 \end{figure}
-Además también analizamos la dependencia de los tiempos de ejecución con el número de partículas cuando se varían la cantidad de hilos utilizados en el procesamiento. Los resultados se muestran en la siguiente figura.
+Además también se analizó la dependencia de los tiempos de ejecución con el número de partículas cuando se varían la cantidad de hilos utilizados en el procesamiento. Los resultados se muestran en la siguiente figura.
 
 \begin{figure}
 	\centering
@@ -1385,7 +1385,7 @@ Se definieron tres escenarios para evaluar las estrategias de paralelización im
 	\item escenario C: contiene 1218024 partículas en una esfera de radio 40m.
 \end{itemize}
 
-Para evaluar la eficiencia computacional de las diferentes estrategias de distribución de trabajo, realizamos pruebas utilizando el escenario C y 12 hilos de ejecución en paralelo.
+Para evaluar la eficiencia computacional de las diferentes estrategias de distribución de trabajo, se realizaron pruebas utilizando el escenario C y 12 hilos de ejecución en paralelo.
 La tabla siguiente muestra los promedios y la desviación estándar, para cinco ejecuciones independientes por cada estrategia.
 
 \begin{figure}
@@ -1394,7 +1394,7 @@ La tabla siguiente muestra los promedios y la desviación estándar, para cinco 
 	\label{fig:estrategias_de_asignacion_de_trabajo}
 \end{figure}
 
-Para los resultados mostrados en la tabla anterior, concluimos que la estrategia “Advanced isolated linear” logra obtener la mejor performance para el escenario trabajado. Es además la más robusta, considerando que es la que arroja menor desviación estándar. La estrategia “Interlocking linear” es la segunda mejor opción. La estrategia circular concéntrica no toma ventaja de los valores pre calculados, y por el contrario la compleja lógica incluida para manejar la sincronización de hilos y la distribución circular hace que la estrategia sea menos eficiente que la estrategia de “Interlocking linear”.
+Para los resultados mostrados en la tabla anterior, se concluye que la estrategia “Advanced isolated linear” logra obtener la mejor performance para el escenario trabajado. Es además la más robusta, considerando que es la que arroja menor desviación estándar. La estrategia “Interlocking linear” es la segunda mejor opción. La estrategia circular concéntrica no toma ventaja de los valores pre calculados, y por el contrario la compleja lógica incluida para manejar la sincronización de hilos y la distribución circular hace que la estrategia sea menos eficiente que la estrategia de “Interlocking linear”.
 La estrategia “Basic isolated linear” es la que peor se comporta, fundamentalmente porque la carga de trabajo no está balanceado entre los distintos hilos. En esta estrategia, la performance del algoritmo en su totalidad está limitada por la performance obtenido por el hilo que más tiempo demore. Al incluir la metodología de dos etapas, con la estrategia “Advanced isolated linear” se logra reducir el tiempo considerablemente.
 
 La tabla siguiente muestra la eficiencia computacional (tiempo de ejecución y speedup) para la estrategia “Advanced isolated linear” utilizando diferente cantidad de hilos y para los tres escenarios estudiados. El promedio y la desviación estándar resultante son calculados a partir de seis ejecuciones independientes sobre cada escenario para cada hilo.
