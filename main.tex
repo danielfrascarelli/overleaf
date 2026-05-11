@@ -193,7 +193,7 @@ La interacción gravitatoria es una fuerza de largo alcance que actúa entre tod
 	\label{eq:fuerza_gravitatoria_par}
 \end{equation}
 
-donde:
+\red{no es frase} donde:
 
 \begin{itemize}
 	\item $G$ es la constante de gravitación universal,
@@ -276,12 +276,17 @@ Esta limitación constituye el núcleo del problema abordado en esta tesis y mot
 \section{Optimización de configuraciones iniciales mediante algoritmos evolutivos}
 \label{sec:alg_evolutivo}
 
+\red{\textbf{no corresponde al marco teórico}}
+
+\red{falta el acápite}
+
+\red{lo que sigue no es acápite y está sin organizar (en una subsección}
 En el marco de este trabajo se emplea un algoritmo evolutivo como técnica de optimización para generar configuraciones iniciales compactas de aglomerados tridimensionales de partículas. Estas configuraciones constituyen el estado inicial de los sistemas utilizados posteriormente en los experimentos de auto-gravedad.
 \red{(Capítulo~\ref{chap:desafio_planteado}, Sección~\ref{sec:compactacion_aglomerados})}
 
 Los algoritmos evolutivos son métodos de optimización poblacional que operan sobre un conjunto de soluciones candidatas, denominadas individuos, las cuales evolucionan a lo largo de generaciones mediante mecanismos de selección guiados por una función de evaluación (fitness). Este enfoque resulta adecuado para problemas geométricos de alta dimensionalidad con restricciones no lineales, como es el caso de la compactación de partículas esféricas en tres dimensiones.
 
-\subsection{Representación del individuo}
+\subsection{Representación del individuo \red{plural}}
 
 Sea un aglomerado compuesto por $N$ partículas esféricas. Cada partícula $i$ se caracteriza por su posición en el espacio tridimensional $\mathbf{x}_i = (x_i, y_i, z_i)$ y su radio $r_i$. La distribución de radios se genera previamente de acuerdo con una distribución especificada y permanece fija durante el proceso de optimización.
 
@@ -292,7 +297,7 @@ Un individuo del algoritmo evolutivo representa una configuración completa del 
 	\label{eq:ae_conjunto_configuracion}
 \end{equation}
 
-donde las posiciones $\{\mathbf{x}_i\}$ determinan la disposición espacial de todas las partículas dentro del dominio de trabajo.
+\red{no es frase} donde las posiciones $\{\mathbf{x}_i\}$ determinan la disposición espacial de todas las partículas dentro del dominio de trabajo.
 
 \subsection{Función objetivo}
 
@@ -303,7 +308,7 @@ El objetivo del proceso de compactación es maximizar la densidad volumétrica d
 	\label{eq:ae_objetivo_compactacion}
 \end{equation}
 
-donde $\rho(\mathcal{S})$ representa la fracción del volumen ocupado por las partículas respecto al volumen total del dominio considerado.
+\red{no es frase} donde $\rho(\mathcal{S})$ representa la fracción del volumen ocupado por las partículas respecto al volumen total del dominio considerado.
 
 \subsection{Restricciones geométricas}
 
@@ -326,6 +331,10 @@ El detalle de la implementación concreta del algoritmo, así como su parametriz
 
 \section{Computación paralela y métricas de desempeño}
 \label{sec:computacion_paralela_metricas}
+
+\red{falta el acápite}
+
+\red{lo que sigue no es acápite y está sin organizar (en una subsección}
 
 La computación paralela es un paradigma de cómputo en el cual múltiples operaciones se ejecutan de manera concurrente con el objetivo de reducir el tiempo total de ejecución o incrementar el tamaño de los problemas abordables. En términos generales, un problema se descompone en subtareas que pueden ejecutarse simultáneamente, coordinando su ejecución mediante mecanismos de comunicación y sincronización. Este enfoque introduce desafíos adicionales respecto a la programación secuencial, tales como condiciones de carrera, sobrecostos de sincronización y desbalance de carga.
 
@@ -367,7 +376,7 @@ Los experimentos del trabajo se ejecutan sobre el Cluster FING, una infraestruct
 
 Luego de aplicar técnicas de programación paralela, la evaluación del desempeño requiere cuantificar el desempeño obtenido y caracterizar la escalabilidad al incrementar los recursos de cómputo. En este trabajo se utilizan las siguientes métricas estándar:
 
-\paragraph{Tiempo de ejecución}
+\paragraph{Tiempo de ejecución}\red{falta el punto luego de todos los paragraph}
 Sea $T(N)$ el tiempo de ejecución al utilizar $N$ recursos de cómputo (por ejemplo, hilos o procesos, según el experimento). Sea $T(1)$ el tiempo utilizando un único recurso bajo las mismas condiciones experimentales.
 
 \paragraph{Speedup}
@@ -466,9 +475,13 @@ El parámetro $p$ controla el grado de influencia de los nodos cercanos: valores
 \section{Integración con ESyS-Particle}
 \label{sec:esys_particle}
 
+\red{falta el acápite}
+
+\red{lo que sigue no es acápite y está sin organizar (en una subsección}
+
 Cuando la magnitud de los datos generados por una simulación numérica es considerable, el análisis individual de resultados resulta impracticable. En este contexto, las herramientas de simulación y visualización permiten representar el comportamiento del sistema de manera estructurada y facilitar la interpretación física de los resultados.
 
-Este trabajo utiliza el paquete de simulación numérica \textit{ESyS-Particle}, una herramienta basada en DEM diseñada para la simulación de sistemas granulares a gran escala. La elección de esta herramienta se fundamenta en su capacidad de ejecución paralela y en su arquitectura extensible, adecuada para integrar el cálculo de auto-gravedad desarrollado en esta tesis.
+Este trabajo utiliza el paquete de simulación numérica \textit{ESyS-Particle} \red{sacar itálica, incluir referencia}, una herramienta basada en DEM diseñada para la simulación de sistemas granulares a gran escala. La elección de esta herramienta se fundamenta en su capacidad de ejecución paralela y en su arquitectura extensible, adecuada para integrar el cálculo de auto-gravedad desarrollado en esta tesis.
 
 \subsection{Descripción general}
 
@@ -576,6 +589,10 @@ La generación de condiciones iniciales compactas para los aglomerados constituy
 \section{Modelo adoptado para la auto-gravedad}
 \label{sec:modelo_autogravedad}
 
+\red{falta el acápite}
+
+\red{lo que sigue no es acápite y está sin organizar (en una subsección}
+
 El modelo adoptado para el cálculo de la auto-gravedad se basa en una aproximación jerárquica orientada a sistemas densos de partículas (aglomerados granulares auto-gravitantes en fase densa). La formulación combina una grilla regular tridimensional con aproximación por centros de masa para reducir el costo computacional, manteniendo cálculo exacto en la región local relevante.
 
 El cálculo directo del potencial (definido en el marco teórico) requiere evaluar la contribución del conjunto de partículas y conduce a un costo $O(N^2)$ por actualización, lo que resulta prohibitivo para tamaños del orden de millones.
@@ -667,21 +684,21 @@ Estos aspectos obligan a definir estrategias de descomposición de dominio y pol
 Para instancias grandes, los datos del sistema (partículas, grilla, información de celdas y estructuras auxiliares) pueden ser lo suficientemente voluminosos como para que la gestión de memoria se vuelva un factor limitante. Esto obliga a cuidar el diseño de las estructuras de datos, evitar duplicaciones (por ejemplo, reutilizando vértices compartidos cuando se almacenan coordenadas) y definir con precisión qué información se comparte para lectura/escritura entre hilos y cómo se controla su acceso. La eficiencia final depende tanto del número de operaciones aritméticas como del patrón de acceso a memoria y de la reducción de estructuras redundantes.
 
 
-\section{Objetivos del desarrollo}
+\section{Objetivos del desarrollo} \red{esta sección no puede estar aquí, ya se trataron los temas previamente, mover a la introducción}
 \label{sec:objetivos_desarrollo}
 
 A partir de la definición del problema físico-computacional y del modelo adoptado para aproximar la auto-gravedad en aglomerados densos, se establecen en esta sección los objetivos que guían el desarrollo del algoritmo y su implementación. El foco se coloca en el diseño de un procedimiento computacional eficiente y escalable, capaz de calcular el potencial gravitatorio para sistemas de gran tamaño, y de integrarse como componente reutilizable dentro de un flujo de simulación numérica.
 
 \subsection{Objetivo general}
 
-Desarrollar e implementar un algoritmo de cálculo de auto-gravedad para aglomerados densos de partículas que reduzca el costo computacional respecto al enfoque directo, mediante una combinación de discretización espacial en grilla regular, aproximación jerárquica por centro de masa (MADA) y paralelismo en memoria compartida, permitiendo su uso en escenarios con un número elevado de partículas.
+Desarrollar e implementar un algoritmo de cálculo de auto-gravedad para aglomerados densos de partículas que reduzca el costo computacional respecto al enfoque directo, mediante una combinación de discretización espacial en grilla regular, aproximación jerárquica por centro de masa (MADA)\red{no es la definición de la sigla} y paralelismo en memoria compartida, permitiendo su uso en escenarios con un número elevado de partículas.
 
 \subsection{Objetivos específicos}
 
 \begin{enumerate}
 	\item Definir una representación discreta del dominio mediante una grilla tridimensional regular superpuesta al conjunto de partículas, de forma que las celdas constituyan la unidad mínima de procesamiento para el cálculo del potencial gravitatorio.
 
-	\item Incorporar el método \textit{Mass Approximation Distance Algorithm} (MADA) como mecanismo de aceleración, de manera que:
+	\item Incorporar el método \textit{Mass Approximation Distance Algorithm} (MADA)\red{definir las siglas la primera vez que se usan} como mecanismo de aceleración, de manera que:
 	      \begin{itemize}
 		      \item la contribución gravitatoria de regiones alejadas se aproxime mediante una masa equivalente ubicada en el centro de masa de la celda (o subcelda) correspondiente;
 		      \item en la región local asociada a la celda que contiene el punto de evaluación, el cálculo se realice utilizando las partículas individuales, sin aplicar aproximación.
@@ -708,6 +725,7 @@ Finalmente, este trabajo destaca que el problema de generación de condiciones i
 
 \section{Problema relacionado: generación de condiciones iniciales}
 \label{sec:condiciones_iniciales}
+\red{esta sección no puede estar aquí, ya se describió el AE previamente}
 
 Si bien el foco central del desarrollo es el cálculo eficiente de la auto-gravedad para aglomerados granulares, las simulaciones numéricas de este tipo de sistemas requieren, como punto de partida, una configuración espacial inicial físicamente plausible. En particular, para estudiar aglomerados en estado denso (por ejemplo, aglomerados granulares auto-gravitantes en fase densa), es relevante contar con conjuntos de partículas que presenten simultáneamente (i) alto grado de compactación y (ii) un nivel razonable de aleatoriedad en la distribución, evitando patrones artificiales que distorsionen el comportamiento observado. En este sentido, la construcción de dichas configuraciones iniciales se consideró un problema complementario, necesario para el contexto de simulación, pero no constitutivo del problema principal abordado en la tesis.
 
@@ -724,7 +742,7 @@ Finalmente, al considerar instancias con un número muy grande de partículas, e
 
 Este capítulo describe el diseño de la solución y la arquitectura de implementación adoptada.
 
-En este capítulo se presenta el diseño y arquitectura de la solución.
+En este capítulo se presenta el diseño y arquitectura de la solución. \red{repetido}
 
 \section{Compactación de aglomerados}
 \label{sec:compactacion_aglomerados}
