@@ -50,6 +50,7 @@
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 
 \newcommand{\red}[1]{\textcolor{red}{#1}} 
+\newcommand{\blue}[1]{\textcolor{blue}{#1}} 
 \usepackage{todonotes}
 
 \title{Computación de alto desempeño para el estudio de medios granulares}
@@ -108,10 +109,11 @@ La incorporación explícita de la interacción gravitatoria entre todas las par
 	\label{eq:fuerza_gravitatoria_directa}
 \end{equation}
 
-\red{Tienes incorrectamente incluidas las ecuaciones en toda la tesis. Las ecuaciones son objetos independientes de las frases, no pueden aparecer sueltas en medio de frases cortadas, deben tener su número que las identifica y deben referirse en el texto (por su número identificador)}
+%\red{Tienes incorrectamente incluidas las ecuaciones en toda la tesis. Las ecuaciones son objetos independientes de las frases, no pueden aparecer sueltas en medio de frases cortadas, deben tener su número que las identifica y deben referirse en el texto (por su número identificador)}
 
-\red{las frases no pueden estar cortadas}
-donde $G$ es la constante de gravitación universal. Este esquema requiere evaluar $N(N-1)$ interacciones, lo que implica complejidad computacional $O(N^2)$ por paso temporal. En simulaciones DEM orientadas a sistemas densos con $N \geq 10^5$ partículas y pasos temporales del orden de $10^{-4}$ s, el costo gravitatorio se convierte en el componente dominante del tiempo de ejecución.
+% \red{las frases no pueden estar cortadas}
+%donde $G$ es la constante de gravitación universal. 
+Este esquema requiere evaluar $N(N-1)$ interacciones, lo que implica complejidad computacional $O(N^2)$ por paso temporal. En simulaciones DEM orientadas a sistemas densos con $N \geq 10^5$ partículas y pasos temporales del orden de $10^{-4}$ s, el costo gravitatorio se convierte en el componente dominante del tiempo de ejecución.
 
 El problema abordado en este trabajo se formula de la siguiente manera: dado un sistema discreto de $N$ partículas que modela un aglomerado granular denso, calcular el campo gravitatorio interno reduciendo el costo computacional respecto al esquema cuadrático directo, preservando la precisión local necesaria para garantizar estabilidad numérica en la integración temporal.
 
@@ -146,23 +148,25 @@ Las partículas se consideran rígidas y pueden experimentar traslación y, even
 
 \subsection{Ecuaciones de movimiento}
 
-La dinámica de cada partícula está gobernada por la segunda ley de Newton, expresada en la ecuación~(\ref{eq:segunda_ley_newton}).
+La dinámica de cada partícula está gobernada por la segunda ley de Newton, expresada como 	$m_i \mathbf{a}_i = \mathbf{F}_i$, donde $\mathbf{F}_i$ representa la suma de todas las fuerzas que actúan sobre la partícula $i$, definida en la ecuación~(\ref{eq:fuerza_total_dem}).
 
-\red{corregir la fórmula, no puede estar separada de la frase}
+%expresada en la ecuación~(\ref{eq:segunda_ley_newton}).
 
-\begin{equation}
-	m_i \mathbf{a}_i = \mathbf{F}_i
-	\label{eq:segunda_ley_newton}
-\end{equation}
+% \red{corregir la fórmula, no puede estar separada de la frase}
 
-En la ecuación~(\ref{eq:segunda_ley_newton}), $\mathbf{F}_i$ representa la suma de todas las fuerzas que actúan sobre la partícula $i$, definida en la ecuación~(\ref{eq:fuerza_total_dem}).
+%\begin{equation}
+%	m_i \mathbf{a}_i = \mathbf{F}_i
+%	\label{eq:segunda_ley_newton}
+%\end{equation}
+
+% En la ecuación~(\ref{eq:segunda_ley_newton}), $\mathbf{F}_i$ representa la suma de todas las fuerzas que actúan sobre la partícula $i$, definida en la ecuación~(\ref{eq:fuerza_total_dem}).
 
 \begin{equation}
 	\mathbf{F}_i = \sum_{j \in \mathcal{C}_i} \mathbf{F}_{ij}^{\text{contacto}} + \mathbf{F}_i^{\text{externas}}
 	\label{eq:fuerza_total_dem}
 \end{equation}
 
-En la ecuación~(\ref{eq:fuerza_total_dem}) $\mathcal{C}_i$ denota el conjunto de partículas en contacto con la partícula $i$. En implementaciones clásicas de DEM, las fuerzas externas incluyen gravedad impuesta externamente y otras perturbaciones, pero no consideran interacciones gravitatorias entre partículas del sistema.
+En la ecuación~(\ref{eq:fuerza_total_dem}), $\mathcal{C}_i$ denota el conjunto de partículas en contacto con la partícula $i$. En implementaciones clásicas de DEM, las fuerzas externas incluyen gravedad impuesta externamente y otras perturbaciones, pero no consideran interacciones gravitatorias entre partículas del sistema.
 
 \subsection{Integración temporal}
 
@@ -186,22 +190,22 @@ Sin embargo, cuando se desea incorporar fuerzas de largo alcance, como la intera
 
 \section{Auto-gravedad en sistemas discretos}
 
-La interacción gravitatoria es una fuerza de largo alcance que actúa entre todas las masas del sistema. En el contexto clásico newtoniano, la fuerza gravitatoria ejercida por una partícula $j$ sobre una partícula $i$ se expresa como se indica en la ecuación~(\ref{eq:fuerza_gravitatoria_par}).
+La interacción gravitatoria es una fuerza de largo alcance que actúa entre todas las masas del sistema. En el contexto clásico newtoniano, la fuerza gravitatoria ejercida por una partícula $j$ sobre una partícula $i$ se expresa como se indica en la ecuación~(\ref{eq:fuerza_gravitatoria_par}), donde $G$ es la constante de gravitación universal, $m_i$ y $m_j$ son las masas de las partículas y $\mathbf{x}_i$ y $\mathbf{x}_j$ son sus posiciones.
 
 \begin{equation}
 	\mathbf{F}_{ij} = - G \frac{m_i m_j}{\|\mathbf{x}_i - \mathbf{x}_j\|^3} (\mathbf{x}_i - \mathbf{x}_j)
 	\label{eq:fuerza_gravitatoria_par}
 \end{equation}
 
-\red{no es frase} donde:
+% \red{no es frase} donde:
 
-\begin{itemize}
-	\item $G$ es la constante de gravitación universal,
-	\item $m_i$ y $m_j$ son las masas de las partículas,
-	\item $\mathbf{x}_i$ y $\mathbf{x}_j$ son sus posiciones.
-\end{itemize}
+%\begin{itemize}
+%	\item $G$ es la constante de gravitación universal,
+%	\item $m_i$ y $m_j$ son las masas de las partículas,
+%	\item $\mathbf{x}_i$ y $\mathbf{x}_j$ son sus posiciones.
+%\end{itemize}
 
-En un sistema compuesto por $N$ partículas, la fuerza total sobre la partícula $i$ es, según la ecuación~(\ref{eq:fuerza_total_gravitatoria}).
+En un sistema compuesto por $N$ partículas, la fuerza total sobre la partícula $i$ está definida según la ecuación~(\ref{eq:fuerza_total_gravitatoria}).
 
 \begin{equation}
 	\mathbf{F}_i = \sum_{\substack{j=1 \\ j \neq i}}^{N} \mathbf{F}_{ij}
@@ -230,30 +234,31 @@ En el contexto de este trabajo, el potencial se evalúa sobre una malla tridimen
 
 \subsection{Cálculo del potencial en una malla tridimensional}
 
-Sea un volumen cúbico discretizado mediante una grilla regular de dimensiones $L_x \times L_y \times L_z$, cuyos nodos se denotan por la ecuación~(\ref{eq:nodos_grilla}).
+Sea un volumen cúbico discretizado mediante una grilla regular de dimensiones $L_x \times L_y \times L_z$, cuyos nodos se denotan como $\mathbf{r}_{lmn} = (x_l, y_m, z_n)$ donde $l = 1, \dots, L_x$, $m = 1, \dots, L_y$ y $n = 1, \dots, L_z$, el potencial en cada nodo $\mathbf{r}_{lmn}$ de la grilla se calcula como se indica en la ecuación~(\ref{eq:potencial_grilla})
 
-\begin{equation}
-	\mathbf{r}_{lmn} = (x_l, y_m, z_n)
-	\label{eq:nodos_grilla}
-\end{equation}
-
-donde $l = 1, \dots, L_x$, $m = 1, \dots, L_y$ y $n = 1, \dots, L_z$.
-
-El potencial en cada nodo de la grilla se calcula como se indica en la ecuación~(\ref{eq:potencial_grilla}).
+% por la ecuación~(\ref{eq:nodos_grilla}).
+%
+%\begin{equation}
+%	\mathbf{r}_{lmn} = (x_l, y_m, z_n)
+%	\label{eq:nodos_grilla}
+%\end{equation}
 
 \begin{equation}
 	V_{lmn} = - \sum_{i=1}^{N} \frac{G m_i}{\|\mathbf{r}_{lmn} - \mathbf{x}_i\|}
 	\label{eq:potencial_grilla}
 \end{equation}
 
-Este procedimiento debe repetirse para todos los nodos de la malla, lo que implica un costo total proporcional a la expresión indicada en la ecuación~(\ref{eq:complejidad_potencial_grilla}).
+Este procedimiento debe repetirse para todos los nodos de la malla, lo que implica un costo total proporcional a $O(N \cdot N_{\text{nodos}})$ donde $N_{\text{nodos}} = L_x L_y L_z$.
 
-\begin{equation}
-	O(N \cdot N_{\text{nodos}})
-	\label{eq:complejidad_potencial_grilla}
-\end{equation}
 
-donde $N_{\text{nodos}} = L_x L_y L_z$.
+% la expresión indicada en la ecuación~(\ref{eq:complejidad_potencial_grilla}).
+
+% \begin{equation}
+%	O(N \cdot N_{\text{nodos}})
+%	\label{eq:complejidad_potencial_grilla}
+% \end{equation}
+
+
 
 \subsection{Obtención de fuerzas sobre partículas}
 
@@ -276,50 +281,28 @@ Esta limitación constituye el núcleo del problema abordado en esta tesis y mot
 \section{Optimización de configuraciones iniciales mediante algoritmos evolutivos}
 \label{sec:alg_evolutivo}
 
-\red{\textbf{no corresponde al marco teórico}}
+\red{\textbf{no corresponde al marco teórico}. falta el acápite. lo que sigue no es acápite y está sin organizar (en una subsección)}
+\blue{¿Donde debería ponerlo? lo borro?}
 
-\red{falta el acápite}
 
-\red{lo que sigue no es acápite y está sin organizar (en una subsección}
 En el marco de este trabajo se emplea un algoritmo evolutivo como técnica de optimización para generar configuraciones iniciales compactas de aglomerados tridimensionales de partículas. Estas configuraciones constituyen el estado inicial de los sistemas utilizados posteriormente en los experimentos de auto-gravedad.
 \red{(Capítulo~\ref{chap:desafio_planteado}, Sección~\ref{sec:compactacion_aglomerados})}
 
 Los algoritmos evolutivos son métodos de optimización poblacional que operan sobre un conjunto de soluciones candidatas, denominadas individuos, las cuales evolucionan a lo largo de generaciones mediante mecanismos de selección guiados por una función de evaluación (fitness). Este enfoque resulta adecuado para problemas geométricos de alta dimensionalidad con restricciones no lineales, como es el caso de la compactación de partículas esféricas en tres dimensiones.
 
-\subsection{Representación del individuo \red{plural}}
+\subsection{Representación de los individuos}
 
 Sea un aglomerado compuesto por $N$ partículas esféricas. Cada partícula $i$ se caracteriza por su posición en el espacio tridimensional $\mathbf{x}_i = (x_i, y_i, z_i)$ y su radio $r_i$. La distribución de radios se genera previamente de acuerdo con una distribución especificada y permanece fija durante el proceso de optimización.
 
-Un individuo del algoritmo evolutivo representa una configuración completa del sistema, es decir, el conjunto definido en la ecuación~(\ref{eq:ae_conjunto_configuracion}).
-
-\begin{equation}
-	\mathcal{S} = \{(\mathbf{x}_i, r_i)\}_{i=1}^{N}
-	\label{eq:ae_conjunto_configuracion}
-\end{equation}
-
-\red{no es frase} donde las posiciones $\{\mathbf{x}_i\}$ determinan la disposición espacial de todas las partículas dentro del dominio de trabajo.
+Un individuo del algoritmo evolutivo representa una configuración completa del sistema, es decir, el conjunto definido como $\mathcal{S} = \{(\mathbf{x}_i, r_i)\}_{i=1}^{N}$, donde las posiciones $\{\mathbf{x}_i\}$ determinan la disposición espacial de todas las partículas dentro del dominio de trabajo.
 
 \subsection{Función objetivo}
 
-El objetivo del proceso de compactación es maximizar la densidad volumétrica del aglomerado, reduciendo al mínimo el volumen vacío entre partículas. Formalmente, el problema puede expresarse como se indica en la ecuación~(\ref{eq:ae_objetivo_compactacion}).
-
-\begin{equation}
-	\max_{\{\mathbf{x}_i\}} \; \rho(\mathcal{S})
-	\label{eq:ae_objetivo_compactacion}
-\end{equation}
-
-\red{no es frase} donde $\rho(\mathcal{S})$ representa la fracción del volumen ocupado por las partículas respecto al volumen total del dominio considerado.
+El objetivo del proceso de compactación es maximizar la densidad volumétrica del aglomerado, reduciendo al mínimo el volumen vacío entre partículas. Formalmente, el problema puede expresarse como $\max_{\{\mathbf{x}_i\}} \; \rho(\mathcal{S})$, donde $\rho(\mathcal{S})$ representa la fracción del volumen ocupado por las partículas respecto al volumen total del dominio considerado.
 
 \subsection{Restricciones geométricas}
 
-El problema de optimización está sujeto a la restricción de no solapamiento entre partículas. Para toda pareja de partículas $i \neq j$, debe cumplirse según la ecuación~(\ref{eq:ae_restriccion_no_solapamiento}).
-
-\begin{equation}
-	\| \mathbf{x}_i - \mathbf{x}_j \| \ge r_i + r_j
-	\label{eq:ae_restriccion_no_solapamiento}
-\end{equation}
-
-donde $\|\cdot\|$ denota la norma euclídea en $\mathbb{R}^3$.
+El problema de optimización está sujeto a la restricción de no solapamiento entre partículas. Para toda pareja de partículas $i \neq j$, debe cumplirse que $\| \mathbf{x}_i - \mathbf{x}_j \| \ge r_i + r_j$, donde $\|\cdot\|$ denota la norma euclídea en $\mathbb{R}^3$.
 
 Esta restricción garantiza que las partículas no se interpenetran geométricamente. Asimismo, la distribución de radios $\{r_i\}$ permanece constante durante el proceso evolutivo, preservando las características físicas del sistema.
 
@@ -329,12 +312,17 @@ El algoritmo evolutivo opera iterativamente sobre una población de configuracio
 
 El detalle de la implementación concreta del algoritmo, así como su parametrización y desempeño experimental, se presenta en la Sección~\ref{sec:compactacion_aglomerados}.
 
+
+
+
 \section{Computación paralela y métricas de desempeño}
 \label{sec:computacion_paralela_metricas}
 
-\red{falta el acápite}
+Esta sección introduce los modelos de paralelismo y las métricas utilizadas para evaluar el desempeño computacional del algoritmo desarrollado.
 
-\red{lo que sigue no es acápite y está sin organizar (en una subsección}
+% \red{falta el acápite}. lo que sigue no es acápite y está sin organizar (en una subsección}
+
+\subsection{Fundamentos de computación paralela}
 
 La computación paralela es un paradigma de cómputo en el cual múltiples operaciones se ejecutan de manera concurrente con el objetivo de reducir el tiempo total de ejecución o incrementar el tamaño de los problemas abordables. En términos generales, un problema se descompone en subtareas que pueden ejecutarse simultáneamente, coordinando su ejecución mediante mecanismos de comunicación y sincronización. Este enfoque introduce desafíos adicionales respecto a la programación secuencial, tales como condiciones de carrera, sobrecostos de sincronización y desbalance de carga.
 
@@ -344,10 +332,10 @@ En el contexto de este trabajo, la implementación utiliza una infraestructura d
 
 Existen dos estrategias habituales para dividir un problema y explotar paralelismo:
 
-\paragraph{Descomposición por dominio}
+\paragraph{Descomposición por dominio.}
 Consiste en particionar el conjunto de datos de entrada en subconjuntos, procesados en paralelo por diferentes unidades de ejecución. Este enfoque es frecuente en simulaciones numéricas, donde el dominio espacial o el conjunto de entidades (por ejemplo, partículas o nodos de una malla) puede distribuirse entre recursos.
 
-\paragraph{Descomposición funcional}
+\paragraph{Descomposición funcional.}
 Consiste en identificar etapas o funciones diferentes del algoritmo y ejecutarlas en paralelo. Este enfoque resulta útil cuando existen componentes relativamente independientes o pipelines de cómputo.
 
 En ambos casos, el rendimiento final depende de la proporción del trabajo efectivamente paralelizable, del costo de coordinación entre tareas (comunicación/sincronización) y del grado de balanceo del trabajo asignado.
@@ -376,27 +364,25 @@ Los experimentos del trabajo se ejecutan sobre el Cluster FING, una infraestruct
 
 Luego de aplicar técnicas de programación paralela, la evaluación del desempeño requiere cuantificar el desempeño obtenido y caracterizar la escalabilidad al incrementar los recursos de cómputo. En este trabajo se utilizan las siguientes métricas estándar:
 
-\paragraph{Tiempo de ejecución}\red{falta el punto luego de todos los paragraph}
-Sea $T(N)$ el tiempo de ejecución al utilizar $N$ recursos de cómputo (por ejemplo, hilos o procesos, según el experimento). Sea $T(1)$ el tiempo utilizando un único recurso bajo las mismas condiciones experimentales.
+%\red{falta el punto luego de todos los paragraph}
 
-\paragraph{Speedup}
-El speedup se define como la razón entre el tiempo en un recurso y el tiempo en $N$ recursos, según la ecuación~(\ref{eq:speedup}).
+\paragraph{Tiempo de ejecución.} Sea $T(N)$ el tiempo de ejecución al utilizar $N$ recursos de cómputo (por ejemplo, hilos o procesos, según el experimento). Sea $T(1)$ el tiempo utilizando un único recurso bajo las mismas condiciones experimentales.
+
+\paragraph{Speedup.} El speedup se define como la razón entre el tiempo en un recurso y el tiempo en $N$ recursos, según la ecuación~(\ref{eq:speedup}).
 \begin{equation}
 	S(N) = \frac{T(1)}{T(N)}.
 	\label{eq:speedup}
 \end{equation}
 Valores de $S(N)$ cercanos a $N$ indican un aprovechamiento eficiente de los recursos adicionales, mientras que desviaciones importantes reflejan sobrecostos de coordinación, desbalance o fracciones no paralelizables.
 
-\paragraph{Eficiencia paralela}
-La eficiencia paralela normaliza el speedup respecto a la cantidad de recursos utilizados, según la ecuación~(\ref{eq:eficiencia}).
+\paragraph{Eficiencia paralela.} La eficiencia paralela normaliza el speedup respecto a la cantidad de recursos utilizados, según la ecuación~(\ref{eq:eficiencia}).
 \begin{equation}
 	E(N) = \frac{S(N)}{N} = \frac{T(1)}{N \cdot T(N)}.
 	\label{eq:eficiencia}
 \end{equation}
 El valor de $E(N)$ pertenece al intervalo $(0,1]$, donde valores cercanos a 1 corresponden a un comportamiento próximo al ideal.
 
-\paragraph{Escalabilidad}
-La escalabilidad describe la evolución del desempeño al aumentar $N$. En términos prácticos, se analiza si el speedup crece de forma aproximadamente proporcional al incremento de recursos y cómo se comporta la eficiencia al aumentar $N$. Esta evaluación permite caracterizar el rango en el cual el algoritmo aprovecha efectivamente los recursos disponibles y en qué punto comienzan a dominar los sobrecostos asociados a sincronización y comunicación.
+\paragraph{Escalabilidad.} La escalabilidad describe la evolución del desempeño al aumentar $N$. En términos prácticos, se analiza si el speedup crece de forma aproximadamente proporcional al incremento de recursos y cómo se comporta la eficiencia al aumentar $N$. Esta evaluación permite caracterizar el rango en el cual el algoritmo aprovecha efectivamente los recursos disponibles y en qué punto comienzan a dominar los sobrecostos asociados a sincronización y comunicación.
 
 Las métricas anteriores se emplean en el análisis experimental reportado en capítulos posteriores, donde se evalúa el comportamiento del algoritmo bajo distintas configuraciones de tamaño de problema y recursos de cómputo.
 
@@ -439,7 +425,7 @@ Dado que inicialmente no se conocía el comportamiento relativo de distintas est
 
 A continuación se presenta una descripción general de cada técnica.
 
-\paragraph{Vecino más cercano (Nearest Neighbor)}
+\paragraph{Vecino más cercano (Nearest Neighbor).}
 Este método asigna al punto $\mathbf{x}$ el valor del nodo más cercano, según la ecuación~(\ref{eq:interpolacion_nearest_neighbor}).
 \begin{equation}
 	V(\mathbf{x}) = V_{i^\star}, \qquad i^\star = \arg\min_{i} \, d(\mathbf{x},\mathbf{p}_i)
@@ -447,7 +433,7 @@ Este método asigna al punto $\mathbf{x}$ el valor del nodo más cercano, según
 \end{equation}
 En la ecuación~(\ref{eq:interpolacion_nearest_neighbor}), $d(\cdot,\cdot)$ es una métrica de distancia (en este trabajo, distancia euclídea). El resultado es un interpolante constante por regiones, y su simplicidad permite utilizarlo como referencia base.
 
-\paragraph{Promedio ponderado por distancia}
+\paragraph{Promedio ponderado por distancia.}
 En este enfoque se calcula el valor interpolado como un promedio ponderado de un conjunto de nodos de referencia, según la ecuación~(\ref{eq:interpolacion_promedio_ponderado}).
 \begin{equation}
 	V(\mathbf{x}) = \frac{\sum_{i\in\mathcal{N}(\mathbf{x})} w_i(\mathbf{x})\, V_i}{\sum_{i\in\mathcal{N}(\mathbf{x})} w_i(\mathbf{x})}
@@ -455,10 +441,10 @@ En este enfoque se calcula el valor interpolado como un promedio ponderado de un
 \end{equation}
 En la ecuación~(\ref{eq:interpolacion_promedio_ponderado}), $\mathcal{N}(\mathbf{x})$ es el conjunto de nodos considerados (por ejemplo, los más cercanos) y $w_i(\mathbf{x})$ es una función de ponderación que depende de la distancia entre $\mathbf{x}$ y $\mathbf{p}_i$. Este esquema general permite definir múltiples variantes a partir de la elección de $w_i(\mathbf{x})$.
 
-\paragraph{Kriging}
+\paragraph{Kriging.}
 Kriging es una técnica geoestadística de estimación que determina pesos a partir de un modelo de variograma, bajo la premisa de que existe correlación espacial entre las muestras. En contraste con métodos deterministas basados únicamente en distancia, Kriging incorpora un modelo explícito de variabilidad espacial y produce estimadores insesgados bajo supuestos de estacionariedad y modelo de variograma adecuado. La precisión del estimador depende, entre otros factores, de la distribución espacial de las muestras y del ajuste del variograma.
 
-\paragraph{Ponderación de distancia inversa (IDW)}
+\paragraph{Ponderación de distancia inversa (IDW).}
 IDW es un método determinista que asigna pesos inversamente proporcionales a la distancia entre $\mathbf{x}$ y los puntos de referencia. Utilizando el esquema de promedio ponderado, los pesos se definen como, según la ecuación~(\ref{eq:idw_pesos}).
 \begin{equation}
 	w_i(\mathbf{x}) = \frac{1}{d(\mathbf{x},\mathbf{p}_i)^p}
@@ -475,13 +461,16 @@ El parámetro $p$ controla el grado de influencia de los nodos cercanos: valores
 \section{Integración con ESyS-Particle}
 \label{sec:esys_particle}
 
-\red{falta el acápite}
+Esta sección describe el rol de ESyS-Particle como entorno de simulación DEM y su relación con la integración del cálculo de auto-gravedad.
 
-\red{lo que sigue no es acápite y está sin organizar (en una subsección}
+% \red{falta el acápite}
+% \red{lo que sigue no es acápite y está sin organizar (en una subsección}
+
+\subsection{Contexto de uso de ESyS-Particle}
 
 Cuando la magnitud de los datos generados por una simulación numérica es considerable, el análisis individual de resultados resulta impracticable. En este contexto, las herramientas de simulación y visualización permiten representar el comportamiento del sistema de manera estructurada y facilitar la interpretación física de los resultados.
 
-Este trabajo utiliza el paquete de simulación numérica \textit{ESyS-Particle} \red{sacar itálica, incluir referencia}, una herramienta basada en DEM diseñada para la simulación de sistemas granulares a gran escala. La elección de esta herramienta se fundamenta en su capacidad de ejecución paralela y en su arquitectura extensible, adecuada para integrar el cálculo de auto-gravedad desarrollado en esta tesis.
+Este trabajo utiliza el paquete de simulación numérica ESyS-Particle \cite{23}, una herramienta basada en DEM diseñada para la simulación de sistemas granulares a gran escala. La elección de esta herramienta se fundamenta en su capacidad de ejecución paralela y en su arquitectura extensible, adecuada para integrar el cálculo de auto-gravedad desarrollado en esta tesis.
 
 \subsection{Descripción general}
 
@@ -532,9 +521,7 @@ Esta integración constituye un componente central del trabajo, ya que permite v
 
 Este capítulo revisa antecedentes relevantes y delimita su relación con la propuesta desarrollada.
 
-En este capítulo se presentan los antecedentes del proyecto.
-
-El cálculo exacto del potencial gravitatorio generado por $n$ partículas implica $O(n^2)$ operaciones, lo cual resulta computacionalmente costoso cuando $n$ es del orden de millones. En consecuencia, se han desarrollado diversas estrategias para reducir el número de operaciones requeridas:.
+El cálculo exacto del potencial gravitatorio generado por $n$ partículas implica $O(n^2)$ operaciones, lo cual resulta computacionalmente costoso cuando $n$ es del orden de millones. En consecuencia, se han desarrollado diversas estrategias para reducir el número de operaciones requeridas.
 
 Una primera estrategia consiste en sustituir el valor exacto del potencial gravitatorio por una función suave de la posición. Se han utilizado armónicos esféricos y bi-esféricos como funciones de ajuste \cite{6}. Cada partícula se propaga en este campo de fondo durante un breve periodo de tiempo antes de que se vuelva a calcular el ajuste. Este método requiere operaciones del orden de $O(n\log(n))$, pero su desventaja es la pérdida de precisión.
 
@@ -558,7 +545,7 @@ Este capítulo formaliza el problema, define el modelo adoptado y establece los 
 
 El problema central abordado en esta tesis consiste en el cálculo eficiente de la auto-gravedad en un sistema discreto de partículas que modela un medio granular auto-gravitante.
 
-Sea un aglomerado compuesto por $N$ partículas, donde cada partícula $i$ posee masa $m_i$ y posición $\mathbf{x}_i \in \mathbb{R}^3$. En el marco de la mecánica newtoniana, la fuerza gravitatoria total ejercida sobre la partícula $i$ está dada por la ecuación~(\ref{eq:fuerza_total_gravitatoria_cap4}).
+Sea un aglomerado compuesto por $N$ partículas, donde cada partícula $i$ posee masa $m_i$ y posición $\mathbf{x}_i \in \mathbb{R}^3$. En el marco de la mecánica newtoniana, la fuerza gravitatoria total ejercida sobre la partícula $i$ está dada por la ecuación~(\ref{eq:fuerza_total_gravitatoria_cap4}), donde $G$ es la constante de gravitación universal.
 
 \begin{equation}
 	\mathbf{F}_i = - \sum_{\substack{j=1 \\ j \neq i}}^{N}
@@ -567,7 +554,6 @@ Sea un aglomerado compuesto por $N$ partículas, donde cada partícula $i$ posee
 	\label{eq:fuerza_total_gravitatoria_cap4}
 \end{equation}
 
-donde $G$ es la constante de gravitación universal.
 
 El cálculo directo de esta expresión implica evaluar todas las interacciones par a par entre partículas, lo que conduce a una complejidad computacional $O(N^2)$. Cuando el número de partículas es del orden de $10^5$ o superior —como en los escenarios considerados en este trabajo— el costo computacional del cálculo directo resulta prohibitivo.
 
@@ -589,15 +575,15 @@ La generación de condiciones iniciales compactas para los aglomerados constituy
 \section{Modelo adoptado para la auto-gravedad}
 \label{sec:modelo_autogravedad}
 
-\red{falta el acápite}
+Esta sección define el modelo computacional adoptado para aproximar la auto-gravedad mediante grilla regular, agregación de masas y subdivisión jerárquica.
 
-\red{lo que sigue no es acápite y está sin organizar (en una subsección}
+\subsection{Criterios generales del modelo}
 
 El modelo adoptado para el cálculo de la auto-gravedad se basa en una aproximación jerárquica orientada a sistemas densos de partículas (aglomerados granulares auto-gravitantes en fase densa). La formulación combina una grilla regular tridimensional con aproximación por centros de masa para reducir el costo computacional, manteniendo cálculo exacto en la región local relevante.
 
 El cálculo directo del potencial (definido en el marco teórico) requiere evaluar la contribución del conjunto de partículas y conduce a un costo $O(N^2)$ por actualización, lo que resulta prohibitivo para tamaños del orden de millones.
 
-Con el objetivo de reducir la complejidad computacional manteniendo un nivel de precisión adecuado para simulaciones DEM con pasos temporales del orden de $10^{-4}$ s, se adopta un esquema basado en los siguientes principios:
+El enfoque propuesto busca reducir la complejidad computacional del cálculo de auto-gravedad manteniendo un nivel de precisión adecuado para simulaciones DEM con pasos temporales del orden de $10^{-4}$ s. Para ello, la formulación se organiza en torno a tres componentes: una grilla regular superpuesta al dominio, una aproximación jerárquica mediante MADA y un esquema de subdivisión multinivel para mejorar la precisión en regiones próximas al punto de evaluación.
 
 \subsection{Grilla regular superpuesta}
 
@@ -646,6 +632,7 @@ El modelo está específicamente orientado a aglomerados densos auto-gravitantes
 
 El algoritmo desarrollado en esta tesis implementa este modelo dentro de un esquema paralelo en memoria compartida, permitiendo su integración posterior con un motor DEM.
 
+
 \section{Desafíos computacionales identificados}
 \label{sec:desafios_computacionales}
 
@@ -691,14 +678,14 @@ A partir de la definición del problema físico-computacional y del modelo adopt
 
 \subsection{Objetivo general}
 
-Desarrollar e implementar un algoritmo de cálculo de auto-gravedad para aglomerados densos de partículas que reduzca el costo computacional respecto al enfoque directo, mediante una combinación de discretización espacial en grilla regular, aproximación jerárquica por centro de masa (MADA)\red{no es la definición de la sigla} y paralelismo en memoria compartida, permitiendo su uso en escenarios con un número elevado de partículas.
+Desarrollar e implementar un algoritmo de cálculo de auto-gravedad para aglomerados densos de partículas que reduzca el costo computacional respecto al enfoque directo, mediante una combinación de discretización espacial en grilla regular, aproximación jerárquica por centro de masa (MADA, por sus siglas en ingles de \textit{Mass Approximation Distance Algorithm}) y paralelismo en memoria compartida, permitiendo su uso en escenarios con un número elevado de partículas.
 
 \subsection{Objetivos específicos}
 
 \begin{enumerate}
 	\item Definir una representación discreta del dominio mediante una grilla tridimensional regular superpuesta al conjunto de partículas, de forma que las celdas constituyan la unidad mínima de procesamiento para el cálculo del potencial gravitatorio.
 
-	\item Incorporar el método \textit{Mass Approximation Distance Algorithm} (MADA)\red{definir las siglas la primera vez que se usan} como mecanismo de aceleración, de manera que:
+	\item Incorporar el método  MADA como mecanismo de aceleración, de manera que:
 	      \begin{itemize}
 		      \item la contribución gravitatoria de regiones alejadas se aproxime mediante una masa equivalente ubicada en el centro de masa de la celda (o subcelda) correspondiente;
 		      \item en la región local asociada a la celda que contiene el punto de evaluación, el cálculo se realice utilizando las partículas individuales, sin aplicar aproximación.
@@ -742,8 +729,6 @@ Finalmente, al considerar instancias con un número muy grande de partículas, e
 
 Este capítulo describe el diseño de la solución y la arquitectura de implementación adoptada.
 
-En este capítulo se presenta el diseño y arquitectura de la solución. \red{repetido}
-
 \section{Compactación de aglomerados}
 \label{sec:compactacion_aglomerados}
 En esta sección se presentan las características del algoritmo evolutivo desarrollado para resolver el problema de compactación de aglomerados.
@@ -782,12 +767,12 @@ Una vez generada una población inicial, comienza el proceso iterativo del algor
 
 \subsection{Operadores}
 En esta sección se definen los operadores evolutivos involucrados.
-\paragraph{Operador de selección}
+\paragraph{Operador de selección.}
 Se implementaron dos operadores de selección: selección por torneo y selección por torneo.
 
 %sin embargo, al ejecutar el algoritmo con diferentes configuraciones, se encontró que esta implementación se comporta mejor utilizando un operador de selección por rango. Este operador toma la población, ordena los individuos en orden decreciente por su valor de fitness y toma la primera mitad. Los individuos resultantes de este proceso son los responsables de la evolución, también llamados padres.
 
-\paragraph{Operador de cruzamiento}
+\paragraph{Operador de cruzamiento.}
 El operador de cruzamiento consiste en dividir la caja horizontalmente e intercambiar las secciones entre diferentes individuos, como se indica en la figura ~\ref{fig:rep_op_de_cruzamiento}.
 
 \begin{figure}[!ht]
@@ -808,7 +793,7 @@ Inicialmente se propuso un operador de cruzamiento que divide a cada individuo e
 	\label{fig:rep_op_de_cruzamiento5}
 \end{figure}
 
-\paragraph{Operador de mutación}
+\paragraph{Operador de mutación.}
 El operador de mutación implementado resulta de aplicar las siguientes transformaciones: 1. mover la partícula y 2. intercambiar partículas con el stock de partículas disponibles.
 El operador de mutación consiste en los siguientes pasos:
 Para una cantidad de veces $i$:
@@ -825,7 +810,7 @@ Para una cantidad de veces $i$:
 
 La mutación elegida identifica espacios vacios, compacta las partículas hacia esos huecos e inserta partículas nuevas en los espacios libres (respetando la distribución de probabilidad).
 
-\paragraph{Operador de reemplazo de la generación}
+\paragraph{Operador de reemplazo de la generación.}
 El operador de reemplazo corresponde a un modelo poblacional llamado solapado, debido a que los individuos padres y sus descendientes compiten por la descendencia generada. El operador sigue los siguientes pasos: 1. se ordena toda la población de forma decreciente según su valor de fitness y 2. se quitan los peores $n$ primeros individuos, con $n$ igual a la cantidad de hijos producidos.
 
 Dado que el algoritmo descarta tantos individuos como nuevos hijos generados, el tamaño de la población se mantiene constante. %La forma de codificación de los individuos tomar en cuenta los operadores involucrados y realiza el mayor esfuerzo para que dichos operadores no sean costosos de aplicar.
@@ -866,7 +851,7 @@ Se identificó pérdida del fitness al no poder ensamblar perfectamente los indi
 \end{comment}
 
 \section{Simulación de medios granulares bajo los efectos de fuerzas gravitatorias}
-En esta sección se presentan el algoritmo de simulación de medios granulares.
+En esta sección se presenta el algoritmo de simulación de medios granulares.
 %antecedentes
 %Metodología
 %Paralelicidad del algoritmo
@@ -946,7 +931,7 @@ En el proceso de estudiar el comportamiento del algoritmo se implementaron las s
 	\item Estrategia aislada lineal avanzada
 \end{enumerate}
 
-\subparagraph{Estrategia de interbloqueo lineal con igual comienzo}
+\subparagraph{Estrategia de interbloqueo lineal con igual comienzo.}
 % En un principio se comenzó con una estrategia lineal de asignación de celdas a hilos. 
 Los hilos son ordenados lexicográficamente desde $1$ a $n$, y todos los hilos empiezan desde el mismo punto inicial. La primera celda libre (celda nro. 1) es asignada al primer hilo, la segunda celda libre (celda nro. 2) es asignada al segundo hilo, y así sucesivamente, hasta que todos los hilos tienen una celda para realizar el procesamiento. Luego, cada vez que un hilo $h$ termina de procesar una celda $c$ y requiere una celda para seguir trabajando, se busca la siguiente celda sin procesar a partir de $c$ y se le asigna al hilo $h$.
 
@@ -967,7 +952,7 @@ Algo evidente es la necesidad de sincronizar el acceso a cada celda, para evitar
 
 Una vez que esta estrategia de recorrida lineal con un mismo comienzo estaba funcionando correctamente, el desarrollo buscó mejorarla teniendo en cuenta los cálculos, el orden y los valores cacheados en el proceso.
 
-\subparagraph{Estrategia circular concéntrica}
+\subparagraph{Estrategia circular concéntrica.}
 En esta estrategia la mitad de los hilos empiezan desde el centro de la grilla, y la otra mitad de los hilos empiezan desde las celdas más alejadas del centro de la grilla. Cuando el algoritmo ejecuta, para cada celda a procesar cada hilo debe calcular el centro de masa de la celda. Este valor solo depende de las particulas contenidas en la celda y no cambia hasta que termina la ejecucion, por lo cual el valor es almacenado en memoria como dato derivado de la celda.
 Lo que se busca con esta estrategia, es reutilizar dichos valores de centro de masa por los distintos hilos en el transcurso de su procesamiento. Los hilos que ejecutan desde el centro hacia afuera calculan y almacenan ciertos valores que seran reutilizados por los hilos que ejecutan en sentido contrario, y viceversa. Las ideas básicas de esta estrategia se muestran en la figura ~\ref{fig:estrategia_asignacion_2}.
 
@@ -989,7 +974,7 @@ La poca complejidad algorítmica involucrada en el calculo del centro de masa en
 
 % Si bien la idea de reutilizar cálculos parecía muy acertada, la poca complejidad algorítmica involucrada en dicho cálculo y por ende la ventaja de reutilizar dichos valores no resulta en una ganancia significativa, mientras que aún tenemos el conjunto de semáforos y el degradado que eso acarrea.\newline
 
-\subparagraph{Estrategia aislada lineal básica}
+\subparagraph{Estrategia aislada lineal básica.}
 Esta estrategia surge al considerar que los hilos no comienzan en la misma celda, sino que distribuidos de forma tal de minimizar las colisiones en el acceso a la memoria compartida. Esta estrategia se caracteriza por realizar una recorrida lineal de las cajas, tal como la primera estrategia descrita, pero asignando a cada hilo un comienzo distinto, no consecutivo y distribuido uniformemente. Es decir, si se considera el conjunto de celdas $c_i$ con $i$ desde $0$ a $n-1$ y el conjunto de hilos $h_i$ con $i$ desde $0$ a $h-1$, se divide dicho conjunto $n$ de celdas entre el conjunto $h$ de hilos disponibles, de tal forma que para cada hilo $h_i$, se le asigna como comienzo la celda $h_i*(n/h)$. De esta forma los hilos tienen el mismo porcentaje de dominio libre para procesar antes de toparse con una celda que ya fue calculada por otro hilo. En esta estrategia no se necesita manejar semáforos para cada celda, por lo que podría apreciarse una mejora en la performance. La estrategia se puede visualizar en la figura ~\ref{fig:estrategia_asignacion_3}.
 
 \begin{figure}[!ht]
@@ -1007,7 +992,7 @@ Esta estrategia pertenece a la categoria de estrategias estaticas, es decir los 
 
 Notar cómo en esta estrategia se sacrifica el dinamismo en la asignación de celdas en pos de mejorar la performance obtenida.
 
-\subparagraph{Estrategia aislada lineal avanzada}
+\subparagraph{Estrategia aislada lineal avanzada.}
 Esta estrategia incorpora a la estrategia anterior la capacidad de ejecutar nuevas celdas en otras secciones una vez que la sección asignada al inicio se completa.
 
 La idea fundamental de esta estrategia es presentada en la figura ~\ref{fig:estrategia_asignacion_4}.
@@ -1029,10 +1014,10 @@ La estrategia divide el procesamiento en dos etapas: la primera etapa es idénti
 Esta estrategia combina las mejores características de ambas estrategias.
 
 \subsection{Aproximación de masas por distancia}
-\paragraph{Motivación}
+\paragraph{Motivación.}
 Como ya se mencionó, uno de los aspectos complejos del problema resulta en el alto número de partículas a considerar. Para soportar el cálculo (desde un punto de vista computacional) cuando la cantidad de partículas crece, se necesita reducir el número total de cálculos efectuados. Para eso, hay que recordar que, a una distancia suficientemente grande, desde el punto de vista del efecto gravitatorio, la masa de dos cuerpos puede ser considerada como condensada a su centro de masa (sin generar esto errores significativos). Por tanto, para disminuir el orden de magnitud del cálculo, se puede aplicar un algoritmo con una estructura de datos adecuada que agrupe a las partículas lejanas sustituyendolas por una masa combinada y una distancia media o centro de masa.
 Este concepto permite abordar magnitudes del orden de millones de particulas.
-\paragraph{Metodología}
+\paragraph{Metodología.}
 Considérese un conjunto de partículas con sus coordenadas correspondientes, y sobre cada grupo de partículas una celda perteneciente a la grilla que las contiene, tal como se muestra en la figura ~\ref{fig:estrategia_asignacion_4}.
 
 %\Huge{\textcolor{red}{SEGUIR \newlinePROCESANDO \newlineIMAGENES\newlineA \newlinePARTIR\newlineDE\newlineACA\newline}}
@@ -1062,7 +1047,7 @@ Siguiendo ese razonamiento para todas las partículas dentro de la grilla, se pu
 
 
 
-\paragraph{Celdas virtuales}
+\paragraph{Celdas virtuales.}
 La aplicación de MADA incurre en errores (relativos superiores al umbral experimental definido en el Capítulo 6) en aquellos escenarios en los que el punto origen $O$ se encuentra próximo al centro de masa.
 Una mejora de esta estrategia surge al subdividir las celdas de la grilla de forma dinámica dependiendo de la distancia al punto origen $O$.
 Para explicar este concepto resulta útil definir el siguiente vocabulario: se denomina celda de primer nivel a las celdas tal como se presentaron hasta ahora (en la figura ~\ref{fig:mada_subdivision} tales celdas estan representadas con borde negro), se denomina celdas de segundo nivel a las celdas con una división interna con lo que definen 4 nuevas sub-celdas (en la figura ~\ref{fig:mada_subdivision} dichas celdas estan representadas con borde azul) finalmente se denomina  celdas de tercer nivel a las celdas con dos divisiones con lo que definen 16 nuevas sub-celdas (en la figura ~\ref{fig:mada_subdivision} son las celdas de borde rojo).
@@ -1082,7 +1067,7 @@ Para explicar este concepto resulta útil definir el siguiente vocabulario: se d
 Lo que esta mejora propone es dividir las celdas en sub-celdas de diferentes niveles (mayor nivel a medida que se acerca al punto origen $O$) y utilizar los centros de masa de las partículas contenidas por dentro de estas sub-celdas en vez del centro de masa de la celda de primer nivel. Nótese que la  celda que contiene el punto origen $O$, no utiliza el centro de masa de la celda, sino que calcula directamente utilizando las partículas.
 Con esta mejora se mantiene la disminución algorítmica lograda con MADA para partículas distantes mientra que se asegura no cometer errores con partículas cercanas.
 
-\paragraph{Configuración de la malla}
+\paragraph{Configuración de la malla.}
 
 El MADA es influido por la cantidad de subdivisiones totales que se realizan a las celdas de primer nivel. Por otro lado, según el aglomerado que se está estudiando se preferirá una u otra forma de dividir las celdas. Por las dos razones anteriores, es que se necesita permitir configurar al usuario que ejecuta el algoritmo la forma en como se dividen las celdas de la grilla.
 
@@ -1187,7 +1172,7 @@ En esta sección se describen los cambios realizados en el algoritmo para integr
 % \subsubsection{Integraciones}
 Se realizaron dos tipos de integraciones al paquete ESyS-Particle: integración FewParticles e integración ManyParticles. La integración FewParticles hace un cálculo exacto sobre todas las partículas del dominio. Para ello es necesario disponer de todas las partículas en el recurso de cómputo, por lo que esta forma de integración limita la escalabilidad de la solución final (recuérdese que ESyS-Particle divide partículas entre recursos de cómputo). La segunda forma de integración ManyParticles no hace un cálculo exacto sino que realiza diferentes aproximaciones (como la ya vista MADA) comunicando los valores de autogravedad calculados entre los distintos recurso de cómputo. A continuación se describe en profundidad cada forma de integración.
 
-\paragraph{Integración FewParticles}
+\paragraph{Integración FewParticles.}
 Para poder simular el comportamiento de partículas bajo el efecto de una fuerza de auto-gravedad es necesaria la incorporación de nuevas interacciones al producto ESyS-Particle.
 ESyS-Particle permite agregar nuevos tipos de fuerzas que aún no estén implementadas por dentro del paquete de forma relativamente sencilla. Sin embargo, dada la arquitectura paralela maestro-esclavo y la interfaz Python, es necesario agregar pequeños trozos de código a lo largo de todo el código fuente.
 
@@ -1207,7 +1192,7 @@ En cada paso de simulación se calcula para cada partícula el potencial gravita
 
 % Además de las ya mencionadas ventajas, esta forma de integración tiene una ventaja muy importante: está forma de integrar el cálculo de auto-gravedad está completamente contemplado en ESyS-Particle y encaja correctamente con la arquitectura base interna. Por lo tanto, no se modifican aspectos centrales del paquete. 
 
-\paragraph{Integración ManyParticles}
+\paragraph{Integración ManyParticles.}
 Esta integración con el paquete ESyS-Particle está diseñada para simular del orden de millones de partículas. Esto no es viable con la integración FewParticles, en el cual solo se puede utilizar un recurso de cómputo para procesar todas las partículas. Para esta integracción denominada $ManyParticles$ es necesario utilizar más de un recurso de cómputo y habilitar la subdivisión del dominio de trabajo del ESyS-Particle.
 
 Cuando el número de partículas crece la fórmula anterior de orden $O(N^2)$ resulta demasiado costoso computacionalmente. Para ello se diseña una solución que no re-calcula la autogravedad en todos los pasos de simulación, sino que solo recalcula la auto-gravedad cuando ocurren una de dos cosas: o pasaron un número de pasos de simulación dado o las partículas en su promedio se mueven más que un valor $D_a$. El gráfico a continuación, inspirado en el diseño de ESyS-Particle básico, describe el flujo de cálculo resultante:
@@ -1494,7 +1479,7 @@ Para integrar efectivamente el código desarrollado en la rama principal del paq
 
 	\bibitem{22} Ricardo Dobry, Tang-Tat Ng \textit{Discrete modeling of stress-strain behavior of granular media at small and large strains}, \url{https://www.researchgate.net/publication/235300289_Discrete_modeling_of_stress-strain_behavior_of_granular_media_at_small_and_large_strains/link/55e7215708ae3e1218420404/download}.
 
-
+    \bibitem{23} D. Weatherley, \textit{ESyS-Particle v2.0 user's guide}, Earth Systems Science Computational Centre, The University of Queensland, 2009, \url{https://espace.library.uq.edu.au/view/UQ%3A187819}.
 
 
 \end{thebibliography}
