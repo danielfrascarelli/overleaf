@@ -980,7 +980,7 @@ Esta estrategia surge al considerar que los hilos no comienzan en la misma celda
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	\includegraphics[scale=0.7]{images/estrategia_asignacion_3.PNG}
+	\includegraphics[scale=0.7]{images/es/estrategia_asignacion_3.png}
 	\caption{Estrategia aislada lineal básica.}
 	\label{fig:estrategia_asignacion_3}
 \end{figure}
@@ -1000,7 +1000,7 @@ La idea fundamental de esta estrategia es presentada en la figura ~\ref{fig:estr
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	\includegraphics[scale=0.7]{images/estrategia_asignacion_4.PNG}
+	\includegraphics[scale=0.7]{images/es/estrategia_asignacion_4.png}
 	\caption{Estrategia aislada lineal avanzada.}
 	\label{fig:estrategia_asignacion_4}
 \end{figure}
@@ -1025,7 +1025,7 @@ Considérese un conjunto de partículas con sus coordenadas correspondientes, y 
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	\includegraphics[width=300px]{images/mada.PNG}
+	\includegraphics[width=300px]{images/es/mada.png}
 	\caption{Aproximación de masas por distancia.}
 	\label{fig:mada}
 \end{figure}
@@ -1057,7 +1057,7 @@ Para explicar este concepto resulta útil definir el siguiente vocabulario: se d
 	\centering
 	% 	\includegraphics[width=300px]{images/mada.PNG}
 	% 	\includegraphics[width=150px]{images/mada_2.PNG}
-	\includegraphics[width=230px]{images/mada_celdas_virtuales.PNG}
+	\includegraphics[width=230px]{images/na/mada_celdas_virtuales.PNG}
 	\caption{Subdivision de celdas de MADA.}
 	\label{fig:mada_subdivision}
 \end{figure}
@@ -1197,7 +1197,7 @@ Esta integración con el paquete ESyS-Particle está diseñada para simular del 
 
 Cuando el número de partículas crece la fórmula anterior de orden $O(N^2)$ resulta demasiado costoso computacionalmente. Para ello se diseña una solución que no re-calcula la autogravedad en todos los pasos de simulación, sino que solo recalcula la auto-gravedad cuando ocurren una de dos cosas: o pasaron un número de pasos de simulación dado o las partículas en su promedio se mueven más que un valor $D_a$. El gráfico a continuación, inspirado en el diseño de ESyS-Particle básico, describe el flujo de cálculo resultante:
 
-\includegraphics[scale=0.65]{images/many_particles.PNG}
+\includegraphics[scale=0.65]{images/es/many_particles.png}
 %\includegraphics[width=\textwidth]{images/many_particles.PNG}
 
 Como se puede ver en la imagen, el paso de calculo de la autogravedad, solo se ejecuta segun cierta condicional. Debido a ello, el cálculo de auto-gravedad obtenido sólo es exacto en el primer paso de simulación, subsecuentes pasos de simulación utilizarán un valor aproximado.
@@ -1209,7 +1209,7 @@ Una de las ventajas obvias de esta integración es que permite trabajar con del 
 
 Una vez integrado el algoritmo, las secciones anteriormente diseñadas cambian ligeramente:
 
-\includegraphics[scale=0.5]{images/many_particles_secciones.PNG}
+\includegraphics[scale=0.5]{images/es/many_particles_secciones.png}
 %\includegraphics[width=\textwidth]{images/many_particles_secciones.PNG}
 
 Estos cambios son debido a que al integrar el cálculo de autogravedad en el paquete ESyS-Particle, el cálculo de autogravedad en los nodos de la maya configurable se realiza en el nodo maestro. Una vez obtenidos dichos valores se envían a los procesos esclavos del ESyS-Particle (posiblemente distribuidos) los cuales utilizando estos valores interpolan el valor de la fuerza de auto-gravedad en las posiciones de las partículas del subdominio que le corresponde. Esta distribución de los cálculos impide tener el algoritmo de interpolación por dentro del código de auto-gravedad, sino que se migró a los procesos esclavos.
@@ -1238,37 +1238,37 @@ Se analizó el comportamiento de los métodos de interpolación Kriging e IDW. L
 	\centering
 	\begin{subfigure}[t]{0.36\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/interpolacion_kriging.png}
+		\includegraphics[width=\linewidth]{images/es/interpolacion_kriging.png}
 		\caption{Error relativo del algoritmo Kriging} \label{fig:interpol_kriging}
 	\end{subfigure}
 	\begin{subfigure}[t]{0.36\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/interpolacion_idw_1.png}
+		\includegraphics[width=\linewidth]{images/es/interpolacion_idw_1.png}
 		\caption{Error relativo del algoritmo IDW con parámetro $p=1$} \label{fig:interpol_idw_1}
 	\end{subfigure}
 	\begin{subfigure}[t]{0.36\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/interpolacion_idw_2.png}
+		\includegraphics[width=\linewidth]{images/es/interpolacion_idw_2.png}
 		\caption{Error relativo del algoritmo IDW con parámetro $p=2$} \label{fig:interpol_idw_2}
 	\end{subfigure}
 	\begin{subfigure}[t]{0.36\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/interpolacion_idw_3.png}
+		\includegraphics[width=\linewidth]{images/es/interpolacion_idw_3.png}
 		\caption{Error relativo del algoritmo IDW con parámetro $p=3$} \label{fig:interpol_idw_3}
 	\end{subfigure}
 	\begin{subfigure}[t]{0.72\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/interpolacion_idw_4.png}
+		\includegraphics[width=\linewidth]{images/es/interpolacion_idw_4.png}
 		\caption{Error relativo del algoritmo IDW con parámetro $p=4$} \label{fig:interpol_idw_4}
 	\end{subfigure}
 	\begin{subfigure}[t]{0.36\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/interpolacion_idw_7.png}
+		\includegraphics[width=\linewidth]{images/es/interpolacion_idw_7.png}
 		\caption{Error relativo del algoritmo IDW con parámetro $p=7$} \label{fig:interpol_idw_7}
 	\end{subfigure}
 	\begin{subfigure}[t]{0.36\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/interpolacion_idw_14.png}
+		\includegraphics[width=\linewidth]{images/es/interpolacion_idw_14.png}
 		\caption{Error relativo del algoritmo IDW con parámetro $p=14$} \label{fig:interpol_idw_14}
 	\end{subfigure}
 	\caption{Errores relativos de los algoritmos de interpolación}
@@ -1281,19 +1281,19 @@ presenta menor error relativo mínimo. Por tener menor error relativo mínimo pe
 	\centering
 	\begin{subfigure}[t]{0.7\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/idw_avg-error.png}
+		\includegraphics[width=\linewidth]{images/es/idw_avg-error.png}
 		\caption{Errores relativos promedio de los algoritmos IDW}
 		\label{fig:err-rel-idw_avg-error}
 	\end{subfigure}
 	\begin{subfigure}[t]{0.7\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/idw_max-error.png}
+		\includegraphics[width=\linewidth]{images/es/idw_max-error.png}
 		\caption{Errores relativos máximos de los algoritmos IDW}
 		\label{fig:err-rel-idw_max-error}
 	\end{subfigure}
 	\begin{subfigure}[t]{0.7\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/idw_min-error.png}
+		\includegraphics[width=\linewidth]{images/es/idw_min-error.png}
 		\caption{Errores relativos mínimo de los algoritmos IDW}
 		\label{fig:err-rel-idw_min-error}
 	\end{subfigure}
@@ -1320,7 +1320,7 @@ Los escenarios utilizados tienen simetría esférica, por lo que existe una expr
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=1]{images/algoritmo_paralelo_valores_distancia.png}
+	\includegraphics[scale=1]{images/es/algoritmo_paralelo_valores_distancia.png}
 	\caption{Potencial gravitatorio versus la distancia al centro de masa para cerca de un millón de partículas (el valor teórico está sobre dibujado).}
 	\label{fig:alg-par-valor-dist}
 \end{figure}
@@ -1338,7 +1338,7 @@ Para estudiar la eficiencia computacional del algoritmo, el análisis experiment
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.7]{images/algoritmo_paralelo_tiempo_vs_threads.png}
+	\includegraphics[scale=0.7]{images/es/algoritmo_paralelo_tiempo_vs_threads.png}
 	\caption{Tiempo de ejecución en función de la cantidad de hilos para los distintos escenarios.}
 	\label{fig:alg-par-tiempo-threads}
 \end{figure}
@@ -1347,20 +1347,20 @@ El speed-up y los valores de eficiencia son reportados en las siguientes figuras
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.3]{images/algoritmo_paralelo_speedup_threads.PNG}
+	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_speedup_threads.PNG}
 	\label{fig:algoritmo_paralelo_speedup_threads}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.3]{images/algoritmo_paralelo_eficiencia_vs_threads.PNG}
+	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_eficiencia_vs_threads.PNG}
 	\label{fig:algoritmo_paralelo_eficiencia_vs_threads}
 \end{figure}
 Además también se analizó la dependencia de los tiempos de ejecución con el número de partículas cuando se varían la cantidad de hilos utilizados en el procesamiento. Los resultados se muestran en la siguiente figura.
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.3]{images/algoritmo_paralelo_executiontime_vs_nrpparticulas.PNG}
+	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_executiontime_vs_nrpparticulas.PNG}
 	\label{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}
 \end{figure}
 Las curvas se pueden ajustar a una función polinomial, que corresponde a un valor casi constante del tiempo de ejecución normalizado con respecto al número de partículas, como se observa en la figura siguiente para un número dado de hilos y más de $2 \times 10^5$ partículas. Teniendo en cuenta que la dependencia con el número de hilos (n) se puede ajustar a una función de ley potencial inversa y el número de partículas (p) con una funciona polinomial lineal, se puede ajustar el tiempo de ejecución con el modelo de la ecuación~(\ref{eq:modelo_tiempo}).
@@ -1374,7 +1374,7 @@ usado coeficientes $a = 13.65, b=1.049 x 10^-3 y c = 0.8682$.
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.7]{images/algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas.PNG}
+	\includegraphics[scale=0.7]{images/es/algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas.PNG}
 	\label{fig:algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas}
 \end{figure}
 
@@ -1393,7 +1393,7 @@ La tabla siguiente muestra los promedios y la desviación estándar, para cinco 
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.5]{images/estrategias_de_asignacion_de_trabajo.PNG}
+	\includegraphics[scale=0.5]{images/es/estrategias_de_asignacion_de_trabajo.png}
 	\label{fig:estrategias_de_asignacion_de_trabajo}
 \end{figure}
 
@@ -1402,15 +1402,15 @@ La estrategia “Basic isolated linear” es la que peor se comporta, fundamenta
 
 La tabla siguiente muestra la eficiencia computacional (tiempo de ejecución y speedup) para la estrategia “Advanced isolated linear” utilizando diferente cantidad de hilos y para los tres escenarios estudiados. El promedio y la desviación estándar resultante son calculados a partir de seis ejecuciones independientes sobre cada escenario para cada hilo.
 
-\includegraphics[scale=0.75]{images/estrategias_de_asignacion_de_trabajo_eficiencia_para_advanced.PNG}
+\includegraphics[scale=0.75]{images/es/estrategias_de_asignacion_de_trabajo_eficiencia_para_advanced.png}
 
 Las siguientes figuras muestran la ejecución para cada escenario cuando se varía el número de hilo.
 
-\includegraphics[scale=0.65]{images/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_A.PNG}
+\includegraphics[scale=0.65]{images/es/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_A.png}
 
-\includegraphics[scale=0.7]{images/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_B.PNG}
+\includegraphics[scale=0.7]{images/es/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_B.png}
 
-\includegraphics[scale=0.7]{images/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_C.PNG}
+\includegraphics[scale=0.7]{images/es/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_C.png}
 
 Al utilizar 16 hilos se logra para el escenario más grande un speedup de factor 13.4, lo cual se corresponde con una eficiencia computacional de 0.85. El comportamiento del speedup para el algoritmo paralelo propuesto es casi linear. Además, el mejor speedup/eficiencia se obtuvo para la simulación que manipula la mayor cantidad de partículas, demostrando un buen comportamiento de escalabilidad. Simulaciones de más de un millón de partículas, que demanda 1920s (más de media hora) pueden realizarse en dos minutos y medio utilizando 16 hilos.
 
