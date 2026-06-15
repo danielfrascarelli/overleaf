@@ -873,8 +873,8 @@ Considérese una grilla en 2D resultante de dividir el dominio en 3 divisiones e
 	\caption{Metodología de calculo de autogravedad.}
 	\label{fig:metodologia}
 \end{figure}
-%\includegraphics[scale=0.5]{images/metodologia.PNG}
-%\includegraphics[width=\textwidth]{images/metodologia.PNG}
+%\includegraphics[scale=0.5]{images/metodologia.png}
+%\includegraphics[width=\textwidth]{images/metodologia.png}
 
 El algoritmo calcula en cada centro espacial de cada celda la fuerza gravitatoria generada por cada partícula del aglomerado. El cálculo de la fuerza gravitatoria en cada punto $O$ es independiente al del resto de las celdas de la grilla.
 %Se utiliza un método para aproximar partículas lejanas por el centro de masa de todas las partículas contenidas en la celda lejana. Se profundizará sobre el método en capítulos posteriores. En el caso particular de la figura anterior, se denota como CM el centro de masa de las partículas para la celda considerada.\newline
@@ -897,8 +897,8 @@ En el algoritmo paralelo existen dos secciones paralelas, en la primera se calcu
 	\label{fig:paralelicidad}
 \end{figure}
 
-%\includegraphics[scale=0.5]{images/paralelicidad.PNG}
-%\includegraphics[width=\textwidth]{images/paralelicidad.PNG}
+%\includegraphics[scale=0.5]{images/paralelicidad.png}
+%\includegraphics[width=\textwidth]{images/paralelicidad.png}
 
 En el gráfico anterior se puede reconocer las secciones principales que conforman el algoritmo paralelo:
 \begin{itemize}
@@ -945,8 +945,8 @@ La figura ~\ref{fig:estrategia_asignacion_1} muestra la estrategia de interbloqu
 	\label{fig:estrategia_asignacion_1}
 \end{figure}
 
-%\includegraphics[scale=0.8]{images/estrategia_asignación_1.PNG}
-%\includegraphics[width=\textwidth]{images/estrategia_asignacion_1.PNG}
+%\includegraphics[scale=0.8]{images/estrategia_asignación_1.png}
+%\includegraphics[width=\textwidth]{images/estrategia_asignacion_1.png}
 
 Algo evidente es la necesidad de sincronizar el acceso a cada celda, para evitar que una misma celda sea procesada repetidas veces por los diferentes hilos. Para eso se agregó un semáforo que permite sincronizar el acceso al área de memoria compartida en la cual se especifica el estado de las celdas (es decir el conjunto de celdas sin procesar, ya procesadas, etc.). Si bien esto garantiza la correctitud en la solución, la sincronización de una cantidad relativamente alta de hilos en un solo punto crea un cuello de botella que enlentece la ganancia agregada con la paralelización. Para solucionar dicho cuello de botella se sustituyó el único semáforo por un conjunto de semáforos, asignando uno a cada celda, de esta forma se tiene una solución más sencilla, mejor control y más fino de qué hilo se está bloqueando.\newline
 
@@ -964,8 +964,8 @@ Lo que se busca con esta estrategia, es reutilizar dichos valores de centro de m
 	\label{fig:estrategia_asignacion_2}
 \end{figure}
 
-%\includegraphics[scale=0.8]{images/estrategia_asignacion_2.PNG}
-%\includegraphics[width=\textwidth]{images/estrategia_asignacion_2.PNG}
+%\includegraphics[scale=0.8]{images/estrategia_asignacion_2.png}
+%\includegraphics[width=\textwidth]{images/estrategia_asignacion_2.png}
 
 Dado que la mitad de los hilos arrancan desde la misma celda en el centro de la grilla y la otra mitad de los hilos arranca en una de las celdas más alejadas del centro de la grilla, la implementación requiere semáforos para sincronizar la ejecución y asegurar que no se procesa una misma celda múltiples veces. Nótese que la forma en cómo comienzan las dos mitades de los hilos (en el centro de la celda y en la celda más alejada del centro) es similar a la forma en cómo ejecuta la estrategia anterior.
 
@@ -985,8 +985,8 @@ Esta estrategia surge al considerar que los hilos no comienzan en la misma celda
 	\label{fig:estrategia_asignacion_3}
 \end{figure}
 
-%\includegraphics[scale=0.8]{images/estrategia_asignacion_3.PNG}
-%\includegraphics[width=\textwidth]{images/estrategia_asignacion_3.PNG}
+%\includegraphics[scale=0.8]{images/estrategia_asignacion_3.png}
+%\includegraphics[width=\textwidth]{images/estrategia_asignacion_3.png}
 
 Esta estrategia pertenece a la categoria de estrategias estaticas, es decir los hilos no cambian su comportamiento segun se comporte la ejecución (el resto de los hilos). Para ejemplificar un posible escenario, un hilo que termina su sección asignada estáticamente no continuará ejecutando nuevas celdas en otra sección, sino que finalizará la ejecución. Esto impacta en el tiempo total que le toma al algoritmo.
 
@@ -1004,8 +1004,8 @@ La idea fundamental de esta estrategia es presentada en la figura ~\ref{fig:estr
 	\caption{Estrategia aislada lineal avanzada.}
 	\label{fig:estrategia_asignacion_4}
 \end{figure}
-%\includegraphics[scale=0.8]{images/estrategia_asignacion_4.PNG}
-%\includegraphics[width=\textwidth]{images/estrategia_asignacion_4.PNG}
+%\includegraphics[scale=0.8]{images/estrategia_asignacion_4.png}
+%\includegraphics[width=\textwidth]{images/estrategia_asignacion_4.png}
 
 % \textcolor{red}{\Huge SEGUIR  PROCESANDO}
 % \Huge{\textcolor{red}{SEGUIR  PROCESANDO  IMAGENES}}
@@ -1029,7 +1029,7 @@ Considérese un conjunto de partículas con sus coordenadas correspondientes, y 
 	\caption{Aproximación de masas por distancia.}
 	\label{fig:mada}
 \end{figure}
-%\includegraphics[width=200px]{images/mada.PNG}
+%\includegraphics[width=200px]{images/mada.png}
 
 Desde el punto origen situado en $O$, realizar el cálculo de la auto-gravedad utilizando cada partícula contenida en la celda $A$ o utilizando solamente el centro de masa de las partículas de la celda $A$ (punto $P_j$), se pueden aproximar (cuando la distancia de $O$ a $P_j$ es significativa) sin ser esto una fuente de error considerable.
 
@@ -1039,8 +1039,8 @@ Siguiendo ese razonamiento para todas las partículas dentro de la grilla, se pu
 % \begin{figure}[!h]
 % 	\setlength{\abovecaptionskip}{3pt}
 %   	\centering
-% % 	\includegraphics[width=300px]{images/mada.PNG}
-% 	\includegraphics[width=150px]{images/mada_2.PNG}
+% % 	\includegraphics[width=300px]{images/mada.png}
+% 	\includegraphics[width=150px]{images/mada_2.png}
 % 	\caption{Aproximación de masas por distancia.}
 % 	\label{fig:mada}
 % \end{figure}
@@ -1055,14 +1055,14 @@ Para explicar este concepto resulta útil definir el siguiente vocabulario: se d
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	% 	\includegraphics[width=300px]{images/mada.PNG}
-	% 	\includegraphics[width=150px]{images/mada_2.PNG}
-	\includegraphics[width=230px]{images/na/mada_celdas_virtuales.PNG}
+	% 	\includegraphics[width=300px]{images/mada.png}
+	% 	\includegraphics[width=150px]{images/mada_2.png}
+	\includegraphics[width=230px]{images/na/mada_celdas_virtuales.png}
 	\caption{Subdivision de celdas de MADA.}
 	\label{fig:mada_subdivision}
 \end{figure}
 
-%\includegraphics[width=200px]{images/mada_celdas_virtuales.PNG}
+%\includegraphics[width=200px]{images/mada_celdas_virtuales.png}
 
 Lo que esta mejora propone es dividir las celdas en sub-celdas de diferentes niveles (mayor nivel a medida que se acerca al punto origen $O$) y utilizar los centros de masa de las partículas contenidas por dentro de estas sub-celdas en vez del centro de masa de la celda de primer nivel. Nótese que la  celda que contiene el punto origen $O$, no utiliza el centro de masa de la celda, sino que calcula directamente utilizando las partículas.
 Con esta mejora se mantiene la disminución algorítmica lograda con MADA para partículas distantes mientra que se asegura no cometer errores con partículas cercanas.
@@ -1091,8 +1091,8 @@ El algorítmo desarrollado se basa en el modelo de memoria compartida, en el cua
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	% \includegraphics[width=230px]{images/mada_celdas_virtuales.PNG}
-	\includegraphics[width=300px]{images/es/memoria_compartida.PNG}
+	% \includegraphics[width=230px]{images/mada_celdas_virtuales.png}
+	\includegraphics[width=300px]{images/es/memoria_compartida.png}
 	\caption{Modelo de memoria compartida.}
 	\label{fig:shared_memory}
 \end{figure}
@@ -1145,9 +1145,9 @@ Luego de descartar durante esta etapa de análisis teórico la técnica de "Pond
 % \begin{figure}[!h]
 % 	\setlength{\abovecaptionskip}{3pt}
 %   	\centering
-%     % \includegraphics[width=230px]{images/mada_celdas_virtuales.PNG}
-%     % \includegraphics[width=300px]{images/memoria_compartida.PNG}
-%     \includegraphics[width=350px]{images/interpolacion_paralelicidad.PNG}
+%     % \includegraphics[width=230px]{images/mada_celdas_virtuales.png}
+%     % \includegraphics[width=300px]{images/memoria_compartida.png}
+%     \includegraphics[width=350px]{images/interpolacion_paralelicidad.png}
 % 	\caption{Etapas del cálculo de autogravedad e interpolación}
 % 	\label{fig:etapas_paralelicidad_autogravedad_interpolacion}
 % \end{figure}
@@ -1198,7 +1198,7 @@ Esta integración con el paquete ESyS-Particle está diseñada para simular del 
 Cuando el número de partículas crece la fórmula anterior de orden $O(N^2)$ resulta demasiado costoso computacionalmente. Para ello se diseña una solución que no re-calcula la autogravedad en todos los pasos de simulación, sino que solo recalcula la auto-gravedad cuando ocurren una de dos cosas: o pasaron un número de pasos de simulación dado o las partículas en su promedio se mueven más que un valor $D_a$. El gráfico a continuación, inspirado en el diseño de ESyS-Particle básico, describe el flujo de cálculo resultante:
 
 \includegraphics[scale=0.65]{images/es/many_particles.png}
-%\includegraphics[width=\textwidth]{images/many_particles.PNG}
+%\includegraphics[width=\textwidth]{images/many_particles.png}
 
 Como se puede ver en la imagen, el paso de calculo de la autogravedad, solo se ejecuta segun cierta condicional. Debido a ello, el cálculo de auto-gravedad obtenido sólo es exacto en el primer paso de simulación, subsecuentes pasos de simulación utilizarán un valor aproximado.
 Si bien la aproximación es muy buena (puede verse una análisis del error en el Análisis experimental), este valor aproximado genera en simulaciones largas un error que se arrastra y modifica notoriamente el comportamiento del aglomerado. Se diseñaron e implementaron diferentes estrategias para corregir el efecto obtenido, dichas estrategias se describen más adelante en las mejoras posteriores realizadas.
@@ -1210,7 +1210,7 @@ Una de las ventajas obvias de esta integración es que permite trabajar con del 
 Una vez integrado el algoritmo, las secciones anteriormente diseñadas cambian ligeramente:
 
 \includegraphics[scale=0.5]{images/es/many_particles_secciones.png}
-%\includegraphics[width=\textwidth]{images/many_particles_secciones.PNG}
+%\includegraphics[width=\textwidth]{images/many_particles_secciones.png}
 
 Estos cambios son debido a que al integrar el cálculo de autogravedad en el paquete ESyS-Particle, el cálculo de autogravedad en los nodos de la maya configurable se realiza en el nodo maestro. Una vez obtenidos dichos valores se envían a los procesos esclavos del ESyS-Particle (posiblemente distribuidos) los cuales utilizando estos valores interpolan el valor de la fuerza de auto-gravedad en las posiciones de las partículas del subdominio que le corresponde. Esta distribución de los cálculos impide tener el algoritmo de interpolación por dentro del código de auto-gravedad, sino que se migró a los procesos esclavos.
 
@@ -1347,20 +1347,20 @@ El speed-up y los valores de eficiencia son reportados en las siguientes figuras
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_speedup_threads.PNG}
+	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_speedup_threads.png}
 	\label{fig:algoritmo_paralelo_speedup_threads}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_eficiencia_vs_threads.PNG}
+	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_eficiencia_vs_threads.png}
 	\label{fig:algoritmo_paralelo_eficiencia_vs_threads}
 \end{figure}
 Además también se analizó la dependencia de los tiempos de ejecución con el número de partículas cuando se varían la cantidad de hilos utilizados en el procesamiento. Los resultados se muestran en la siguiente figura.
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_executiontime_vs_nrpparticulas.PNG}
+	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_executiontime_vs_nrpparticulas.png}
 	\label{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}
 \end{figure}
 Las curvas se pueden ajustar a una función polinomial, que corresponde a un valor casi constante del tiempo de ejecución normalizado con respecto al número de partículas, como se observa en la figura siguiente para un número dado de hilos y más de $2 \times 10^5$ partículas. Teniendo en cuenta que la dependencia con el número de hilos (n) se puede ajustar a una función de ley potencial inversa y el número de partículas (p) con una funciona polinomial lineal, se puede ajustar el tiempo de ejecución con el modelo de la ecuación~(\ref{eq:modelo_tiempo}).
@@ -1374,7 +1374,7 @@ usado coeficientes $a = 13.65, b=1.049 x 10^-3 y c = 0.8682$.
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.7]{images/es/algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas.PNG}
+	\includegraphics[scale=0.7]{images/es/algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas.png}
 	\label{fig:algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas}
 \end{figure}
 
