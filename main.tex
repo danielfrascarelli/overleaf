@@ -892,7 +892,7 @@ En el algoritmo paralelo existen dos secciones paralelas, en la primera se calcu
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	\includegraphics[scale=0.55]{images/es/paralelicidad.png}
+	\includegraphics[scale=0.25]{images/es/paralelicidad.png}
 	\caption{Paralelicidad del algoritmo.}
 	\label{fig:paralelicidad}
 \end{figure}
@@ -959,7 +959,7 @@ Lo que se busca con esta estrategia, es reutilizar dichos valores de centro de m
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	\includegraphics[scale=0.7]{images/es/estrategia_asignacion_2.png}
+	\includegraphics[scale=0.17]{images/es/estrategia_asignacion_2.png}
 	\caption{Estrategia circular concéntrica.}
 	\label{fig:estrategia_asignacion_2}
 \end{figure}
@@ -980,7 +980,7 @@ Esta estrategia surge al considerar que los hilos no comienzan en la misma celda
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	\includegraphics[scale=0.7]{images/es/estrategia_asignacion_3.png}
+	\includegraphics[scale=0.215]{images/es/estrategia_asignacion_3.png}
 	\caption{Estrategia aislada lineal básica.}
 	\label{fig:estrategia_asignacion_3}
 \end{figure}
@@ -1184,7 +1184,13 @@ Existen cuatro tipos de interacciones en ESyS-Particle que difieren en la forma 
 	\item Campos de fuerza tales como la gravedad, que son implementados como interacciones de una sola partícula.
 \end{itemize}
 
-El tipo de interacción que se debe agregar coincide con el cuarto tipo de interacción antes comentado. En el proyecto de grado Paralelismo aplicado al estudio de medios granulares (L. Heredia y P. Richeri) se integra una interacción de tipo Hertzian Visco Elastic Friction, que si bien difiere en algunos aspectos resulta similar el esfuerzo necesario. \textcolor{red}{agregar referencia al proyecto de grado. como se agrega la referencia ? @Nestor  tenes algun ejemplo?}
+% El tipo de interacción que se debe agregar coincide con el cuarto tipo de interacción antes comentado. En el proyecto de grado Paralelismo aplicado al estudio de medios granulares (L. Heredia y P. Richeri) se integra una interacción de tipo Hertzian Visco Elastic Friction, que si bien difiere en algunos aspectos resulta similar el esfuerzo necesario.
+
+
+El tipo de interacción que se incorpora se relaciona con el cuarto tipo de interacción descrito previamente. Un antecedente directo es el proyecto de grado \textit{Paralelismo aplicado al estudio de medios granulares} \cite{24} donde se extiende una implementación DEM paralela para modelar fenómenos de física de medios granulares. En dicho trabajo se integra una interacción de tipo \textit{Hertzian Visco Elastic Friction}. Si bien el modelo de interacción considerado en este trabajo no es idéntico, ambos casos requieren modificar el cálculo de fuerzas de contacto, incorporar parámetros físicos adicionales y validar su efecto sobre la dinámica de las partículas.
+
+
+%\textcolor{red}{agregar referencia al proyecto de grado. como se agrega la referencia ? @Nestor  tenes algun ejemplo?}
 
 Esta interacción calcula el potencial gravitatorio $V_j$ en cada partícula $j$ de un aglomerado de $N$ partículas de masa $M_i$ y posición $r_i$ evaluando la ecuación~(\ref{eq:potencial_gravitatorio}) en la posición de cada partícula y omitiendo la contribución de la propia partícula.
 
@@ -1320,8 +1326,9 @@ Los escenarios utilizados tienen simetría esférica, por lo que existe una expr
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=1]{images/es/algoritmo_paralelo_valores_distancia.png}
-	\caption{Potencial gravitatorio versus la distancia al centro de masa para cerca de un millón de partículas (el valor teórico está sobre dibujado).}
+	\includegraphics[scale=1.5]{images/es/algoritmo_paralelo_valores_distancia.png}
+	\caption{Potencial gravitatorio versus la distancia al centro de masa}
+%para cerca de un millón de partículas (el valor teórico está sobre dibujado).}
 	\label{fig:alg-par-valor-dist}
 \end{figure}
 
@@ -1329,7 +1336,7 @@ La figura~\ref{fig:alg-par-errores-relativos} muestra el error relativo del pote
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.5]{images/es/algoritmo_paralelo_errores_relativos.png}
+	\includegraphics[scale=0.7]{images/es/algoritmo_paralelo_errores_relativos.png}
 	\caption{Error relativo del potencial gravitatorio computado respecto al valor teórico en función de la distancia al centro del aglomerado.}
 	\label{fig:alg-par-errores-relativos}
 \end{figure}
@@ -1338,7 +1345,7 @@ Para estudiar la eficiencia computacional del algoritmo, el análisis experiment
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.7]{images/es/algoritmo_paralelo_tiempo_vs_threads.png}
+	\includegraphics[scale=0.8]{images/es/algoritmo_paralelo_tiempo_vs_threads.png}
 	\caption{Tiempo de ejecución en función de la cantidad de hilos para los distintos escenarios.}
 	\label{fig:alg-par-tiempo-threads}
 \end{figure}
@@ -1347,20 +1354,25 @@ El speed-up y los valores de eficiencia son reportados en las siguientes figuras
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_speedup_threads.png}
+	\includegraphics[scale=0.24]{images/es/algoritmo_paralelo_speedup_threads.png}
+	\caption{Speedup en función de la cantidad de hilos para los distintos escenarios.}
 	\label{fig:algoritmo_paralelo_speedup_threads}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_eficiencia_vs_threads.png}
+	\includegraphics[scale=0.24]{images/es/algoritmo_paralelo_eficiencia_vs_threads.png}
+	\caption{Eficiencia en función de la cantidad de hilos para los distintos escenarios.}
 	\label{fig:algoritmo_paralelo_eficiencia_vs_threads}
 \end{figure}
+
+
 Además también se analizó la dependencia de los tiempos de ejecución con el número de partículas cuando se varían la cantidad de hilos utilizados en el procesamiento. Los resultados se muestran en la siguiente figura.
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_executiontime_vs_nrpparticulas.png}
+	\includegraphics[scale=0.24]{images/es/algoritmo_paralelo_executiontime_vs_nrpparticulas.png}
+	\caption{Tiempo de ejecución en función de la cantidad de hilos para los distintos escenarios.}
 	\label{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}
 \end{figure}
 Las curvas se pueden ajustar a una función polinomial, que corresponde a un valor casi constante del tiempo de ejecución normalizado con respecto al número de partículas, como se observa en la figura siguiente para un número dado de hilos y más de $2 \times 10^5$ partículas. Teniendo en cuenta que la dependencia con el número de hilos (n) se puede ajustar a una función de ley potencial inversa y el número de partículas (p) con una funciona polinomial lineal, se puede ajustar el tiempo de ejecución con el modelo de la ecuación~(\ref{eq:modelo_tiempo}).
@@ -1374,7 +1386,8 @@ usado coeficientes $a = 13.65, b=1.049 x 10^-3 y c = 0.8682$.
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.7]{images/es/algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas.png}
+	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas.png}
+    \caption{Tiempo de ejecución en función de la cantidad de hilos para los distintos escenarios.}
 	\label{fig:algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas}
 \end{figure}
 
@@ -1481,6 +1494,7 @@ Para integrar efectivamente el código desarrollado en la rama principal del paq
 
     \bibitem{23} D. Weatherley, \textit{ESyS-Particle v2.0 user's guide}, Earth Systems Science Computational Centre, The University of Queensland, 2009, \url{https://espace.library.uq.edu.au/view/UQ%3A187819}.
 
+    \bibitem{24} L. Heredia and P. Richeri, \textit{Paralelismo aplicado al estudio de medios granulares}, Tesis de grado, Facultad de Ingeniería, Universidad de la República, 2009, \url{https://hdl.handle.net/20.500.12008/30196}.
 
 \end{thebibliography}
 
