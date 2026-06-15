@@ -741,7 +741,7 @@ Cada partícula generada ha de contener la información de posición dentro de l
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	\includegraphics[scale=0.9]{images/es/representacion.png}
+	\includegraphics[scale=1.2]{images/es/representacion.png}
 	\caption{Representación de la población.}
 	\label{fig:representacion_ae}
 \end{figure}
@@ -778,7 +778,7 @@ El operador de cruzamiento consiste en dividir la caja horizontalmente e interca
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	\includegraphics[scale=0.9]{images/es/operador_de_cruzamiento.png}
+	\includegraphics[scale=1.2]{images/es/operador_de_cruzamiento.png}
 	\caption{Representación del operador de cruzamiento en una sección.}
 	\label{fig:rep_op_de_cruzamiento}
 \end{figure}
@@ -869,7 +869,7 @@ Considérese una grilla en 2D resultante de dividir el dominio en 3 divisiones e
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	\includegraphics[scale=0.9]{images/es/metodologia.png}
+	\includegraphics[scale=1.1]{images/es/metodologia.png}
 	\caption{Metodología de calculo de autogravedad.}
 	\label{fig:metodologia}
 \end{figure}
@@ -935,12 +935,12 @@ En el proceso de estudiar el comportamiento del algoritmo se implementaron las s
 % En un principio se comenzó con una estrategia lineal de asignación de celdas a hilos. 
 Los hilos son ordenados lexicográficamente desde $1$ a $n$, y todos los hilos empiezan desde el mismo punto inicial. La primera celda libre (celda nro. 1) es asignada al primer hilo, la segunda celda libre (celda nro. 2) es asignada al segundo hilo, y así sucesivamente, hasta que todos los hilos tienen una celda para realizar el procesamiento. Luego, cada vez que un hilo $h$ termina de procesar una celda $c$ y requiere una celda para seguir trabajando, se busca la siguiente celda sin procesar a partir de $c$ y se le asigna al hilo $h$.
 
-La figura ~\ref{fig:estrategia_asignacion_1} muestra la estrategia de interbloqueo lineal, donde cada color es usado para representar las celdas siendo asignadas a diferentes hilos (colores completos representan celdas ya procesadas, colores en degradé representan celdas siendo procesadas y celdas blancas son sin procesar):
+La figura ~\ref{fig:estrategia_asignacion_1} muestra la estrategia de interbloqueo lineal, donde cada color es usado para representar las celdas siendo asignadas a diferentes hilos. Se utilizan colores completos para representar celdas ya procesadas, colores en degradé para representar celdas siendo procesadas y el color blanco representa celdas sin procesar.
 
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	\includegraphics[scale=0.4]{images/es/estrategia_asignacion_1.png}
+	\includegraphics[scale=0.7]{images/es/estrategia_asignacion_1.png}
 	\caption{Estrategia de interbloqueo lineal con igual comienzo.}
 	\label{fig:estrategia_asignacion_1}
 \end{figure}
@@ -959,7 +959,7 @@ Lo que se busca con esta estrategia, es reutilizar dichos valores de centro de m
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	\includegraphics[scale=0.17]{images/es/estrategia_asignacion_2.png}
+	\includegraphics[scale=0.57]{images/es/estrategia_asignacion_2.png}
 	\caption{Estrategia circular concéntrica.}
 	\label{fig:estrategia_asignacion_2}
 \end{figure}
@@ -980,7 +980,7 @@ Esta estrategia surge al considerar que los hilos no comienzan en la misma celda
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	\includegraphics[scale=0.215]{images/es/estrategia_asignacion_3.png}
+	\includegraphics[scale=0.7]{images/es/estrategia_asignacion_3.png}
 	\caption{Estrategia aislada lineal básica.}
 	\label{fig:estrategia_asignacion_3}
 \end{figure}
@@ -1000,7 +1000,7 @@ La idea fundamental de esta estrategia es presentada en la figura ~\ref{fig:estr
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
-	\includegraphics[scale=0.7]{images/es/estrategia_asignacion_4.png}
+	\includegraphics[scale=0.62]{images/es/estrategia_asignacion_4.png}
 	\caption{Estrategia aislada lineal avanzada.}
 	\label{fig:estrategia_asignacion_4}
 \end{figure}
@@ -1092,7 +1092,7 @@ El algorítmo desarrollado se basa en el modelo de memoria compartida, en el cua
 	\setlength{\abovecaptionskip}{3pt}
 	\centering
 	% \includegraphics[width=230px]{images/mada_celdas_virtuales.png}
-	\includegraphics[width=300px]{images/es/memoria_compartida.png}
+	\includegraphics[width=370px]{images/es/memoria_compartida.png}
 	\caption{Modelo de memoria compartida.}
 	\label{fig:shared_memory}
 \end{figure}
@@ -1203,26 +1203,45 @@ Esta integración con el paquete ESyS-Particle está diseñada para simular del 
 
 Cuando el número de partículas crece la fórmula anterior de orden $O(N^2)$ resulta demasiado costoso computacionalmente. Para ello se diseña una solución que no re-calcula la autogravedad en todos los pasos de simulación, sino que solo recalcula la auto-gravedad cuando ocurren una de dos cosas: o pasaron un número de pasos de simulación dado o las partículas en su promedio se mueven más que un valor $D_a$. El gráfico a continuación, inspirado en el diseño de ESyS-Particle básico, describe el flujo de cálculo resultante:
 
-\includegraphics[scale=0.65]{images/es/many_particles.png}
+% \includegraphics[width=370px]{images/es/many_particles.png}
 %\includegraphics[width=\textwidth]{images/many_particles.png}
 
-Como se puede ver en la imagen, el paso de calculo de la autogravedad, solo se ejecuta segun cierta condicional. Debido a ello, el cálculo de auto-gravedad obtenido sólo es exacto en el primer paso de simulación, subsecuentes pasos de simulación utilizarán un valor aproximado.
+
+\begin{figure}[!ht]
+	\setlength{\abovecaptionskip}{3pt}
+	\centering
+    \includegraphics[width=360px]{images/es/many_particles.png}
+	\caption{Flujo de trabajo del calculo de auto-gravedad integrado en ESyS-Particle.}
+	\label{fig:esys-particle+self-gravity}
+\end{figure}
+
+Como se puede ver en la imagen~\ref{fig:esys-particle+self-gravity}, el paso de calculo de la autogravedad, solo se ejecuta segun cierta condicional. Debido a ello, el cálculo de auto-gravedad obtenido sólo es exacto en el primer paso de simulación, subsecuentes pasos de simulación utilizarán un valor aproximado.
 Si bien la aproximación es muy buena (puede verse una análisis del error en el Análisis experimental), este valor aproximado genera en simulaciones largas un error que se arrastra y modifica notoriamente el comportamiento del aglomerado. Se diseñaron e implementaron diferentes estrategias para corregir el efecto obtenido, dichas estrategias se describen más adelante en las mejoras posteriores realizadas.
 
 Para atacar problemas del orden de millones de partículas sin que los tiempos de simulación se disparen, este desarrollo diseñó un procedimiento de cálculo que, como ya se comentó, permite que el cálculo de auto-gravedad sea independiente del número de partículas. Para ese fin, este desarrollo define una malla que se solapa con el medio granular, y en los puntos de la malla es donde se calcula la autogravedad. El cálculo de autogravedad se realiza en un recurso de cómputo principal de entre los que corre el ESyS-Particle, y esos valores y puntos calculados se comunican a los otros recursos de cómputo (posiblemente distribuidos) que realizarán los cálculos de cada paso de simulación.
 
 Una de las ventajas obvias de esta integración es que permite trabajar con del orden de millones de partículas. Además los distintos parámetros que permiten por ejemplo configurar el uso de recursos usados para calcular la autogravedad, la frecuencia con la que se realiza el cálculo, la resolución de las mallas de cálculo de autogravedad, etc permiten adaptar y hacer un uso adecuado de los recursos de hardware disponibles para cada problema específico. Como desventaja, esta forma de integración no realiza un cálculo exacto de la autogravedad, sino que realiza aproximaciones (necesarias para impedir que el orden de los cálculos sea dependiente del orden de las partículas), las cuales afectan la simulación generada.\newline
 
-Una vez integrado el algoritmo, las secciones anteriormente diseñadas cambian ligeramente:
+Una vez integrado el algoritmo las secciones anteriormente diseñadas cambian ligeramente como se puede ver en la figura~\ref{fig:esys-particle+self-gravity+sections}.
 
-\includegraphics[scale=0.5]{images/es/many_particles_secciones.png}
+% \includegraphics[scale=0.5]{images/es/many_particles_secciones.png}
+
+
+\begin{figure}[!ht]
+	\setlength{\abovecaptionskip}{3pt}
+	\centering
+    \includegraphics[width=360px]{images/es/many_particles_secciones.png}
+	\caption{Flujo de trabajo del calculo de auto-gravedad integrado en ESyS-Particleen secciones.}
+	\label{fig:esys-particle+self-gravity+sections}
+\end{figure}
+
+
 %\includegraphics[width=\textwidth]{images/many_particles_secciones.png}
 
 Estos cambios son debido a que al integrar el cálculo de autogravedad en el paquete ESyS-Particle, el cálculo de autogravedad en los nodos de la maya configurable se realiza en el nodo maestro. Una vez obtenidos dichos valores se envían a los procesos esclavos del ESyS-Particle (posiblemente distribuidos) los cuales utilizando estos valores interpolan el valor de la fuerza de auto-gravedad en las posiciones de las partículas del subdominio que le corresponde. Esta distribución de los cálculos impide tener el algoritmo de interpolación por dentro del código de auto-gravedad, sino que se migró a los procesos esclavos.
 
 
-Del análisis de la dinamica de ejecucion del paquete ESySParticle surge la necesidad de modificar cómo se calcula la interpolación, por lo que el código de interpolación ya no forma parte del algoritmo paralelo de autogravedad, sino que se agregó por dentro del código de ESyS-Particle. Si bien esto implica que el desarrollo de la interpolación en paralelo quedará obsoleta, el análisis experimental sobre cuál técnica se aplica mejor en este caso sigue siendo válido.\newline
-Estos cambios se ven con mayor profundidad en la siguiente sección.
+Del análisis de la dinamica de ejecucion del paquete ESyS-Particle surge la necesidad de modificar cómo se calcula la interpolación, por lo que el código de interpolación ya no forma parte del algoritmo paralelo de autogravedad, sino que se agregó por dentro del código de ESyS-Particle. Si bien esto implica que el desarrollo de la interpolación en paralelo quedará obsoleta, el análisis experimental sobre cuál técnica se aplica mejor en este caso sigue siendo válido. Estos cambios se explican en detalle en el capitulo ~\ref{ch:ch5}.
 
 % Capitulo 6
 \chapter{Análisis experimental} \label{ch:ch5}
@@ -1326,7 +1345,7 @@ Los escenarios utilizados tienen simetría esférica, por lo que existe una expr
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=1.5]{images/es/algoritmo_paralelo_valores_distancia.png}
+	\includegraphics[width=\linewidth]{images/es/algoritmo_paralelo_valores_distancia.png}
 	\caption{Potencial gravitatorio versus la distancia al centro de masa}
 %para cerca de un millón de partículas (el valor teórico está sobre dibujado).}
 	\label{fig:alg-par-valor-dist}
@@ -1336,7 +1355,7 @@ La figura~\ref{fig:alg-par-errores-relativos} muestra el error relativo del pote
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.7]{images/es/algoritmo_paralelo_errores_relativos.png}
+	\includegraphics[width=\linewidth]{images/es/algoritmo_paralelo_errores_relativos.png}
 	\caption{Error relativo del potencial gravitatorio computado respecto al valor teórico en función de la distancia al centro del aglomerado.}
 	\label{fig:alg-par-errores-relativos}
 \end{figure}
@@ -1345,7 +1364,7 @@ Para estudiar la eficiencia computacional del algoritmo, el análisis experiment
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.8]{images/es/algoritmo_paralelo_tiempo_vs_threads.png}
+	\includegraphics[width=\linewidth]{images/es/algoritmo_paralelo_tiempo_vs_threads.png}
 	\caption{Tiempo de ejecución en función de la cantidad de hilos para los distintos escenarios.}
 	\label{fig:alg-par-tiempo-threads}
 \end{figure}
@@ -1354,14 +1373,14 @@ El speed-up y los valores de eficiencia son reportados en las siguientes figuras
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.24]{images/es/algoritmo_paralelo_speedup_threads.png}
+	\includegraphics[width=\linewidth]{images/es/algoritmo_paralelo_speedup_threads.png}
 	\caption{Speedup en función de la cantidad de hilos para los distintos escenarios.}
 	\label{fig:algoritmo_paralelo_speedup_threads}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.24]{images/es/algoritmo_paralelo_eficiencia_vs_threads.png}
+	\includegraphics[width=\linewidth]{images/es/algoritmo_paralelo_eficiencia_vs_threads.png}
 	\caption{Eficiencia en función de la cantidad de hilos para los distintos escenarios.}
 	\label{fig:algoritmo_paralelo_eficiencia_vs_threads}
 \end{figure}
@@ -1371,7 +1390,7 @@ Además también se analizó la dependencia de los tiempos de ejecución con el 
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.24]{images/es/algoritmo_paralelo_executiontime_vs_nrpparticulas.png}
+	\includegraphics[width=\linewidth]{images/es/algoritmo_paralelo_executiontime_vs_nrpparticulas.png}
 	\caption{Tiempo de ejecución en función de la cantidad de hilos para los distintos escenarios.}
 	\label{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}
 \end{figure}
@@ -1386,7 +1405,7 @@ usado coeficientes $a = 13.65, b=1.049 x 10^-3 y c = 0.8682$.
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.3]{images/es/algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas.png}
+	\includegraphics[width=\linewidth]{images/es/algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas.png}
     \caption{Tiempo de ejecución en función de la cantidad de hilos para los distintos escenarios.}
 	\label{fig:algoritmo_paralelo_executiontimeperparticula_vs_nroparticulas}
 \end{figure}
@@ -1406,24 +1425,30 @@ La tabla siguiente muestra los promedios y la desviación estándar, para cinco 
 
 \begin{figure}
 	\centering
-	\includegraphics[scale=0.5]{images/es/estrategias_de_asignacion_de_trabajo.png}
+	\includegraphics[width=280px]{images/es/estrategias_de_asignacion_de_trabajo.png}
+    \caption{Tiempos de ejecución promedio y desviación estandar de las estrategias de ejecución.}
 	\label{fig:estrategias_de_asignacion_de_trabajo}
 \end{figure}
 
 Para los resultados mostrados en la tabla anterior, se concluye que la estrategia “Advanced isolated linear” logra obtener la mejor performance para el escenario trabajado. Es además la más robusta, considerando que es la que arroja menor desviación estándar. La estrategia “Interlocking linear” es la segunda mejor opción. La estrategia circular concéntrica no toma ventaja de los valores pre calculados, y por el contrario la compleja lógica incluida para manejar la sincronización de hilos y la distribución circular hace que la estrategia sea menos eficiente que la estrategia de “Interlocking linear”.
 La estrategia “Basic isolated linear” es la que peor se comporta, fundamentalmente porque la carga de trabajo no está balanceado entre los distintos hilos. En esta estrategia, la performance del algoritmo en su totalidad está limitada por la performance obtenido por el hilo que más tiempo demore. Al incluir la metodología de dos etapas, con la estrategia “Advanced isolated linear” se logra reducir el tiempo considerablemente.
 
-La tabla siguiente muestra la eficiencia computacional (tiempo de ejecución y speedup) para la estrategia “Advanced isolated linear” utilizando diferente cantidad de hilos y para los tres escenarios estudiados. El promedio y la desviación estándar resultante son calculados a partir de seis ejecuciones independientes sobre cada escenario para cada hilo.
+En la tabla~\ref{table:estrategias_de_asignacion_de_trabajo_eficiencia_para_advanced} se puede ver la eficiencia computacional (tiempo de ejecución y speedup) para la estrategia "Advanced isolated linear" utilizando diferentes cantidad de hilos y para los tres escenarios estudiados. El promedio y la desviación estándar resultante son calculados a partir de seis ejecuciones independientes sobre cada escenario para cada hilo.
 
-\includegraphics[scale=0.75]{images/es/estrategias_de_asignacion_de_trabajo_eficiencia_para_advanced.png}
+\begin{figure}
+	\centering
+    \includegraphics[width=\linewidth]{images/es/estrategias_de_asignacion_de_trabajo_eficiencia_para_advanced.png}
+    \caption{Reporte de tiempos de ejecución para cada escenario y cantidad de hilos.}
+	\label{table:estrategias_de_asignacion_de_trabajo_eficiencia_para_advanced}
+\end{figure}
 
 Las siguientes figuras muestran la ejecución para cada escenario cuando se varía el número de hilo.
+\red{agregar captions a las imagenes y referenciarlas}
+\includegraphics[width=\linewidth]{images/es/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_A.png}
 
-\includegraphics[scale=0.65]{images/es/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_A.png}
+\includegraphics[width=\linewidth]{images/es/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_B.png}
 
-\includegraphics[scale=0.7]{images/es/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_B.png}
-
-\includegraphics[scale=0.7]{images/es/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_C.png}
+\includegraphics[width=\linewidth]{images/es/estrategias_de_asignacion_de_trabajo_time_vs_threads_para_advanced_C.png}
 
 Al utilizar 16 hilos se logra para el escenario más grande un speedup de factor 13.4, lo cual se corresponde con una eficiencia computacional de 0.85. El comportamiento del speedup para el algoritmo paralelo propuesto es casi linear. Además, el mejor speedup/eficiencia se obtuvo para la simulación que manipula la mayor cantidad de partículas, demostrando un buen comportamiento de escalabilidad. Simulaciones de más de un millón de partículas, que demanda 1920s (más de media hora) pueden realizarse en dos minutos y medio utilizando 16 hilos.
 
