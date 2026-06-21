@@ -879,9 +879,9 @@ Considérese una grilla en 2D resultante de dividir el dominio en 3 divisiones e
 %\includegraphics[width=\textwidth]{images/metodologia.png}
 
 El algoritmo calcula en cada centro espacial de cada celda la fuerza gravitatoria generada por cada partícula del aglomerado. El cálculo de la fuerza gravitatoria en cada punto $O$ es independiente al del resto de las celdas de la grilla.
-%Se utiliza un método para aproximar partículas lejanas por el centro de masa de todas las partículas contenidas en la celda lejana. Se profundizará sobre el método en capítulos posteriores. En el caso particular de la figura anterior, se denota como CM el centro de masa de las partículas para la celda considerada.\newline
-%Una vez calculada la fuerza gravitatoria del centro de masa CM sobre el punto O (según las fórmulas ya expuestas), se procede a calcular la influencia de la siguiente celda. Dicho procedimiento continua para el punto O, hasta que la influencia de todas las celdas es calculada y sumada. \newline
-%A continuación, se selecciona como punto O el siguiente centro espacial de la siguiente celda. 
+%Se utiliza un método para aproximar partículas lejanas por el centro de masa de todas las partículas contenidas en la celda lejana. Se profundizará sobre el método en capítulos posteriores. En el caso particular de la fig ant, se denota como CM el centro de masa de las partículas para la celda considerada.\newline
+%Una vez calculada la fuerza gravitatoria del centro de masa CM sobre el punto O (según las fórmulas ya expuestas), se procede a calcular la influencia de la sig celda. Dicho procedimiento continua para el punto O, hasta que la influencia de todas las celdas es calculada y sumada. \newline
+%A continuación, se selecciona como punto O el sig centro espacial de la sig celda. 
 Cuando la fuerza gravitatoria es calculada para todos los centros espaciales de todas las celdas entonces el algoritmo finaliza.
 
 \subsection{Paralelicidad del algoritmo}
@@ -902,13 +902,13 @@ En el algoritmo paralelo existen dos secciones paralelas, en la primera se calcu
 %\includegraphics[scale=0.5]{images/paralelicidad.png}
 %\includegraphics[width=\textwidth]{images/paralelicidad.png}
 
-En el gráfico anterior se puede reconocer las secciones principales que conforman el algoritmo paralelo:
+En la figura \ref{fig:paralelicidad} se describen las secciones principales que conforman el algoritmo paralelo:
 \begin{itemize}
-	\item Etapa 1. Initialization of shared memory: inicializa estructuras de memoria compartida. Read config values: se leen valores de configuración
-	\item Etapa 2. Threads initialization: se crean las estructuras de hilos y objetos necesarios.
-	\item Etapa 3. Self-gravity calculus: sección paralela donde se procesa el cálculo de la auto-gravedad. Los objetos Worker representados en el diagrama, son los encargados de ejecutar el trabajo pesado de la sección paralela.
-	\item Etapa 4. Interpolation calculus: sección paralela donde se procesa el cálculo de la interpolación. Los objetos Worker representados en el diagrama son los mismo que para la etapa 3.
-	\item Etapa 5. Output result: etapa en la cual ya se ha terminado el procesamiento pesado y se procede a devolver los resultados obtenidos.
+	\item Etapa 1. Initialización de memoria compartida: inicializa estructuras de memoria compartida. Read config values: se leen valores de configuración
+	\item Etapa 2. Initialización de hilos: se crean las estructuras de hilos y objetos necesarios.
+	\item Etapa 3. Calculo de auto-gravedad: sección paralela donde se procesa el cálculo de la auto-gravedad. Los objetos Worker representados en el diagrama, son los encargados de ejecutar el trabajo pesado de la sección paralela.
+	\item Etapa 4. Calculo de interpolación: sección paralela donde se procesa el cálculo de la interpolación. Los objetos Worker representados en el diagrama son los mismo que para la etapa 3.
+	\item Etapa 5. Escritura de resultados: etapa en la cual ya se ha terminado el procesamiento pesado y se procede a devolver los resultados obtenidos.
 \end{itemize}
 
 \subsection{Modelo de programación paralela}
@@ -1194,7 +1194,7 @@ El tipo de interacción que se incorpora se relaciona con el cuarto tipo de inte
 
 %\textcolor{red}{agregar referencia al proyecto de grado. como se agrega la referencia ? @Nestor  tenes algun ejemplo?}
 
-Esta interacción calcula el potencial gravitatorio $V_j$ en cada partícula $j$ de un aglomerado de $N$ partículas de masa $M_i$ y posición $r_i$ evaluando la ecuación~(\ref{eq:potencial_gravitatorio}) en la posición de cada partícula y omitiendo la contribución de la propia partícula.
+Esta interacción calcula el potencial gravitatorio $V_j$ en cada partícula $j$ de un aglomerado de $N$ partículas de masa $M_i$ y posición $r_i$ evaluando la ecuación \ref{eq:potencial_gravitatorio} en la posición de cada partícula y omitiendo la contribución de la propia partícula.
 
 En cada paso de simulación se calcula para cada partícula el potencial gravitatorio generado por el resto de las partículas y se aplica la fuerza resultante. Esta forma de integrar el calculo de auto-gravedad en ESyS-Particle esta bien soportado y resulta simple considerando la arquitectura interna del paquete. Por otro lado, una desventaja clara es la limitación impuesta en la escalabilidad resultante puesto que solo se puede utilizar un recurso de cómputo.
 
@@ -1203,7 +1203,7 @@ En cada paso de simulación se calcula para cada partícula el potencial gravita
 \paragraph{Integración ManyParticles.}
 Esta integración con el paquete ESyS-Particle está diseñada para simular del orden de millones de partículas. Esto no es viable con la integración FewParticles, en el cual solo se puede utilizar un recurso de cómputo para procesar todas las partículas. Para esta integracción denominada $ManyParticles$ es necesario utilizar más de un recurso de cómputo y habilitar la subdivisión del dominio de trabajo del ESyS-Particle.
 
-Cuando el número de partículas crece la fórmula anterior de orden $O(N^2)$ resulta demasiado costoso computacionalmente. Para ello se diseña una solución que no re-calcula la autogravedad en todos los pasos de simulación, sino que solo recalcula la auto-gravedad cuando ocurren una de dos cosas: o pasaron un número de pasos de simulación dado o las partículas en su promedio se mueven más que un valor $D_a$. El gráfico a continuación, inspirado en el diseño de ESyS-Particle básico, describe el flujo de cálculo resultante:
+Cuando el número de partículas crece la ecuación \ref{eq:potencial_gravitatorio} de orden $O(N^2)$ resulta demasiado costoso computacionalmente. Para ello se diseña una solución que no re-calcula la autogravedad en todos los pasos de simulación, sino que solo recalcula la auto-gravedad cuando ocurren una de dos cosas: o pasaron un número de pasos de simulación dado o las partículas en su promedio se mueven más que un valor $D_a$. El gráfico a continuación, inspirado en el diseño de ESyS-Particle básico, describe el flujo de cálculo resultante:
 
 % \includegraphics[width=370px]{images/es/many_particles.png}
 %\includegraphics[width=\textwidth]{images/many_particles.png}
@@ -1389,7 +1389,7 @@ El speed-up y los valores de eficiencia son reportados en las siguientes figuras
 \end{figure}
 
 
-Además también se analizó la dependencia de los tiempos de ejecución con el número de partículas cuando se varían la cantidad de hilos utilizados en el procesamiento. Los resultados se muestran en la siguiente figura.
+Además también se analizó la dependencia de los tiempos de ejecución con el número de partículas cuando se varían la cantidad de hilos utilizados en el procesamiento. Los resultados se muestran en la figura \ref{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}.
 
 \begin{figure}
 	\centering
@@ -1397,7 +1397,8 @@ Además también se analizó la dependencia de los tiempos de ejecución con el 
 	\caption{Tiempo de ejecución en función de la cantidad de hilos para los distintos escenarios.}
 	\label{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}
 \end{figure}
-Las curvas se pueden ajustar a una función polinomial, que corresponde a un valor casi constante del tiempo de ejecución normalizado con respecto al número de partículas, como se observa en la figura siguiente para un número dado de hilos y más de $2 \times 10^5$ partículas. Teniendo en cuenta que la dependencia con el número de hilos (n) se puede ajustar a una función de ley potencial inversa y el número de partículas (p) con una funciona polinomial lineal, se puede ajustar el tiempo de ejecución con el modelo de la ecuación~(\ref{eq:modelo_tiempo}).
+Las curvas se pueden ajustar a una función polinomial, que corresponde a un valor casi constante del tiempo de ejecución normalizado con respecto al número de partículas, como se observa en la figura \ref{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}
+para un número dado de hilos y más de $2 \times 10^5$ partículas. Teniendo en cuenta que la dependencia con el número de hilos (n) se puede ajustar a una función de ley potencial inversa y el número de partículas (p) con una funciona polinomial lineal, se puede ajustar el tiempo de ejecución con el modelo de la ecuación~(\ref{eq:modelo_tiempo}).
 
 \begin{equation}
 	t = a + b.p.n^{-c}
@@ -1424,14 +1425,10 @@ Se definieron tres escenarios para evaluar las estrategias de paralelización im
 \end{itemize}
 
 Para evaluar la eficiencia computacional de las diferentes estrategias de distribución de trabajo, se realizaron pruebas utilizando el escenario C y 12 hilos de ejecución en paralelo.
-La tabla siguiente muestra los promedios y la desviación estándar, para cinco ejecuciones independientes por cada estrategia.
-
-
+La tabla \ref {tab:estrategias_asignacion_trabajo} describe los promedios y la desviación estándar para cinco ejecuciones independientes por cada estrategia.
 
 \begin{table}[ht]
     \centering
-    \caption{Tiempos de ejecución para distintas estrategias de asignación de trabajo.}
-    \label{tab:estrategias_asignacion_trabajo}
     \begin{tabular}{lcc}
         \toprule
         \multirow{2}{*}{\textit{estrategia}} 
@@ -1444,10 +1441,12 @@ La tabla siguiente muestra los promedios y la desviación estándar, para cinco 
         Lineal aislada básica       & 254.0 & 19.2 \\
         Lineal aislada avanzada     & 180.1 & 2.7  \\
         \bottomrule
-    \end{tabular}
+    \end{tabular}    
+    \caption{Tiempos de ejecución para distintas estrategias de asignación de trabajo.}
+    \label{tab:estrategias_asignacion_trabajo}
 \end{table}
 
-Para los resultados mostrados en la tabla anterior, se concluye que la estrategia “Advanced isolated linear” logra obtener la mejor performance para el escenario trabajado. Es además la más robusta, considerando que es la que arroja menor desviación estándar. La estrategia “Interlocking linear” es la segunda mejor opción. La estrategia circular concéntrica no toma ventaja de los valores pre calculados, y por el contrario la compleja lógica incluida para manejar la sincronización de hilos y la distribución circular hace que la estrategia sea menos eficiente que la estrategia de “Interlocking linear”.
+Para los resultados mostrados en la tabla \ref{tab:estrategias_asignacion_trabajo}, se concluye que la estrategia “Advanced isolated linear” logra obtener la mejor performance para el escenario trabajado. Es además la más robusta, considerando que es la que arroja menor desviación estándar. La estrategia “Interlocking linear” es la segunda mejor opción. La estrategia circular concéntrica no toma ventaja de los valores pre calculados, y por el contrario la compleja lógica incluida para manejar la sincronización de hilos y la distribución circular hace que la estrategia sea menos eficiente que la estrategia de “Interlocking linear”.
 La estrategia “Basic isolated linear” es la que peor se comporta, fundamentalmente porque la carga de trabajo no está balanceado entre los distintos hilos. En esta estrategia, la performance del algoritmo en su totalidad está limitada por la performance obtenido por el hilo que más tiempo demore. Al incluir la metodología de dos etapas, con la estrategia “Advanced isolated linear” se logra reducir el tiempo considerablemente.
 
 En la tabla~\ref{table:estrategias_de_asignacion_de_trabajo_eficiencia_para_advanced} se puede ver la eficiencia computacional (tiempo de ejecución y speedup) para la estrategia "Advanced isolated linear" utilizando diferentes cantidad de hilos y para los tres escenarios estudiados. El promedio y la desviación estándar resultante son calculados a partir de seis ejecuciones independientes sobre cada escenario para cada hilo.
