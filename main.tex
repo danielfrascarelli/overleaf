@@ -21,6 +21,8 @@
 \usepackage{verbatim}
 \usepackage{threeparttable}
 \usepackage{framed}
+\usepackage{booktabs}
+\usepackage{multirow}
 \definecolor{listing}{gray}{0.5}
 \definecolor{lbcolor}{rgb}{1,1,1}
 \lstset{backgroundcolor=\color{lbcolor},tabsize=2,rulecolor=,language=C,basicstyle=\scriptsize,upquote=true,aboveskip={1.5\baselineskip},columns=fixed,extendedchars=true, breaklines=true, prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}}, frame=single, showtabs=false, showspaces=false, showstringspaces=false, identifierstyle=\ttfamily, keywordstyle=\color[rgb]{0,0,1}, commentstyle=\color[rgb]{0.133,0.545,0.133}, stringstyle=\color[rgb]{0.627,0.126,0.941}, }
@@ -1424,12 +1426,26 @@ Se definieron tres escenarios para evaluar las estrategias de paralelización im
 Para evaluar la eficiencia computacional de las diferentes estrategias de distribución de trabajo, se realizaron pruebas utilizando el escenario C y 12 hilos de ejecución en paralelo.
 La tabla siguiente muestra los promedios y la desviación estándar, para cinco ejecuciones independientes por cada estrategia.
 
-\begin{figure}
-	\centering
-	\includegraphics[width=280px]{images/es/estrategias_de_asignacion_de_trabajo.png}
-    \caption{Tiempos de ejecución promedio y desviación estandar de las estrategias de ejecución.}
-	\label{fig:estrategias_de_asignacion_de_trabajo}
-\end{figure}
+
+
+\begin{table}[ht]
+    \centering
+    \caption{Tiempos de ejecución para distintas estrategias de asignación de trabajo.}
+    \label{tab:estrategias_asignacion_trabajo}
+    \begin{tabular}{lcc}
+        \toprule
+        \multirow{2}{*}{\textit{estrategia}} 
+        & \multicolumn{2}{c}{\textit{tiempo de ejecución} (s)} \\
+        \cmidrule(lr){2-3}
+        & promedio & $\sigma$ \\
+        \midrule
+        Lineal entrelazada          & 186.2 & 4.6  \\
+        Circular concéntrica        & 198.3 & 10.6 \\
+        Lineal aislada básica       & 254.0 & 19.2 \\
+        Lineal aislada avanzada     & 180.1 & 2.7  \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 Para los resultados mostrados en la tabla anterior, se concluye que la estrategia “Advanced isolated linear” logra obtener la mejor performance para el escenario trabajado. Es además la más robusta, considerando que es la que arroja menor desviación estándar. La estrategia “Interlocking linear” es la segunda mejor opción. La estrategia circular concéntrica no toma ventaja de los valores pre calculados, y por el contrario la compleja lógica incluida para manejar la sincronización de hilos y la distribución circular hace que la estrategia sea menos eficiente que la estrategia de “Interlocking linear”.
 La estrategia “Basic isolated linear” es la que peor se comporta, fundamentalmente porque la carga de trabajo no está balanceado entre los distintos hilos. En esta estrategia, la performance del algoritmo en su totalidad está limitada por la performance obtenido por el hilo que más tiempo demore. Al incluir la metodología de dos etapas, con la estrategia “Advanced isolated linear” se logra reducir el tiempo considerablemente.
