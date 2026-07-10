@@ -288,7 +288,7 @@ Esta limitación constituye el núcleo del problema abordado en esta tesis y mot
 
 
 En el marco de este trabajo se emplea un algoritmo evolutivo como técnica de optimización para generar configuraciones iniciales compactas de aglomerados tridimensionales de partículas. Estas configuraciones constituyen el estado inicial de los sistemas utilizados posteriormente en los experimentos de auto-gravedad.
-\red{(Capítulo~\ref{chap:desafio_planteado}, Sección~\ref{sec:compactacion_aglomerados})}
+\red{(Capítulo~\ref{ch:desafio_planteado}, Sección~\ref{sec:compactacion_aglomerados})}
 
 Los algoritmos evolutivos son métodos de optimización poblacional que operan sobre un conjunto de soluciones candidatas, denominadas individuos, las cuales evolucionan a lo largo de generaciones mediante mecanismos de selección guiados por una función de evaluación (fitness). Este enfoque resulta adecuado para problemas geométricos de alta dimensionalidad con restricciones no lineales, como es el caso de la compactación de partículas esféricas en tres dimensiones.
 
@@ -539,7 +539,7 @@ Para tratar de manera eficiente los aglomerados auto-gravitantes formados por un
 
 % Capitulo 4
 \chapter{Formulación del problema y objetivos del desarrollo}
-\label{chap:desafio_planteado}
+\label{ch:desafio_planteado}
 
 Este capítulo formaliza el problema, define el modelo adoptado y establece los objetivos del desarrollo.
 
@@ -775,7 +775,7 @@ Se implementaron dos operadores de selección: selección por torneo y selecció
 %sin embargo, al ejecutar el algoritmo con diferentes configuraciones, se encontró que esta implementación se comporta mejor utilizando un operador de selección por rango. Este operador toma la población, ordena los individuos en orden decreciente por su valor de fitness y toma la primera mitad. Los individuos resultantes de este proceso son los responsables de la evolución, también llamados padres.
 
 \paragraph{Operador de cruzamiento.}
-El operador de cruzamiento consiste en dividir la caja horizontalmente e intercambiar las secciones entre diferentes individuos, como se indica en la figura ~\ref{fig:rep_op_de_cruzamiento}.
+El operador de cruzamiento consiste en dividir la caja horizontalmente e intercambiar las secciones entre diferentes individuos, como se presenta en la figura ~\ref{fig:rep_op_de_cruzamiento}.
 
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
@@ -918,7 +918,7 @@ Tal como se describieron existen dos modelos, uno basado en descomposición de d
 Por esa razon, se optó por implementar un modelo de programación paralela basado en la descomposición de datos, siendo la grilla el dominio a descomponer y las celdas la mínima unidad a procesar.\newline
 
 % \paragraph{Estrategia de asignación de nodos del dominio}
-La forma en como las celdas a procesar se asignan a los recursos de computo disponible impacta en el comportamiento del algoritmo. Se pueden diferenciar dos categorías de estrategias para asignar las celdas, una categoría estática y una categoría dinamica. En la categoría estática se encuentran aquellas estrategias que no toman en cuenta el comportamiento de la ejecución, mientras que en la categoría dinamica se encuentran aquellas estrategias que modifican su comportamiento segun se comporte la ejecución.
+La forma en como las celdas a procesar se asignan a los recursos de computo disponible impacta en el comportamiento del algoritmo. Se diferencian dos categorías de estrategias para asignar las celdas, una categoría estática y una categoría dinamica. En la categoría estática se encuentran aquellas estrategias que no toman en cuenta el comportamiento de la ejecución, mientras que en la categoría dinamica se encuentran aquellas estrategias que modifican su comportamiento segun se comporte la ejecución.
 
 % asignar las celdas de forma estática al comienzo del algoritmo o se pueden asignar de forma dinamica segun  
 % Además del modelo básico de asignación de celdas a los recursos de cómputo disponible, resulta importante y necesario diseñar la naturaleza de dicha asignación. Es decir, si la asignación del dominio de datos a los distintos recursos de cómputo se definirá de forma estática al comienzo del algoritmo (y será independiente del comportamiento y variación en la disponibilidad de los recursos de cómputo) o si será coordinada dinámicamente en el transcurso de la ejecución a partir del análisis del comportamiento del mismo.\newline
@@ -977,7 +977,7 @@ La poca complejidad algorítmica involucrada en el calculo del centro de masa en
 % Si bien la idea de reutilizar cálculos parecía muy acertada, la poca complejidad algorítmica involucrada en dicho cálculo y por ende la ventaja de reutilizar dichos valores no resulta en una ganancia significativa, mientras que aún tenemos el conjunto de semáforos y el degradado que eso acarrea.\newline
 
 \subparagraph{Estrategia aislada lineal básica.}
-Esta estrategia surge al considerar que los hilos no comienzan en la misma celda, sino que distribuidos de forma tal de minimizar las colisiones en el acceso a la memoria compartida. Esta estrategia se caracteriza por realizar una recorrida lineal de las cajas, tal como la primera estrategia descrita, pero asignando a cada hilo un comienzo distinto, no consecutivo y distribuido uniformemente. Es decir, si se considera el conjunto de celdas $c_i$ con $i$ desde $0$ a $n-1$ y el conjunto de hilos $h_i$ con $i$ desde $0$ a $h-1$, se divide dicho conjunto $n$ de celdas entre el conjunto $h$ de hilos disponibles, de tal forma que para cada hilo $h_i$, se le asigna como comienzo la celda $h_i*(n/h)$. De esta forma los hilos tienen el mismo porcentaje de dominio libre para procesar antes de toparse con una celda que ya fue calculada por otro hilo. En esta estrategia no se necesita manejar semáforos para cada celda, por lo que podría apreciarse una mejora en la performance. La estrategia se puede visualizar en la figura ~\ref{fig:estrategia_asignacion_3}.
+Esta estrategia surge al considerar que los hilos no comienzan en la misma celda, sino que distribuidos de forma tal de minimizar las colisiones en el acceso a la memoria compartida. Esta estrategia se caracteriza por realizar una recorrida lineal de las cajas, tal como la primera estrategia descrita, pero asignando a cada hilo un comienzo distinto, no consecutivo y distribuido uniformemente. Es decir, si se considera el conjunto de celdas $c_i$ con $i$ desde $0$ a $n-1$ y el conjunto de hilos $h_i$ con $i$ desde $0$ a $h-1$, se divide dicho conjunto $n$ de celdas entre el conjunto $h$ de hilos disponibles, de tal forma que para cada hilo $h_i$, se le asigna como comienzo la celda $h_i*(n/h)$. De esta forma los hilos tienen el mismo porcentaje de dominio libre para procesar antes de toparse con una celda que ya fue calculada por otro hilo. En esta estrategia no se necesita manejar semáforos para cada celda, por lo que podría apreciarse una mejora en la performance. La estrategia se presenta en la figura ~\ref{fig:estrategia_asignacion_3}.
 
 \begin{figure}[!ht]
 	\setlength{\abovecaptionskip}{3pt}
@@ -1196,12 +1196,12 @@ El tipo de interacción que se incorpora se relaciona con el cuarto tipo de inte
 
 Esta interacción calcula el potencial gravitatorio $V_j$ en cada partícula $j$ de un aglomerado de $N$ partículas de masa $M_i$ y posición $r_i$ evaluando la ecuación \ref{eq:potencial_gravitatorio} en la posición de cada partícula y omitiendo la contribución de la propia partícula.
 
-En cada paso de simulación se calcula para cada partícula el potencial gravitatorio generado por el resto de las partículas y se aplica la fuerza resultante. Esta forma de integrar el calculo de auto-gravedad en ESyS-Particle esta bien soportado y resulta simple considerando la arquitectura interna del paquete. Por otro lado, una desventaja clara es la limitación impuesta en la escalabilidad resultante puesto que solo se puede utilizar un recurso de cómputo.
+En cada paso de simulación se calcula para cada partícula el potencial gravitatorio generado por el resto de las partículas y se aplica la fuerza resultante. Esta forma de integrar el calculo de auto-gravedad en ESyS-Particle esta bien soportado y resulta simple considerando la arquitectura interna del paquete. Por otro lado, una desventaja clara es la limitación impuesta en la escalabilidad resultante puesto que solo se utiliza un recurso de cómputo.
 
 % Además de las ya mencionadas ventajas, esta forma de integración tiene una ventaja muy importante: está forma de integrar el cálculo de auto-gravedad está completamente contemplado en ESyS-Particle y encaja correctamente con la arquitectura base interna. Por lo tanto, no se modifican aspectos centrales del paquete. 
 
 \paragraph{Integración ManyParticles.}
-Esta integración con el paquete ESyS-Particle está diseñada para simular del orden de millones de partículas. Esto no es viable con la integración FewParticles, en el cual solo se puede utilizar un recurso de cómputo para procesar todas las partículas. Para esta integracción denominada $ManyParticles$ es necesario utilizar más de un recurso de cómputo y habilitar la subdivisión del dominio de trabajo del ESyS-Particle.
+Esta integración con el paquete ESyS-Particle está diseñada para simular del orden de millones de partículas. Esto no es viable con la integración FewParticles, en el cual solo se utiliza un recurso de cómputo para procesar todas las partículas. Para esta integracción denominada $ManyParticles$ es necesario utilizar más de un recurso de cómputo y habilitar la subdivisión del dominio de trabajo del ESyS-Particle.
 
 Cuando el número de partículas crece la ecuación \ref{eq:potencial_gravitatorio} de orden $O(N^2)$ resulta demasiado costoso computacionalmente. Para ello se diseña una solución que no re-calcula la autogravedad en todos los pasos de simulación, sino que solo recalcula la auto-gravedad cuando ocurren una de dos cosas: o pasaron un número de pasos de simulación dado o las partículas en su promedio se mueven más que un valor $D_a$. El gráfico a continuación, inspirado en el diseño de ESyS-Particle básico, describe el flujo de cálculo resultante:
 
@@ -1217,14 +1217,14 @@ Cuando el número de partículas crece la ecuación \ref{eq:potencial_gravitator
 	\label{fig:esys-particle+self-gravity}
 \end{figure}
 
-Como se puede ver en la imagen~\ref{fig:esys-particle+self-gravity}, el paso de calculo de la autogravedad, solo se ejecuta segun cierta condicional. Debido a ello, el cálculo de auto-gravedad obtenido sólo es exacto en el primer paso de simulación, subsecuentes pasos de simulación utilizarán un valor aproximado.
+Como se presenta en la imagen~\ref{fig:esys-particle+self-gravity}, el paso de calculo de la autogravedad, solo se ejecuta segun cierta condicional. Debido a ello, el cálculo de auto-gravedad obtenido sólo es exacto en el primer paso de simulación, subsecuentes pasos de simulación utilizarán un valor aproximado.
 Si bien la aproximación es muy buena (puede verse una análisis del error en el Análisis experimental), este valor aproximado genera en simulaciones largas un error que se arrastra y modifica notoriamente el comportamiento del aglomerado. Se diseñaron e implementaron diferentes estrategias para corregir el efecto obtenido, dichas estrategias se describen más adelante en las mejoras posteriores realizadas.
 
 Para atacar problemas del orden de millones de partículas sin que los tiempos de simulación se disparen, este desarrollo diseñó un procedimiento de cálculo que, como ya se comentó, permite que el cálculo de auto-gravedad sea independiente del número de partículas. Para ese fin, este desarrollo define una malla que se solapa con el medio granular, y en los puntos de la malla es donde se calcula la autogravedad. El cálculo de autogravedad se realiza en un recurso de cómputo principal de entre los que corre el ESyS-Particle, y esos valores y puntos calculados se comunican a los otros recursos de cómputo (posiblemente distribuidos) que realizarán los cálculos de cada paso de simulación.
 
 Una de las ventajas obvias de esta integración es que permite trabajar con del orden de millones de partículas. Además los distintos parámetros que permiten por ejemplo configurar el uso de recursos usados para calcular la autogravedad, la frecuencia con la que se realiza el cálculo, la resolución de las mallas de cálculo de autogravedad, etc permiten adaptar y hacer un uso adecuado de los recursos de hardware disponibles para cada problema específico. Como desventaja, esta forma de integración no realiza un cálculo exacto de la autogravedad, sino que realiza aproximaciones (necesarias para impedir que el orden de los cálculos sea dependiente del orden de las partículas), las cuales afectan la simulación generada.\newline
 
-Una vez integrado el algoritmo las secciones anteriormente diseñadas cambian ligeramente como se puede ver en la figura~\ref{fig:esys-particle+self-gravity+sections}.
+Una vez integrado el algoritmo las secciones anteriormente diseñadas cambian ligeramente como se muestra en la figura~\ref{fig:esys-particle+self-gravity+sections}.
 
 % \includegraphics[scale=0.5]{images/es/many_particles_secciones.png}
 
@@ -1302,7 +1302,7 @@ Se analizó el comportamiento de los métodos de interpolación Kriging e IDW. L
 	\label{fig:err-rel-interpolation}
 \end{figure}
 
-En la figura~\ref{fig:err-rel-idw} se muestran los errores relativos mínimo, promedio y máximo para los algoritmos IDW. En las figura~\ref{fig:err-rel-idw_avg-error} y~\ref{fig:err-rel-idw_max-error} se observa que los errores relativos promedio y máximo no varía considerablemente para los algoritmos IDW. En la figura~\ref{fig:err-rel-idw_min-error} se observa que el algoritmo IDW con parámetro cuatro
+En la figura~\ref{fig:err-rel-idw} se muestran los errores relativos mínimo, promedio y máximo para los algoritmos IDW. En las figura~\ref{fig:err-rel-idw_avg-error} y~\ref{fig:err-rel-idw_max-error} se muestra que los errores relativos promedio y máximo no varía considerablemente para los algoritmos IDW. En la figura~\ref{fig:err-rel-idw_min-error} se muestra que el algoritmo IDW con parámetro cuatro
 presenta menor error relativo mínimo. Por tener menor error relativo mínimo pero similares errores promedio y máximo se seleccionó el algoritmo de IDW con parámetro cuatro.
 
 \begin{figure}
@@ -1363,7 +1363,7 @@ La figura~\ref{fig:alg-par-errores-relativos} muestra el error relativo del pote
 	\label{fig:alg-par-errores-relativos}
 \end{figure}
 
-Para estudiar la eficiencia computacional del algoritmo, el análisis experimental evaluó el tiempo de ejecución de los distintos escenarios al utilizar 1, 3, 6, 9, 12, 15, 18, 21 y 24 hilos de ejecución. La figura~\ref{fig:alg-par-tiempo-threads} muestra el tiempo de ejecución en función del número de hilos. Una función potencial inversa se puede ajustar a cada curva.
+Para estudiar la eficiencia computacional del algoritmo, el análisis experimental evaluó el tiempo de ejecución de los distintos escenarios al utilizar 1, 3, 6, 9, 12, 15, 18, 21 y 24 hilos de ejecución. La figura~\ref{fig:alg-par-tiempo-threads} muestra el tiempo de ejecución en función del número de hilos. Una función potencial inversa se ajusta a cada curva.
 
 \begin{figure}
 	\centering
@@ -1389,7 +1389,7 @@ El speed-up y los valores de eficiencia son reportados en las siguientes figuras
 \end{figure}
 
 
-Además también se analizó la dependencia de los tiempos de ejecución con el número de partículas cuando se varían la cantidad de hilos utilizados en el procesamiento. Los resultados se muestran en la figura \ref{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}.
+Además también se analizó la dependencia de los tiempos de ejecución con el número de partículas cuando se varían la cantidad de hilos utilizados en el procesamiento. Los resultados se presentan en la figura \ref{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}.
 
 \begin{figure}
 	\centering
@@ -1397,15 +1397,15 @@ Además también se analizó la dependencia de los tiempos de ejecución con el 
 	\caption{Tiempo de ejecución en función de la cantidad de hilos para los distintos escenarios.}
 	\label{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}
 \end{figure}
-Las curvas se pueden ajustar a una función polinomial, que corresponde a un valor casi constante del tiempo de ejecución normalizado con respecto al número de partículas, como se observa en la figura \ref{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}
-para un número dado de hilos y más de $2 \times 10^5$ partículas. Teniendo en cuenta que la dependencia con el número de hilos (n) se puede ajustar a una función de ley potencial inversa y el número de partículas (p) con una funciona polinomial lineal, se puede ajustar el tiempo de ejecución con el modelo de la ecuación~(\ref{eq:modelo_tiempo}).
+Las curvas se ajustan a una función polinomial, que corresponde a un valor casi constante del tiempo de ejecución normalizado con respecto al número de partículas, como se presenta en la figura \ref{fig:algoritmo_paralelo_executiontime_vs_nrpparticulas}
+para un número dado de hilos y más de $2 \times 10^5$ partículas. Teniendo en cuenta que la dependencia con el número de hilos (n) se ajustan a una función de ley potencial inversa y el número de partículas (p) con una funciona polinomial lineal, se puede ajustar el tiempo de ejecución con el modelo de la ecuación~(\ref{eq:modelo_tiempo}) usado coeficientes $a = 13.65$, $b=1.049 x 10^-3$ y $c = 0.8682$.
 
 \begin{equation}
 	t = a + b.p.n^{-c}
 	\label{eq:modelo_tiempo}
 \end{equation}
 
-usado coeficientes $a = 13.65, b=1.049 x 10^-3 y c = 0.8682$.
+
 
 \begin{figure}
 	\centering
@@ -1425,7 +1425,7 @@ Se definieron tres escenarios para evaluar las estrategias de paralelización im
 \end{itemize}
 
 Para evaluar la eficiencia computacional de las diferentes estrategias de distribución de trabajo, se realizaron pruebas utilizando el escenario C y 12 hilos de ejecución en paralelo.
-La tabla \ref {tab:estrategias_asignacion_trabajo} describe los promedios y la desviación estándar para cinco ejecuciones independientes por cada estrategia.
+La tabla \ref {table:estrategias_asignacion_trabajo} describe los promedios y la desviación estándar para cinco ejecuciones independientes por cada estrategia.
 
 \begin{table}[ht]
     \centering
@@ -1443,13 +1443,13 @@ La tabla \ref {tab:estrategias_asignacion_trabajo} describe los promedios y la d
         \bottomrule
     \end{tabular}    
     \caption{Tiempos de ejecución para distintas estrategias de asignación de trabajo.}
-    \label{tab:estrategias_asignacion_trabajo}
+    \label{table:estrategias_asignacion_trabajo}
 \end{table}
 
-Para los resultados mostrados en la tabla \ref{tab:estrategias_asignacion_trabajo}, se concluye que la estrategia “Advanced isolated linear” logra obtener la mejor performance para el escenario trabajado. Es además la más robusta, considerando que es la que arroja menor desviación estándar. La estrategia “Interlocking linear” es la segunda mejor opción. La estrategia circular concéntrica no toma ventaja de los valores pre calculados, y por el contrario la compleja lógica incluida para manejar la sincronización de hilos y la distribución circular hace que la estrategia sea menos eficiente que la estrategia de “Interlocking linear”.
+Para los resultados mostrados en la tabla \ref{table:estrategias_asignacion_trabajo}, se concluye que la estrategia “Advanced isolated linear” logra obtener la mejor performance para el escenario trabajado. Es además la más robusta, considerando que es la que arroja menor desviación estándar. La estrategia “Interlocking linear” es la segunda mejor opción. La estrategia circular concéntrica no toma ventaja de los valores pre calculados, y por el contrario la compleja lógica incluida para manejar la sincronización de hilos y la distribución circular hace que la estrategia sea menos eficiente que la estrategia de “Interlocking linear”.
 La estrategia “Basic isolated linear” es la que peor se comporta, fundamentalmente porque la carga de trabajo no está balanceado entre los distintos hilos. En esta estrategia, la performance del algoritmo en su totalidad está limitada por la performance obtenido por el hilo que más tiempo demore. Al incluir la metodología de dos etapas, con la estrategia “Advanced isolated linear” se logra reducir el tiempo considerablemente.
 
-En la tabla~\ref{table:estrategias_de_asignacion_de_trabajo_eficiencia_para_advanced} se puede ver la eficiencia computacional (tiempo de ejecución y speedup) para la estrategia "Advanced isolated linear" utilizando diferentes cantidad de hilos y para los tres escenarios estudiados. El promedio y la desviación estándar resultante son calculados a partir de seis ejecuciones independientes sobre cada escenario para cada hilo.
+En la tabla~\ref{table:estrategias_de_asignacion_de_trabajo_eficiencia_para_advanced} se presenta la eficiencia computacional (tiempo de ejecución y speedup) para la estrategia "Advanced isolated linear" utilizando diferentes cantidad de hilos y para los tres escenarios estudiados. El promedio y la desviación estándar resultante son calculados a partir de seis ejecuciones independientes sobre cada escenario para cada hilo.
 
 \begin{figure}
 	\centering
