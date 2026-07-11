@@ -95,7 +95,7 @@ El desarrollo fue integrado al paquete de simulación numérica ESyS-Particle y 
 % Capitulo 1
 \chapter{Introducción}
 
-Este capítulo contextualiza el problema, define la motivación del trabajo y establece la organización general del informe.
+Este capítulo contextualiza el problema, define la motivación y los objetivos del trabajo, y establece la organización general del informe.
 
 Los cuerpos que orbitan el Sol se clasifican en planetas, planetas enanos y cuerpos menores del Sistema Solar (Small Solar System Bodies, SSSB) \cite{13}. Los planetas y planetas enanos poseen masa suficiente para que la autogravedad supere la resistencia estructural del material y alcancen equilibrio hidrostático. En contraste, los SSSB no satisfacen esta condición y presentan configuraciones internas heterogéneas \cite{14}. Estas configuraciones incluyen estructuras monolíticas, cuerpos fracturados y aglomerados granulares cohesionados gravitacionalmente.
 
@@ -123,7 +123,43 @@ Para abordar este problema, este trabajo adoptó una estrategia basada en discre
 
 El algoritmo resultante se implementa mediante paralelización en memoria compartida, utilizando descomposición espacial del dominio para distribuir el cómputo entre múltiples hilos de ejecución. La formulación se orienta específicamente a sistemas densos, donde la discretización regular permite estructurar el cálculo de forma determinista.
 
-El objetivo general del trabajo consiste en diseñar, implementar y evaluar un algoritmo paralelo para el cálculo eficiente de la auto-gravedad en aglomerados de partículas modelados mediante DEM, reduciendo el costo computacional respecto al esquema directo $O(N^2)$ mediante discretización regular y aproximación jerárquica por centros de masa.
+\section{Objetivos}
+
+\subsection{Objetivo general}
+
+El objetivo general del trabajo consiste en diseñar, implementar y evaluar un algoritmo paralelo para el cálculo eficiente de la auto-gravedad en aglomerados granulares densos de partículas modelados mediante DEM, que reduzca el costo computacional respecto al esquema directo $O(N^2)$ mediante discretización espacial en grilla regular, aproximación jerárquica por centros de masa (MADA) y paralelismo en memoria compartida, habilitando su uso en escenarios con un número elevado de partículas.
+
+\subsection{Objetivos específicos}
+
+Los objetivos específicos que guían el desarrollo del algoritmo y su implementación son los siguientes:
+
+\begin{enumerate}
+	\item Definir una representación discreta del dominio mediante una grilla tridimensional regular superpuesta al conjunto de partículas, de forma que las celdas constituyan la unidad mínima de procesamiento para el cálculo del potencial gravitatorio.
+
+	\item Incorporar el método MADA como mecanismo de aceleración, de manera que:
+	      \begin{itemize}
+		      \item la contribución gravitatoria de regiones alejadas se aproxime mediante una masa equivalente ubicada en el centro de masa de la celda (o subcelda) correspondiente;
+		      \item en la región local asociada a la celda que contiene el punto de evaluación, el cálculo se realice utilizando las partículas individuales, sin aplicar aproximación.
+	      \end{itemize}
+
+	\item Implementar un esquema general de subdivisión multinivel de celdas para mejorar la precisión en las regiones próximas al punto de evaluación, manteniendo el uso de aproximación agregada en regiones distantes para preservar la eficiencia.
+
+	\item Diseñar e implementar una versión paralela del cálculo en un modelo de memoria compartida, aplicando descomposición de dominio sobre las celdas de la grilla y utilizando un conjunto persistente de hilos (\textit{thread pool}) para evitar costos de creación/destrucción en las etapas más intensivas.
+
+	\item Definir una estrategia de asignación dinámica de trabajo a los hilos con el objetivo de reducir desbalances de carga y minimizar la sincronización, considerando que el costo de cómputo puede variar entre celdas según su nivel de subdivisión y su relación geométrica con el punto de evaluación.
+
+	\item Incorporar una etapa de interpolación del potencial gravitatorio (o de magnitudes derivadas) desde los valores calculados en la grilla hacia posiciones continuas, de modo de habilitar el uso del campo gravitatorio en un esquema de simulación donde las partículas se actualizan en pasos temporales pequeños.
+
+	\item Abordar los requerimientos de memoria y de acceso eficiente a datos para instancias de gran escala, definiendo estructuras que eviten duplicaciones innecesarias y favorezcan el acceso concurrente controlado a la información compartida.
+
+	\item Evaluar el comportamiento del desarrollo en dos dimensiones complementarias:
+	      \begin{itemize}
+		      \item precisión numérica: cuantificar el error relativo del potencial gravitatorio computado respecto a un caso con referencia analítica o propiedades de simetría conocidas;
+		      \item eficiencia computacional: caracterizar el tiempo de ejecución y las métricas de paralelismo (aceleración y eficiencia) al variar el tamaño del problema y la cantidad de hilos utilizados.
+	      \end{itemize}
+\end{enumerate}
+
+\section{Contexto y difusión del proyecto}
 
 Este trabajo se desarrolló en el marco de actividades de investigación y desarrollo vinculadas al estudio numérico de aglomerados auto-gravitantes en cuerpos menores del Sistema Solar. Durante su ejecución se obtuvieron hitos académicos y de difusión asociados al proyecto.
 
@@ -131,7 +167,9 @@ En 2012, el proyecto obtuvo una beca de Iniciación a la Investigación subvenci
 
 Asimismo, el código desarrollado fue integrado al paquete de simulación numérica ESyS-Particle, basado en DEM, con el objetivo de incorporar el cálculo de auto-gravedad dentro de un entorno de simulación física consolidado. Esta integración permitió ejecutar simulaciones dinámicas completas y generar salidas compatibles con herramientas de visualización científica. La representación gráfica de los resultados constituye un complemento al análisis numérico, facilitando la interpretación del comportamiento dinámico de los aglomerados y la validación cualitativa de los fenómenos modelados.
 
-El documento se organiza de la siguiente manera. En el Capítulo 2 se presenta el marco teórico. En el Capítulo 3 se describen los antecedentes relevantes. En el Capítulo 4 se formaliza el problema físico-computacional y se delimitan los objetivos específicos. El Capítulo 5 detalla el diseño y la arquitectura de la solución propuesta. En el Capítulo 6 se reporta el análisis experimental. Finalmente, el Capítulo 7 expone las conclusiones y líneas de trabajo futuro.
+\section{Organización del documento}
+
+El documento se organiza de la siguiente manera. En el Capítulo 2 se presenta el marco teórico. En el Capítulo 3 se describen los antecedentes relevantes. En el Capítulo 4 se formaliza el problema físico-computacional y se describe el modelo adoptado para la auto-gravedad. El Capítulo 5 detalla el diseño y la arquitectura de la solución propuesta. En el Capítulo 6 se reporta el análisis experimental. Finalmente, el Capítulo 7 expone las conclusiones y líneas de trabajo futuro.
 
 % Capitulo 2
 \chapter{Marco teórico}
@@ -538,10 +576,10 @@ Para tratar de manera eficiente los aglomerados auto-gravitantes formados por un
 
 
 % Capitulo 4
-\chapter{Formulación del problema y objetivos del desarrollo}
+\chapter{Formulación del problema}
 \label{ch:desafio_planteado}
 
-Este capítulo formaliza el problema, define el modelo adoptado y establece los objetivos del desarrollo.
+Este capítulo formaliza el problema y define el modelo adoptado para la auto-gravedad.
 
 \section{Definición del problema físico-computacional}
 
@@ -672,45 +710,6 @@ Estos aspectos obligan a definir estrategias de descomposición de dominio y pol
 
 Para instancias grandes, los datos del sistema (partículas, grilla, información de celdas y estructuras auxiliares) pueden ser lo suficientemente voluminosos como para que la gestión de memoria se vuelva un factor limitante. Esto obliga a cuidar el diseño de las estructuras de datos, evitar duplicaciones (por ejemplo, reutilizando vértices compartidos cuando se almacenan coordenadas) y definir con precisión qué información se comparte para lectura/escritura entre hilos y cómo se controla su acceso. La eficiencia final depende tanto del número de operaciones aritméticas como del patrón de acceso a memoria y de la reducción de estructuras redundantes.
 
-
-\section{Objetivos del desarrollo} \red{esta sección no puede estar aquí, ya se trataron los temas previamente, mover a la introducción}
-\label{sec:objetivos_desarrollo}
-
-A partir de la definición del problema físico-computacional y del modelo adoptado para aproximar la auto-gravedad en aglomerados densos, se establecen en esta sección los objetivos que guían el desarrollo del algoritmo y su implementación. El foco se coloca en el diseño de un procedimiento computacional eficiente y escalable, capaz de calcular el potencial gravitatorio para sistemas de gran tamaño, y de integrarse como componente reutilizable dentro de un flujo de simulación numérica.
-
-\subsection{Objetivo general}
-
-Desarrollar e implementar un algoritmo de cálculo de auto-gravedad para aglomerados densos de partículas que reduzca el costo computacional respecto al enfoque directo, mediante una combinación de discretización espacial en grilla regular, aproximación jerárquica por centro de masa (MADA, por sus siglas en ingles de \textit{Mass Approximation Distance Algorithm}) y paralelismo en memoria compartida, permitiendo su uso en escenarios con un número elevado de partículas.
-
-\subsection{Objetivos específicos}
-
-\begin{enumerate}
-	\item Definir una representación discreta del dominio mediante una grilla tridimensional regular superpuesta al conjunto de partículas, de forma que las celdas constituyan la unidad mínima de procesamiento para el cálculo del potencial gravitatorio.
-
-	\item Incorporar el método  MADA como mecanismo de aceleración, de manera que:
-	      \begin{itemize}
-		      \item la contribución gravitatoria de regiones alejadas se aproxime mediante una masa equivalente ubicada en el centro de masa de la celda (o subcelda) correspondiente;
-		      \item en la región local asociada a la celda que contiene el punto de evaluación, el cálculo se realice utilizando las partículas individuales, sin aplicar aproximación.
-	      \end{itemize}
-
-	\item Implementar un esquema general de subdivisión multinivel de celdas para mejorar la precisión en las regiones próximas al punto de evaluación, manteniendo el uso de aproximación agregada en regiones distantes para preservar la eficiencia.
-
-	\item Diseñar e implementar una versión paralela del cálculo en un modelo de memoria compartida, aplicando descomposición de dominio sobre las celdas de la grilla y utilizando un conjunto persistente de hilos (\textit{thread pool}) para evitar costos de creación/destrucción en las etapas más intensivas.
-
-	\item Definir una estrategia de asignación dinámica de trabajo a los hilos con el objetivo de reducir desbalances de carga y minimizar la sincronización, considerando que el costo de cómputo puede variar entre celdas según su nivel de subdivisión y su relación geométrica con el punto de evaluación.
-
-	\item Incorporar una etapa de interpolación del potencial gravitatorio (o de magnitudes derivadas) desde los valores calculados en la grilla hacia posiciones continuas, de modo de habilitar el uso del campo gravitatorio en un esquema de simulación donde las partículas se actualizan en pasos temporales pequeños.
-
-	\item Abordar los requerimientos de memoria y de acceso eficiente a datos para instancias de gran escala, definiendo estructuras que eviten duplicaciones innecesarias y favorezcan el acceso concurrente controlado a la información compartida.
-
-	\item Evaluar el comportamiento del desarrollo en dos dimensiones complementarias:
-	      \begin{itemize}
-		      \item precisión numérica: cuantificar el error relativo del potencial gravitatorio computado respecto a un caso con referencia analítica o propiedades de simetría conocidas;
-		      \item eficiencia computacional: caracterizar el tiempo de ejecución y las métricas de paralelismo (aceleración y eficiencia) al variar el tamaño del problema y la cantidad de hilos utilizados.
-	      \end{itemize}
-\end{enumerate}
-
-Finalmente, este trabajo destaca que el problema de generación de condiciones iniciales se trata como un problema relacionado y acotado en una sección posterior (Sección~\ref{sec:condiciones_iniciales}), sin constituir el objetivo central del desarrollo.
 
 \section{Problema relacionado: generación de condiciones iniciales}
 \label{sec:condiciones_iniciales}
