@@ -97,11 +97,15 @@ El desarrollo fue integrado al paquete de simulación numérica ESyS-Particle y 
 
 Este capítulo contextualiza el problema, define la motivación y los objetivos del trabajo, y establece la organización general del informe.
 
+\section{Motivación y contexto}
+
 Los cuerpos que orbitan el Sol se clasifican en planetas, planetas enanos y cuerpos menores del Sistema Solar (Small Solar System Bodies, SSSB) \cite{13}. Los planetas y planetas enanos poseen masa suficiente para que la autogravedad supere la resistencia estructural del material y alcancen equilibrio hidrostático. En contraste, los SSSB no satisfacen esta condición y presentan configuraciones internas heterogéneas \cite{14}. Estas configuraciones incluyen estructuras monolíticas, cuerpos fracturados y aglomerados granulares cohesionados gravitacionalmente.
 
 La caracterización de numerosos asteroides como aglomerados granulares auto-gravitantes se sustenta en resultados observacionales y misiones espaciales específicas. Se han reportado períodos de rotación próximos al límite de estabilidad rotacional \cite{16}, procesos de fragmentación asociados a efectos de marea al atravesar el límite de Roche \cite{17,18} y valores de densidad aparente compatibles con estructuras porosas \cite{14}. Las observaciones directas del asteroide 25143 Itokawa realizadas por la misión Hayabusa \cite{15} confirman una morfología consistente con una estructura de tipo ``rubble pile''.
 
 Desde el punto de vista del modelado numérico, los medios granulares se representan mediante el Método de Elementos Discretos (Discrete Element Method, DEM). En este enfoque, el sistema se modela como un conjunto de $N$ partículas que interactúan a través de fuerzas de contacto, y la evolución temporal se obtiene mediante la integración explícita de las ecuaciones de movimiento. La dinámica macroscópica emerge de la acumulación de interacciones microscópicas locales.
+
+\section{Enfoque propuesto}
 
 La incorporación explícita de la interacción gravitatoria entre todas las partículas introduce un costo computacional cuadrático en el número de partículas. Sea un sistema discreto compuesto por $N$ partículas con masas $m_i$ y posiciones $\mathbf{r}_i$. El cálculo directo de la fuerza gravitatoria sobre la partícula $i$ se expresa como se indica en la ecuación~(\ref{eq:fuerza_gravitatoria_directa}).
 
@@ -125,11 +129,11 @@ El algoritmo resultante se implementa mediante paralelización en memoria compar
 
 \section{Objetivos}
 
-\subsection{Objetivo general}
+\subsection{General}
 
 El objetivo general del trabajo consiste en diseñar, implementar y evaluar un algoritmo paralelo para el cálculo eficiente de la auto-gravedad en aglomerados granulares densos de partículas modelados mediante DEM, que reduzca el costo computacional respecto al esquema directo $O(N^2)$ mediante discretización espacial en grilla regular, aproximación jerárquica por centros de masa (MADA) y paralelismo en memoria compartida, habilitando su uso en escenarios con un número elevado de partículas.
 
-\subsection{Objetivos específicos}
+\subsection{Específicos}
 
 Los objetivos específicos que guían el desarrollo del algoritmo y su implementación son los siguientes:
 
